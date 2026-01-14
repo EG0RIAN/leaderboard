@@ -1,0 +1,7 @@
+https://his-burlington-humans-sections.trycloudflare.com
+
+This is your public Cloudflare Tunnel URL for the frontend.
+Use it in Telegram BotFather for Mini App configuration.
+
+Generated: 2026-01-13
+

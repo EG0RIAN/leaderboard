@@ -1,0 +1,10 @@
+tunnel: quick-tunnel
+credentials-file: /tmp/cloudflared-tunnel.json
+
+ingress:
+  # Backend API
+  - hostname: api-his-burlington-humans-sections.trycloudflare.com
+    service: http://localhost:8000
+  # Frontend
+  - service: http://localhost:8001
+

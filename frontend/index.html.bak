@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Лидерборд донатов</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@2.0.0/dist/css/style.css">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Set API URL - backend tunnel URL
+        window.API_URL = 'https://yours-web-notebooks-camcorder.trycloudflare.com';
+    </script>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <!-- Header with tabs -->
+            <div class="tabs">
+                <button class="tab active" data-tab="all-time">За всё время</button>
+                <button class="tab" data-tab="week">За неделю</button>
+                <button class="tab" data-tab="referrals">Топ рефералов</button>
+            </div>
+
+            <!-- Tab content -->
+            <div class="tab-content">
+                <!-- All-time leaderboard -->
+                <div class="tab-pane active" id="all-time">
+                    <div class="leaderboard-header">
+                        <h2>Лидерборд за всё время</h2>
+                    </div>
+                    <div id="all-time-list" class="leaderboard-list">
+                        <div class="loading">Загрузка...</div>
+                    </div>
+                </div>
+
+                <!-- Week leaderboard -->
+                <div class="tab-pane" id="week">
+                    <div class="leaderboard-header">
+                        <h2>Лидерборд за неделю</h2>
+                    </div>
+                    <div id="week-list" class="leaderboard-list">
+                        <div class="loading">Загрузка...</div>
+                    </div>
+                </div>
+
+                <!-- Referrals leaderboard -->
+                <div class="tab-pane" id="referrals">
+                    <div class="leaderboard-header">
+                        <h2>Топ рефералов</h2>
+                        <button class="btn-share" id="share-ref-btn">Приведи друга</button>
+                    </div>
+                    <div id="referrals-list" class="leaderboard-list">
+                        <div class="loading">Загрузка...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- My position block -->
+            <div id="my-position" class="my-position" style="display: none;">
+                <div class="my-position-content">
+                    <span>Вы: #<span id="my-rank">-</span></span>
+                </div>
+            </div>
+
+            <!-- Fixed bottom button -->
+            <div class="bottom-button">
+                <button class="btn-primary" id="donate-btn">Пополнить</button>
+            </div>
+        </div>
+
+        <!-- Donate modal -->
+        <div id="donate-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Пополнить донат</h3>
+                    <button class="modal-close" id="close-modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="presets">
+                        <button class="preset-btn" data-preset="1" data-amount="">
+                            <span class="preset-label">1 место</span>
+                            <span class="preset-amount"></span>
+                        </button>
+                        <button class="preset-btn" data-preset="2" data-amount="">
+                            <span class="preset-label">2 место</span>
+                            <span class="preset-amount"></span>
+                        </button>
+                        <button class="preset-btn" data-preset="3" data-amount="">
+                            <span class="preset-label">3 место</span>
+                            <span class="preset-amount"></span>
+                        </button>
+                    </div>
+                    <div class="custom-amount">
+                        <label>Своя сумма (Stars):</label>
+                        <input type="number" id="custom-stars" min="1" placeholder="Введите сумму">
+                    </div>
+                    <button class="btn-primary" id="create-invoice-btn" disabled>Создать платеж</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

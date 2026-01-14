@@ -1,0 +1,155 @@
+from fastapi import APIRouter, Depends, HTTPException, Header
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+from pydantic import BaseModel
+from typing import Optional
+from backend.database import get_db
+from backend.models import User
+from backend.services import user_service, leaderboard_service
+from backend.telegram_auth import validate_telegram_init_data, extract_ref_code
+import logging
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter(tags=["user"])
+
+
+class UpdateCustomTextRequest(BaseModel):
+    custom_text: Optional[str] = None
+
+
+async def get_current_user_data(
+    x_init_data: str = Header(..., alias="X-Init-Data")
+) -> dict:
+    """Extract and validate user data from Telegram initData"""
+    user_data = validate_telegram_init_data(x_init_data)
+    if not user_data or not user_data.get("tg_id"):
+        raise HTTPException(status_code=401, detail="Invalid initData")
+    return user_data
+
+
+@router.get("/me")
+async def get_me(
+    x_init_data: str = Header(..., alias="X-Init-Data"),
+    session: AsyncSession = Depends(get_db)
+):
+    """Get current user info and stats, create/update user if needed"""
+    user_data = validate_telegram_init_data(x_init_data)
+    if not user_data or not user_data.get("tg_id"):
+        raise HTTPException(status_code=401, detail="Invalid initData")
+    
+    tg_id = user_data["tg_id"]
+    
+    # Get or create user
+    user, is_new = await user_service.get_or_create_user(
+        session=session,
+        tg_id=tg_id,
+        username=user_data.get("username"),
+        first_name=user_data.get("first_name"),
+        last_name=user_data.get("last_name"),
+        language_code=user_data.get("language_code"),
+        is_premium=user_data.get("is_premium"),
+        photo_url=user_data.get("photo_url"),
+        init_data=x_init_data
+    )
+    
+    # Get user stats
+    stats = await leaderboard_service.get_user_stats(session, tg_id)
+    
+    from backend.config import settings
+    
+    return {
+        "tg_id": user.tg_id,
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "photo_url": user.photo_url,
+        "is_premium": user.is_premium,
+        "language_code": user.language_code,
+        "custom_text": user.custom_text,
+        "bot_username": settings.telegram_bot_username,
+        **stats
+    }
+
+
+@router.get("/transactions")
+async def get_transactions(
+    limit: int = 50,
+    offset: int = 0,
+    x_init_data: str = Header(..., alias="X-Init-Data"),
+    session: AsyncSession = Depends(get_db)
+):
+    """Get user transaction history"""
+    user_data = validate_telegram_init_data(x_init_data)
+    if not user_data or not user_data.get("tg_id"):
+        raise HTTPException(status_code=401, detail="Invalid initData")
+    
+    tg_id = user_data["tg_id"]
+    
+    from sqlalchemy import select, desc
+    from backend.models import Payment
+    
+    query = (
+        select(Payment)
+        .where(Payment.tg_id == tg_id)
+        .order_by(desc(Payment.created_at))
+        .limit(limit)
+        .offset(offset)
+    )
+    
+    result = await session.execute(query)
+    payments = result.scalars().all()
+    
+    transactions = []
+    for payment in payments:
+        transactions.append({
+            "id": str(payment.id),
+            "stars_amount": payment.stars_amount,
+            "tons_amount": float(payment.tons_amount) if payment.tons_amount else None,
+            "status": payment.status,
+            "created_at": payment.created_at.isoformat() if payment.created_at else None,
+            "paid_at": payment.paid_at.isoformat() if payment.paid_at else None,
+            "rate_used": float(payment.rate_used) if payment.rate_used else None
+        })
+    
+    return transactions
+
+
+@router.post("/me/custom-text")
+async def update_custom_text(
+    request: UpdateCustomTextRequest,
+    x_init_data: str = Header(..., alias="X-Init-Data"),
+    session: AsyncSession = Depends(get_db)
+):
+    """Update user's custom text for leaderboard"""
+    user_data = validate_telegram_init_data(x_init_data)
+    if not user_data or not user_data.get("tg_id"):
+        raise HTTPException(status_code=401, detail="Invalid initData")
+    
+    tg_id = user_data["tg_id"]
+    
+    # Validate custom_text length
+    custom_text = request.custom_text
+    if custom_text:
+        custom_text = custom_text.strip()[:100]  # Max 100 characters
+        if len(custom_text) == 0:
+            custom_text = None
+    
+    # Update user's custom_text
+    query = select(User).where(User.tg_id == tg_id)
+    result = await session.execute(query)
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user.custom_text = custom_text
+    await session.commit()
+    
+    logger.info(f"User {tg_id} updated custom_text to: {custom_text}")
+    
+    return {
+        "success": True,
+        "custom_text": custom_text
+    }
+
