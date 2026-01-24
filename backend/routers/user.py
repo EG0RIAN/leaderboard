@@ -14,8 +14,9 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["user"])
 
 
-class UpdateCustomTextRequest(BaseModel):
+class UpdateProfileRequest(BaseModel):
     custom_text: Optional[str] = None
+    custom_link: Optional[str] = None
 
 
 async def get_current_user_data(
@@ -67,6 +68,7 @@ async def get_me(
         "is_premium": user.is_premium,
         "language_code": user.language_code,
         "custom_text": user.custom_text,
+        "custom_link": user.custom_link,
         "bot_username": settings.telegram_bot_username,
         **stats
     }
@@ -115,13 +117,13 @@ async def get_transactions(
     return transactions
 
 
-@router.post("/me/custom-text")
-async def update_custom_text(
-    request: UpdateCustomTextRequest,
+@router.post("/me/profile")
+async def update_profile(
+    request: UpdateProfileRequest,
     x_init_data: str = Header(..., alias="X-Init-Data"),
     session: AsyncSession = Depends(get_db)
 ):
-    """Update user's custom text for leaderboard"""
+    """Update user's custom text and link for leaderboard"""
     user_data = validate_telegram_init_data(x_init_data)
     if not user_data or not user_data.get("tg_id"):
         raise HTTPException(status_code=401, detail="Invalid initData")
@@ -135,7 +137,16 @@ async def update_custom_text(
         if len(custom_text) == 0:
             custom_text = None
     
-    # Update user's custom_text
+    # Validate custom_link
+    custom_link = request.custom_link
+    if custom_link:
+        custom_link = custom_link.strip()[:500]  # Max 500 characters
+        if len(custom_link) == 0:
+            custom_link = None
+        elif custom_link and not custom_link.startswith(('http://', 'https://')):
+            raise HTTPException(status_code=400, detail="Link must start with http:// or https://")
+    
+    # Update user's profile
     query = select(User).where(User.tg_id == tg_id)
     result = await session.execute(query)
     user = result.scalar_one_or_none()
@@ -144,12 +155,25 @@ async def update_custom_text(
         raise HTTPException(status_code=404, detail="User not found")
     
     user.custom_text = custom_text
+    user.custom_link = custom_link
     await session.commit()
     
-    logger.info(f"User {tg_id} updated custom_text to: {custom_text}")
+    logger.info(f"User {tg_id} updated profile: text='{custom_text}', link='{custom_link}'")
     
     return {
         "success": True,
-        "custom_text": custom_text
+        "custom_text": custom_text,
+        "custom_link": custom_link
     }
+
+
+# Keep old endpoint for backwards compatibility
+@router.post("/me/custom-text")
+async def update_custom_text(
+    request: UpdateProfileRequest,
+    x_init_data: str = Header(..., alias="X-Init-Data"),
+    session: AsyncSession = Depends(get_db)
+):
+    """Update user's custom text (deprecated, use /me/profile instead)"""
+    return await update_profile(request, x_init_data, session)
 

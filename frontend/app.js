@@ -207,12 +207,12 @@ function setupEventListeners() {
         });
     }
     
-    // Profile: save custom text button
-    const saveCustomTextBtn = document.getElementById('save-custom-text');
-    if (saveCustomTextBtn) {
-        saveCustomTextBtn.addEventListener('click', () => {
+    // Profile: save button
+    const saveProfileBtn = document.getElementById('save-profile');
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener('click', () => {
             haptic.impact('medium'); // Vibration on save
-            saveCustomText();
+            saveProfile();
         });
     }
     
@@ -333,10 +333,13 @@ function renderLeaderboard(type, items) {
         
         const displayName = item.username || item.first_name || (currentLanguage === 'ru' ? 'Пользователь' : 'User');
         
-        // Custom text preview (truncated for leaderboard)
-        const customTextPreview = item.custom_text 
-            ? `<div class="user-custom-text"><span class="user-custom-text-inner">${escapeHtml(item.custom_text)}</span></div>` 
-            : '';
+        // Custom text/link preview (truncated for leaderboard)
+        let customInfo = '';
+        if (item.custom_text || item.custom_link) {
+            const textPart = item.custom_text ? escapeHtml(item.custom_text) : '';
+            const linkIcon = item.custom_link ? ' 🔗' : '';
+            customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">${textPart}${linkIcon}</span></div>`;
+        }
         
         let amountText = '';
         let tons = 0;
@@ -360,7 +363,7 @@ function renderLeaderboard(type, items) {
                 <div class="avatar">${avatar}</div>
                 <div class="user-info">
                     <div class="username">${displayName}</div>
-                    ${customTextPreview}
+                    ${customInfo}
                 </div>
                 <div class="amount">${amountText}</div>
             </div>
@@ -473,14 +476,38 @@ function openUserProfile(tgId, rank) {
     document.getElementById('user-profile-tons').textContent = user._displayTons || user.tons_total || 0;
     document.getElementById('user-profile-rank').textContent = `#${rank}`;
     
-    // Set custom text with clickable links
+    // Set custom text
     const customTextEl = document.getElementById('user-profile-custom-text');
     if (user.custom_text) {
-        customTextEl.innerHTML = linkifyProfile(user.custom_text);
+        customTextEl.textContent = user.custom_text;
         customTextEl.style.display = 'block';
     } else {
-        customTextEl.innerHTML = '';
+        customTextEl.textContent = '';
         customTextEl.style.display = 'none';
+    }
+    
+    // Set custom link
+    const linkEl = document.getElementById('user-profile-link');
+    const linkTextEl = document.getElementById('user-profile-link-text');
+    if (user.custom_link && linkEl && linkTextEl) {
+        // Format display URL (remove protocol, truncate if needed)
+        let displayUrl = user.custom_link.replace(/^https?:\/\//, '').replace(/\/$/, '');
+        if (displayUrl.length > 40) {
+            displayUrl = displayUrl.substring(0, 37) + '...';
+        }
+        linkTextEl.textContent = displayUrl;
+        linkEl.style.display = 'flex';
+        linkEl.onclick = (e) => {
+            e.preventDefault();
+            haptic.impact('light');
+            if (tg && tg.openLink) {
+                tg.openLink(user.custom_link);
+            } else {
+                window.open(user.custom_link, '_blank');
+            }
+        };
+    } else if (linkEl) {
+        linkEl.style.display = 'none';
     }
     
     // Show modal
@@ -853,6 +880,7 @@ function hideProfilePanel() {
 // Load profile data
 function loadProfile() {
     const customTextInput = document.getElementById('custom-text');
+    const customLinkInput = document.getElementById('custom-link');
     const charCountSpan = document.getElementById('char-count');
     
     // Load custom text
@@ -861,6 +889,11 @@ function loadProfile() {
         if (charCountSpan) {
             charCountSpan.textContent = (userData.custom_text || '').length;
         }
+    }
+    
+    // Load custom link
+    if (customLinkInput && userData) {
+        customLinkInput.value = userData.custom_link || '';
     }
     
     // Update profile user info
@@ -895,27 +928,37 @@ function loadProfile() {
     }
 }
 
-// Save custom text
-async function saveCustomText() {
+// Save profile (text and link)
+async function saveProfile() {
     const customTextInput = document.getElementById('custom-text');
-    if (!customTextInput) return;
+    const customLinkInput = document.getElementById('custom-link');
     
-    const customText = customTextInput.value.trim();
+    const customText = customTextInput ? customTextInput.value.trim() : '';
+    const customLink = customLinkInput ? customLinkInput.value.trim() : '';
+    
+    // Validate link
+    if (customLink && !customLink.startsWith('http://') && !customLink.startsWith('https://')) {
+        haptic.notification('error');
+        tg.showAlert(t('invalidLink'));
+        return;
+    }
     
     try {
-        const response = await fetch(`${API_BASE_URL}/me/custom-text`, {
+        const response = await fetch(`${API_BASE_URL}/me/profile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-Init-Data': initData
             },
             body: JSON.stringify({
-                custom_text: customText || null
+                custom_text: customText || null,
+                custom_link: customLink || null
             })
         });
         
         if (!response.ok) {
-            throw new Error('Failed to save');
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.detail || 'Failed to save');
         }
         
         const data = await response.json();
@@ -923,14 +966,18 @@ async function saveCustomText() {
         // Update local userData
         if (userData) {
             userData.custom_text = data.custom_text;
+            userData.custom_link = data.custom_link;
         }
         
         haptic.notification('success'); // Success vibration
-        tg.showAlert(t('customTextSaved'));
+        tg.showAlert(t('profileSaved'));
+        
+        // Reload current leaderboard to show updated data
+        loadLeaderboard(currentTab);
     } catch (error) {
-        console.error('Error saving custom text:', error);
+        console.error('Error saving profile:', error);
         haptic.notification('error'); // Error vibration
-        tg.showAlert(t('customTextError'));
+        tg.showAlert(t('profileError'));
     }
 }
 

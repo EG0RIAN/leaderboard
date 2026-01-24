@@ -58,13 +58,16 @@ const translations = {
         shareText: "🎮 Присоединяйся к лидерборду донатов!\n\n{link}",
         
         // Profile
-        profileTitle: "Настройки профиля",
-        customTextLabel: "Ваш текст в лидерборде:",
-        customTextPlaceholder: "Введите текст (макс. 100 символов)",
-        saveText: "Сохранить",
-        customTextInfo: "Этот текст будет отображаться рядом с вашим именем в лидерборде.",
-        customTextSaved: "✅ Текст сохранен!",
-        customTextError: "❌ Ошибка сохранения. Попробуйте позже.",
+        profileTitle: "Профиль",
+        customTextLabel: "Ваш текст:",
+        customTextPlaceholder: "Мем, реклама, мысль...",
+        customLinkLabel: "Ваша ссылка:",
+        customLinkPlaceholder: "https://...",
+        saveProfile: "Сохранить",
+        profileInfo: "Текст и ссылка будут видны всем в лидерборде!",
+        profileSaved: "✅ Профиль сохранен!",
+        profileError: "❌ Ошибка сохранения. Попробуйте позже.",
+        invalidLink: "❌ Введите корректную ссылку (начинается с http:// или https://)",
         
         // Onboarding
         onboardingTitle1: "Самый честный лидерборд",
@@ -140,13 +143,16 @@ const translations = {
         shareText: "🎮 Join the donation leaderboard!\n\n{link}",
         
         // Profile
-        profileTitle: "Profile Settings",
-        customTextLabel: "Your text in leaderboard:",
-        customTextPlaceholder: "Enter text (max 100 characters)",
-        saveText: "Save",
-        customTextInfo: "This text will be displayed next to your name in the leaderboard.",
-        customTextSaved: "✅ Text saved!",
-        customTextError: "❌ Error saving. Please try later.",
+        profileTitle: "Profile",
+        customTextLabel: "Your text:",
+        customTextPlaceholder: "Meme, ad, thought...",
+        customLinkLabel: "Your link:",
+        customLinkPlaceholder: "https://...",
+        saveProfile: "Save",
+        profileInfo: "Text and link will be visible to everyone in the leaderboard!",
+        profileSaved: "✅ Profile saved!",
+        profileError: "❌ Error saving. Please try later.",
+        invalidLink: "❌ Enter a valid link (starts with http:// or https://)",
         
         // Onboarding
         onboardingTitle1: "The Fairest Leaderboard",
