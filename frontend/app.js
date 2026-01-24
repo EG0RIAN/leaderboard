@@ -342,15 +342,13 @@ function renderLeaderboard(type, items) {
         
         const displayName = item.username || item.first_name || (currentLanguage === 'ru' ? 'Пользователь' : 'User');
         
-        // Show title and description in leaderboard list
+        // Show title in leaderboard list (link icon if has link/description)
         let customInfo = '';
-        if (item.custom_title || item.custom_text) {
-            const titlePart = item.custom_title ? `<strong>${escapeHtml(item.custom_title)}</strong>` : '';
-            const textPart = item.custom_text ? escapeHtml(item.custom_text) : '';
-            const linkIcon = item.custom_link ? ' 🔗' : '';
-            const separator = titlePart && textPart ? ' · ' : '';
-            customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">${titlePart}${separator}${textPart}${linkIcon}</span></div>`;
-        } else if (item.custom_link) {
+        if (item.custom_title) {
+            const hasMore = item.custom_text || item.custom_link;
+            const moreIcon = hasMore ? ' →' : '';
+            customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">${escapeHtml(item.custom_title)}${moreIcon}</span></div>`;
+        } else if (item.custom_text || item.custom_link) {
             customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">🔗</span></div>`;
         }
         
@@ -950,15 +948,41 @@ function loadProfile() {
             nameEl.textContent = userData.username || userData.first_name || 'User';
         }
         
-        // Stats
+        // Stats - Diamonds
         const tonsEl = document.getElementById('profile-tons');
         if (tonsEl) {
             tonsEl.textContent = userData.tons_all_time || 0;
         }
         
+        // Stats - Referrals
         const refsEl = document.getElementById('profile-refs');
         if (refsEl) {
             refsEl.textContent = userData.referrals_count || 0;
+        }
+        
+        // Rank badge
+        const rankBadge = document.getElementById('profile-rank-badge');
+        const rankIcon = document.getElementById('profile-rank-icon');
+        if (rankBadge && rankIcon) {
+            const rank = userData.rank_all_time;
+            if (rank && rank > 0) {
+                if (rank === 1) {
+                    rankIcon.textContent = '🥇';
+                    rankBadge.className = 'profile-rank-badge gold';
+                } else if (rank === 2) {
+                    rankIcon.textContent = '🥈';
+                    rankBadge.className = 'profile-rank-badge silver';
+                } else if (rank === 3) {
+                    rankIcon.textContent = '🥉';
+                    rankBadge.className = 'profile-rank-badge bronze';
+                } else {
+                    rankIcon.textContent = `#${rank}`;
+                    rankBadge.className = 'profile-rank-badge';
+                }
+            } else {
+                rankIcon.textContent = '—';
+                rankBadge.className = 'profile-rank-badge';
+            }
         }
     }
 }

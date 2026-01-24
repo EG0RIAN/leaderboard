@@ -1277,7 +1277,59 @@ body {
     box-shadow: 0 0 8px rgba(205, 127, 50, 0.5);
 }
 
-/* Custom text with title styling */
-.user-custom-text strong {
-    color: var(--tg-theme-text-color, #000000);
+/* ==================== PROFILE RANK BADGE ==================== */
+.profile-rank-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+    border-radius: 20px;
+    margin: 12px 0;
+}
+
+.profile-rank-badge .rank-icon {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.profile-rank-badge .rank-text {
+    font-size: 13px;
+    color: var(--tg-theme-hint-color, #999999);
+}
+
+/* Gold rank badge */
+.profile-rank-badge.gold {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 193, 7, 0.1) 100%);
+    border: 1px solid rgba(255, 215, 0, 0.4);
+}
+
+.profile-rank-badge.gold .rank-icon {
+    font-size: 28px;
+}
+
+/* Silver rank badge */
+.profile-rank-badge.silver {
+    background: linear-gradient(135deg, rgba(192, 192, 192, 0.2) 0%, rgba(169, 169, 169, 0.1) 100%);
+    border: 1px solid rgba(192, 192, 192, 0.4);
+}
+
+.profile-rank-badge.silver .rank-icon {
+    font-size: 26px;
+}
+
+/* Bronze rank badge */
+.profile-rank-badge.bronze {
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.2) 0%, rgba(184, 115, 51, 0.1) 100%);
+    border: 1px solid rgba(205, 127, 50, 0.4);
+}
+
+.profile-rank-badge.bronze .rank-icon {
+    font-size: 24px;
+}
+
+/* Highlighted stat */
+.profile-stat.highlight .stat-value {
+    font-size: 28px;
+    color: var(--tg-theme-button-color, #3390ec);
 }

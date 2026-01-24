@@ -227,10 +227,26 @@ async def get_user_stats(
     referrals_count = int(ref_row.referrals_count) if ref_row else 0
     referrals_tons_total = float(ref_row.referrals_tons_total) if ref_row else 0.0
     
+    # Calculate all-time rank
+    rank_all_time = 0
+    if float(total_tons) > 0:
+        rank_query = (
+            select(func.count(User.tg_id))
+            .select_from(User)
+            .outerjoin(Donation, User.tg_id == Donation.tg_id)
+            .where(User.is_blocked == False)
+            .group_by(User.tg_id)
+            .having(func.coalesce(func.sum(Donation.tons_amount), 0) > total_tons)
+        )
+        rank_result = await session.execute(rank_query)
+        users_above = len(rank_result.all())
+        rank_all_time = users_above + 1
+    
     return {
         "tg_id": tg_id,
         "tons_all_time": float(total_tons),
         "tons_week": float(week_tons),
+        "rank_all_time": rank_all_time,
         "referrals_count": referrals_count,
         "referrals_tons_total": float(referrals_tons_total),
         "referral_link": f"{settings.mini_app_url}?startapp=ref_{tg_id}"

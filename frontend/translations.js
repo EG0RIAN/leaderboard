@@ -39,6 +39,10 @@ const translations = {
         
         // Referrals
         referralsCount: "реф.",
+        referralsLabel: "рефералов",
+        yourPosition: "место в топе",
+        diamonds: "алмазов",
+        notInTop: "Пока не в топе",
         
         // Errors
         initError: "Ошибка инициализации",
@@ -126,6 +130,10 @@ const translations = {
         
         // Referrals
         referralsCount: "ref.",
+        referralsLabel: "referrals",
+        yourPosition: "place in top",
+        diamonds: "diamonds",
+        notInTop: "Not in top yet",
         
         // Errors
         initError: "Initialization error",
