@@ -1386,3 +1386,80 @@ body {
     opacity: 0.6;
     margin-top: -8px;
 }
+
+/* ==================== BOTTOM NAVIGATION ==================== */
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--tg-theme-bg-color, #ffffff);
+    border-top: 1px solid var(--tg-theme-section-separator-color, #e0e0e0);
+    display: flex;
+    justify-content: space-around;
+    padding: 8px 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    z-index: 100;
+}
+
+.nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--tg-theme-hint-color, #999999);
+    transition: color 0.2s, transform 0.15s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nav-item:active {
+    transform: scale(0.95);
+}
+
+.nav-item.active {
+    color: var(--tg-theme-button-color, #3390ec);
+}
+
+.nav-icon {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.nav-label {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+/* Adjust container padding for bottom nav */
+.container {
+    padding-bottom: 140px;
+}
+
+/* Bottom button position adjustment */
+.bottom-button {
+    bottom: 70px;
+}
+
+/* Profile page styles */
+.profile-page {
+    padding: 16px;
+}
+
+.profile-page .profile-user-info {
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--tg-theme-section-separator-color, #e0e0e0);
+    margin-bottom: 20px;
+}
+
+.profile-page .profile-form {
+    padding: 0;
+}
+
+/* Hide old tabs */
+.tabs, .header-row {
+    display: none !important;
+}

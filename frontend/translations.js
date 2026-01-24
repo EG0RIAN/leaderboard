@@ -1,11 +1,15 @@
 // Translations for the app
 const translations = {
     ru: {
-        // Tabs
+        // Tabs / Nav
         tabAllTime: "За всё время",
         tabWeek: "За неделю",
         tabReferrals: "Топ рефералов",
         tabProfile: "Профиль",
+        navAllTime: "Общий",
+        navWeek: "Неделя",
+        navReferrals: "Рефералы",
+        navProfile: "Профиль",
         
         // Leaderboards
         leaderboardAllTime: "Лидерборд за всё время",
@@ -99,11 +103,15 @@ const translations = {
         onboardingStart: "Начать"
     },
     en: {
-        // Tabs
+        // Tabs / Nav
         tabAllTime: "All Time",
         tabWeek: "This Week",
         tabReferrals: "Top Referrals",
         tabProfile: "Profile",
+        navAllTime: "Total",
+        navWeek: "Week",
+        navReferrals: "Referrals",
+        navProfile: "Profile",
         
         // Leaderboards
         leaderboardAllTime: "All Time Leaderboard",

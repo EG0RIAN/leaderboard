@@ -92,20 +92,6 @@
 
     <div id="app">
         <div class="container">
-            <!-- Header with tabs and profile button -->
-            <div class="header-row">
-                <div class="tabs">
-                    <button class="tab active" data-tab="all-time" data-i18n="tabAllTime">За всё время</button>
-                    <button class="tab" data-tab="week" data-i18n="tabWeek">За неделю</button>
-                    <button class="tab" data-tab="referrals" data-i18n="tabReferrals">Топ рефералов</button>
-                </div>
-                <button class="profile-btn" id="open-profile" title="Профиль">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="8" r="4"/>
-                        <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
-                    </svg>
-                </button>
-            </div>
 
             <!-- Tab content -->
             <div class="tab-content">
@@ -164,6 +150,64 @@
                     </div>
                 </div>
                 
+                <!-- Profile section -->
+                <div class="tab-pane" id="profile">
+                    <div class="profile-page">
+                        <!-- User info -->
+                        <div class="profile-user-info">
+                            <div class="profile-avatar" id="profile-avatar">
+                                <span>U</span>
+                            </div>
+                            <div class="profile-name" id="profile-name">User</div>
+                            <div class="profile-rank-badge" id="profile-rank-badge">
+                                <span class="rank-icon" id="profile-rank-icon">#-</span>
+                                <span class="rank-text" data-i18n="yourPosition">место в топе</span>
+                            </div>
+                            <div class="profile-stats">
+                                <div class="profile-stat highlight">
+                                    <span class="stat-value" id="profile-tons">0</span>
+                                    <span class="stat-label">💎 <span data-i18n="diamonds">алмазов</span></span>
+                                </div>
+                                <div class="profile-stat">
+                                    <span class="stat-value" id="profile-refs">0</span>
+                                    <span class="stat-label" data-i18n="referralsLabel">рефералов</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile form -->
+                        <div class="profile-form">
+                            <div class="form-group">
+                                <label for="custom-title" data-i18n="customTitleLabel">Заголовок:</label>
+                                <input type="text" id="custom-title" maxlength="50" 
+                                       data-i18n-placeholder="customTitlePlaceholder" 
+                                       placeholder="Виден в топе">
+                                <span class="char-counter"><span id="title-char-count">0</span>/50</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="custom-text" data-i18n="customTextLabel">Описание:</label>
+                                <textarea id="custom-text" maxlength="200" rows="3"
+                                       data-i18n-placeholder="customTextPlaceholder" 
+                                       placeholder="Видно при нажатии на профиль..."></textarea>
+                                <span class="char-counter"><span id="text-char-count">0</span>/200</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="custom-link" data-i18n="customLinkLabel">Ссылка:</label>
+                                <input type="url" id="custom-link" maxlength="500" 
+                                       data-i18n-placeholder="customLinkPlaceholder" 
+                                       placeholder="https://...">
+                            </div>
+                            
+                            <button class="btn-primary" id="save-profile" data-i18n="saveProfile">Сохранить</button>
+                            
+                            <div class="profile-info">
+                                <p data-i18n="profileInfo">Заголовок виден в топе, описание и ссылка — при нажатии!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- My position block -->
@@ -173,10 +217,30 @@
                 </div>
             </div>
 
-            <!-- Fixed bottom button -->
-            <div class="bottom-button">
+            <!-- Fixed bottom button (for donate) -->
+            <div class="bottom-button" id="donate-button-container">
                 <button class="btn-primary" id="donate-btn" data-i18n="donate">Пополнить</button>
             </div>
+            
+            <!-- Bottom navigation -->
+            <nav class="bottom-nav">
+                <button class="nav-item active" data-tab="all-time">
+                    <span class="nav-icon">🏆</span>
+                    <span class="nav-label" data-i18n="navAllTime">Общий</span>
+                </button>
+                <button class="nav-item" data-tab="week">
+                    <span class="nav-icon">📅</span>
+                    <span class="nav-label" data-i18n="navWeek">Неделя</span>
+                </button>
+                <button class="nav-item" data-tab="referrals">
+                    <span class="nav-icon">👥</span>
+                    <span class="nav-label" data-i18n="navReferrals">Рефералы</span>
+                </button>
+                <button class="nav-item" data-tab="profile">
+                    <span class="nav-icon">👤</span>
+                    <span class="nav-label" data-i18n="navProfile">Профиль</span>
+                </button>
+            </nav>
         </div>
 
         <!-- Donate modal -->
@@ -243,71 +307,6 @@
         </div>
         <div id="user-profile-backdrop" class="user-profile-backdrop"></div>
 
-        <!-- Profile slide-out panel -->
-        <div id="profile-panel" class="profile-panel">
-            <div class="profile-panel-header">
-                <h3 data-i18n="profileTitle">Профиль</h3>
-                <button class="profile-panel-close" id="close-profile">&times;</button>
-            </div>
-            <div class="profile-panel-content">
-                <!-- User info -->
-                <div class="profile-user-info">
-                    <div class="profile-avatar" id="profile-avatar">
-                        <span>U</span>
-                    </div>
-                    <div class="profile-name" id="profile-name">User</div>
-                    <div class="profile-rank-badge" id="profile-rank-badge">
-                        <span class="rank-icon" id="profile-rank-icon">#-</span>
-                        <span class="rank-text" data-i18n="yourPosition">место в топе</span>
-                    </div>
-                    <div class="profile-stats">
-                        <div class="profile-stat highlight">
-                            <span class="stat-value" id="profile-tons">0</span>
-                            <span class="stat-label">💎 <span data-i18n="diamonds">алмазов</span></span>
-                        </div>
-                        <div class="profile-stat">
-                            <span class="stat-value" id="profile-refs">0</span>
-                            <span class="stat-label" data-i18n="referralsLabel">рефералов</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Profile form -->
-                <div class="profile-form">
-                    <div class="form-group">
-                        <label for="custom-title" data-i18n="customTitleLabel">Заголовок:</label>
-                        <input type="text" id="custom-title" maxlength="50" 
-                               data-i18n-placeholder="customTitlePlaceholder" 
-                               placeholder="Виден в топе">
-                        <span class="char-counter"><span id="title-char-count">0</span>/50</span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="custom-text" data-i18n="customTextLabel">Описание:</label>
-                        <textarea id="custom-text" maxlength="200" rows="3"
-                               data-i18n-placeholder="customTextPlaceholder" 
-                               placeholder="Видно при нажатии на профиль..."></textarea>
-                        <span class="char-counter"><span id="text-char-count">0</span>/200</span>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="custom-link" data-i18n="customLinkLabel">Ссылка:</label>
-                        <input type="url" id="custom-link" maxlength="500" 
-                               data-i18n-placeholder="customLinkPlaceholder" 
-                               placeholder="https://...">
-                    </div>
-                    
-                    <button class="btn-primary" id="save-profile" data-i18n="saveProfile">Сохранить</button>
-                    
-                    <div class="profile-info">
-                        <p data-i18n="profileInfo">Заголовок виден в топе, описание и ссылка — при нажатии!</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Profile panel backdrop -->
-        <div id="profile-backdrop" class="profile-backdrop"></div>
     </div>
 
     <script src="onboarding.js"></script>

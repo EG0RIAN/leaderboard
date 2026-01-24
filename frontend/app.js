@@ -118,11 +118,11 @@ function updateTranslations() {
 
 // Setup event listeners
 function setupEventListeners() {
-    // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            haptic.selection(); // Vibration on tab switch
-            const tabName = tab.dataset.tab;
+    // Bottom navigation
+    document.querySelectorAll('.nav-item').forEach(navItem => {
+        navItem.addEventListener('click', () => {
+            haptic.selection(); // Vibration on nav switch
+            const tabName = navItem.dataset.tab;
             switchTab(tabName);
         });
     });
@@ -225,33 +225,6 @@ function setupEventListeners() {
         });
     }
     
-    // Profile panel: open
-    const openProfileBtn = document.getElementById('open-profile');
-    if (openProfileBtn) {
-        openProfileBtn.addEventListener('click', () => {
-            haptic.impact('medium');
-            showProfilePanel();
-        });
-    }
-    
-    // Profile panel: close
-    const closeProfileBtn = document.getElementById('close-profile');
-    if (closeProfileBtn) {
-        closeProfileBtn.addEventListener('click', () => {
-            haptic.impact('light');
-            hideProfilePanel();
-        });
-    }
-    
-    // Profile backdrop: close on click
-    const profileBackdrop = document.getElementById('profile-backdrop');
-    if (profileBackdrop) {
-        profileBackdrop.addEventListener('click', () => {
-            haptic.impact('light');
-            hideProfilePanel();
-        });
-    }
-    
     // User profile modal: close button
     const closeUserProfileBtn = document.getElementById('close-user-profile');
     if (closeUserProfileBtn) {
@@ -275,9 +248,9 @@ function setupEventListeners() {
 function switchTab(tabName) {
     currentTab = tabName;
     
-    // Update tab buttons
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.classList.toggle('active', tab.dataset.tab === tabName);
+    // Update bottom nav
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.tab === tabName);
     });
     
     // Update tab panes
@@ -285,8 +258,18 @@ function switchTab(tabName) {
         pane.classList.toggle('active', pane.id === tabName);
     });
     
-    // Load leaderboard content
-    loadLeaderboard(tabName);
+    // Show/hide donate button (hide on profile tab)
+    const donateContainer = document.getElementById('donate-button-container');
+    if (donateContainer) {
+        donateContainer.style.display = tabName === 'profile' ? 'none' : 'block';
+    }
+    
+    // Load content based on tab
+    if (tabName === 'profile') {
+        loadProfile();
+    } else {
+        loadLeaderboard(tabName);
+    }
 }
 
 // Load leaderboard
@@ -870,34 +853,6 @@ function linkify(text) {
         const displayUrl = url.length > 30 ? url.substring(0, 27) + '...' : url;
         return `<a href="${url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation(); if(window.Telegram && Telegram.WebApp) { Telegram.WebApp.openLink('${url}'); return false; }">${displayUrl}</a>`;
     });
-}
-
-// Show profile panel
-function showProfilePanel() {
-    const panel = document.getElementById('profile-panel');
-    const backdrop = document.getElementById('profile-backdrop');
-    
-    if (panel && backdrop) {
-        panel.classList.add('active');
-        backdrop.classList.add('active');
-        loadProfile();
-        
-        // Use Telegram back button
-        tg.BackButton.show();
-        tg.BackButton.onClick(hideProfilePanel);
-    }
-}
-
-// Hide profile panel
-function hideProfilePanel() {
-    const panel = document.getElementById('profile-panel');
-    const backdrop = document.getElementById('profile-backdrop');
-    
-    if (panel && backdrop) {
-        panel.classList.remove('active');
-        backdrop.classList.remove('active');
-        tg.BackButton.hide();
-    }
 }
 
 // Load profile data
