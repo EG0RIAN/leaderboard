@@ -72,6 +72,12 @@ const translations = {
         // Share
         shareText: "🎮 Присоединяйся к лидерборду донатов!\n\n{link}",
         
+        // Wallet
+        walletTitle: "TON Кошелёк",
+        connectWallet: "Подключить кошелёк",
+        disconnectWallet: "Отключить",
+        walletConnected: "Кошелёк подключен",
+        
         // Profile
         profileTitle: "Профиль",
         customTitleLabel: "Заголовок:",
@@ -173,6 +179,12 @@ const translations = {
         
         // Share
         shareText: "🎮 Join the donation leaderboard!\n\n{link}",
+        
+        // Wallet
+        walletTitle: "TON Wallet",
+        connectWallet: "Connect wallet",
+        disconnectWallet: "Disconnect",
+        walletConnected: "Wallet connected",
         
         // Profile
         profileTitle: "Profile",

@@ -7,6 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@2.0.0/dist/css/style.css">
     <link rel="stylesheet" href="styles.css">
+    <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <script src="translations.js"></script>
     <script>
         // Set API URL - production server
@@ -175,6 +176,24 @@
                             </div>
                         </div>
                         
+                        <!-- TON Wallet -->
+                        <div class="wallet-section">
+                            <div class="wallet-header">
+                                <span class="wallet-icon">💎</span>
+                                <span class="wallet-title" data-i18n="walletTitle">TON Кошелёк</span>
+                            </div>
+                            <div id="ton-connect-container">
+                                <button class="btn-wallet" id="ton-connect-btn">
+                                    <span class="wallet-btn-icon">💳</span>
+                                    <span class="wallet-btn-text" data-i18n="connectWallet">Подключить кошелёк</span>
+                                </button>
+                            </div>
+                            <div id="wallet-info" class="wallet-info" style="display: none;">
+                                <div class="wallet-address" id="wallet-address"></div>
+                                <button class="btn-disconnect" id="disconnect-wallet" data-i18n="disconnectWallet">Отключить</button>
+                            </div>
+                        </div>
+                        
                         <!-- Profile form -->
                         <div class="profile-form">
                             <div class="form-group">
@@ -316,6 +335,7 @@
     </div>
 
     <script src="onboarding.js"></script>
+    <script src="tonconnect.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
