@@ -217,30 +217,36 @@
                 </div>
             </div>
 
-            <!-- Fixed bottom button (for donate) -->
-            <div class="bottom-button" id="donate-button-container">
-                <button class="btn-primary" id="donate-btn" data-i18n="donate">Пополнить</button>
+            <!-- Bottom area: Nav + Donate -->
+            <div class="bottom-area">
+                <!-- Bottom navigation -->
+                <nav class="bottom-nav">
+                    <button class="nav-item active" data-tab="all-time">
+                        <span class="nav-icon">🏆</span>
+                        <span class="nav-label" data-i18n="navAllTime">Общий</span>
+                    </button>
+                    <button class="nav-item" data-tab="week">
+                        <span class="nav-icon">📅</span>
+                        <span class="nav-label" data-i18n="navWeek">Неделя</span>
+                    </button>
+                    <button class="nav-item" data-tab="referrals">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-label" data-i18n="navReferrals">Рефералы</span>
+                    </button>
+                    <button class="nav-item" data-tab="profile">
+                        <span class="nav-icon">👤</span>
+                        <span class="nav-label" data-i18n="navProfile">Профиль</span>
+                    </button>
+                </nav>
+                
+                <!-- Donate button -->
+                <div class="bottom-donate" id="donate-button-container">
+                    <button class="btn-donate" id="donate-btn">
+                        <span class="donate-icon">⭐</span>
+                        <span class="donate-text" data-i18n="donate">Пополнить</span>
+                    </button>
+                </div>
             </div>
-            
-            <!-- Bottom navigation -->
-            <nav class="bottom-nav">
-                <button class="nav-item active" data-tab="all-time">
-                    <span class="nav-icon">🏆</span>
-                    <span class="nav-label" data-i18n="navAllTime">Общий</span>
-                </button>
-                <button class="nav-item" data-tab="week">
-                    <span class="nav-icon">📅</span>
-                    <span class="nav-label" data-i18n="navWeek">Неделя</span>
-                </button>
-                <button class="nav-item" data-tab="referrals">
-                    <span class="nav-icon">👥</span>
-                    <span class="nav-label" data-i18n="navReferrals">Рефералы</span>
-                </button>
-                <button class="nav-item" data-tab="profile">
-                    <span class="nav-icon">👤</span>
-                    <span class="nav-label" data-i18n="navProfile">Профиль</span>
-                </button>
-            </nav>
         </div>
 
         <!-- Donate modal -->
