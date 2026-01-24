@@ -342,13 +342,15 @@ function renderLeaderboard(type, items) {
         
         const displayName = item.username || item.first_name || (currentLanguage === 'ru' ? 'Пользователь' : 'User');
         
-        // Show title in leaderboard list (link icon if has link/description)
+        // Show title and description in leaderboard list
         let customInfo = '';
-        if (item.custom_title) {
-            const hasMore = item.custom_text || item.custom_link;
-            const moreIcon = hasMore ? ' →' : '';
-            customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">${escapeHtml(item.custom_title)}${moreIcon}</span></div>`;
-        } else if (item.custom_text || item.custom_link) {
+        if (item.custom_title || item.custom_text) {
+            const titlePart = item.custom_title ? `<strong>${escapeHtml(item.custom_title)}</strong>` : '';
+            const textPart = item.custom_text ? escapeHtml(item.custom_text) : '';
+            const linkIcon = item.custom_link ? ' 🔗' : '';
+            const separator = titlePart && textPart ? ' · ' : '';
+            customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">${titlePart}${separator}${textPart}${linkIcon}</span></div>`;
+        } else if (item.custom_link) {
             customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">🔗</span></div>`;
         }
         

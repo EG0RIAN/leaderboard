@@ -1276,3 +1276,8 @@ body {
 .leaderboard-item.top-3 .avatar {
     box-shadow: 0 0 8px rgba(205, 127, 50, 0.5);
 }
+
+/* Custom text with title styling */
+.user-custom-text strong {
+    color: var(--tg-theme-text-color, #000000);
+}
