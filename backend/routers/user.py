@@ -15,8 +15,9 @@ router = APIRouter(tags=["user"])
 
 
 class UpdateProfileRequest(BaseModel):
-    custom_text: Optional[str] = None
-    custom_link: Optional[str] = None
+    custom_title: Optional[str] = None  # Short title for leaderboard
+    custom_text: Optional[str] = None   # Description for profile modal
+    custom_link: Optional[str] = None   # Clickable link
 
 
 async def get_current_user_data(
@@ -67,6 +68,7 @@ async def get_me(
         "photo_url": user.photo_url,
         "is_premium": user.is_premium,
         "language_code": user.language_code,
+        "custom_title": user.custom_title,
         "custom_text": user.custom_text,
         "custom_link": user.custom_link,
         "bot_username": settings.telegram_bot_username,
@@ -123,17 +125,24 @@ async def update_profile(
     x_init_data: str = Header(..., alias="X-Init-Data"),
     session: AsyncSession = Depends(get_db)
 ):
-    """Update user's custom text and link for leaderboard"""
+    """Update user's profile for leaderboard"""
     user_data = validate_telegram_init_data(x_init_data)
     if not user_data or not user_data.get("tg_id"):
         raise HTTPException(status_code=401, detail="Invalid initData")
     
     tg_id = user_data["tg_id"]
     
-    # Validate custom_text length
+    # Validate custom_title length (shown in leaderboard list)
+    custom_title = request.custom_title
+    if custom_title:
+        custom_title = custom_title.strip()[:50]  # Max 50 characters
+        if len(custom_title) == 0:
+            custom_title = None
+    
+    # Validate custom_text length (description in profile modal)
     custom_text = request.custom_text
     if custom_text:
-        custom_text = custom_text.strip()[:100]  # Max 100 characters
+        custom_text = custom_text.strip()[:200]  # Max 200 characters
         if len(custom_text) == 0:
             custom_text = None
     
@@ -154,14 +163,16 @@ async def update_profile(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
+    user.custom_title = custom_title
     user.custom_text = custom_text
     user.custom_link = custom_link
     await session.commit()
     
-    logger.info(f"User {tg_id} updated profile: text='{custom_text}', link='{custom_link}'")
+    logger.info(f"User {tg_id} updated profile: title='{custom_title}', text='{custom_text}', link='{custom_link}'")
     
     return {
         "success": True,
+        "custom_title": custom_title,
         "custom_text": custom_text,
         "custom_link": custom_link
     }

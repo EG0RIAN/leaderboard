@@ -198,12 +198,21 @@ function setupEventListeners() {
         console.error('Share button not found!');
     }
     
-    // Profile: custom text input
+    // Profile: title input
+    const customTitleInput = document.getElementById('custom-title');
+    const titleCharCountSpan = document.getElementById('title-char-count');
+    if (customTitleInput && titleCharCountSpan) {
+        customTitleInput.addEventListener('input', (e) => {
+            titleCharCountSpan.textContent = e.target.value.length;
+        });
+    }
+    
+    // Profile: description textarea
     const customTextInput = document.getElementById('custom-text');
-    const charCountSpan = document.getElementById('char-count');
-    if (customTextInput && charCountSpan) {
+    const textCharCountSpan = document.getElementById('text-char-count');
+    if (customTextInput && textCharCountSpan) {
         customTextInput.addEventListener('input', (e) => {
-            charCountSpan.textContent = e.target.value.length;
+            textCharCountSpan.textContent = e.target.value.length;
         });
     }
     
@@ -333,12 +342,14 @@ function renderLeaderboard(type, items) {
         
         const displayName = item.username || item.first_name || (currentLanguage === 'ru' ? 'Пользователь' : 'User');
         
-        // Custom text/link preview (truncated for leaderboard)
+        // Show title in leaderboard list (link icon if has link/description)
         let customInfo = '';
-        if (item.custom_text || item.custom_link) {
-            const textPart = item.custom_text ? escapeHtml(item.custom_text) : '';
-            const linkIcon = item.custom_link ? ' 🔗' : '';
-            customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">${textPart}${linkIcon}</span></div>`;
+        if (item.custom_title) {
+            const hasMore = item.custom_text || item.custom_link;
+            const moreIcon = hasMore ? ' →' : '';
+            customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">${escapeHtml(item.custom_title)}${moreIcon}</span></div>`;
+        } else if (item.custom_text || item.custom_link) {
+            customInfo = `<div class="user-custom-text"><span class="user-custom-text-inner">🔗</span></div>`;
         }
         
         let amountText = '';
@@ -476,13 +487,21 @@ function openUserProfile(tgId, rank) {
     document.getElementById('user-profile-tons').textContent = user._displayTons || user.tons_total || 0;
     document.getElementById('user-profile-rank').textContent = `#${rank}`;
     
-    // Set custom text
+    // Set custom title and description
     const customTextEl = document.getElementById('user-profile-custom-text');
+    let profileText = '';
+    if (user.custom_title) {
+        profileText += `<strong>${escapeHtml(user.custom_title)}</strong>`;
+    }
     if (user.custom_text) {
-        customTextEl.textContent = user.custom_text;
+        if (profileText) profileText += '<br>';
+        profileText += escapeHtml(user.custom_text);
+    }
+    if (profileText) {
+        customTextEl.innerHTML = profileText;
         customTextEl.style.display = 'block';
     } else {
-        customTextEl.textContent = '';
+        customTextEl.innerHTML = '';
         customTextEl.style.display = 'none';
     }
     
@@ -879,15 +898,25 @@ function hideProfilePanel() {
 
 // Load profile data
 function loadProfile() {
+    const customTitleInput = document.getElementById('custom-title');
     const customTextInput = document.getElementById('custom-text');
     const customLinkInput = document.getElementById('custom-link');
-    const charCountSpan = document.getElementById('char-count');
+    const titleCharCountSpan = document.getElementById('title-char-count');
+    const textCharCountSpan = document.getElementById('text-char-count');
     
-    // Load custom text
+    // Load custom title
+    if (customTitleInput && userData) {
+        customTitleInput.value = userData.custom_title || '';
+        if (titleCharCountSpan) {
+            titleCharCountSpan.textContent = (userData.custom_title || '').length;
+        }
+    }
+    
+    // Load custom text (description)
     if (customTextInput && userData) {
         customTextInput.value = userData.custom_text || '';
-        if (charCountSpan) {
-            charCountSpan.textContent = (userData.custom_text || '').length;
+        if (textCharCountSpan) {
+            textCharCountSpan.textContent = (userData.custom_text || '').length;
         }
     }
     
@@ -928,11 +957,13 @@ function loadProfile() {
     }
 }
 
-// Save profile (text and link)
+// Save profile (title, description, and link)
 async function saveProfile() {
+    const customTitleInput = document.getElementById('custom-title');
     const customTextInput = document.getElementById('custom-text');
     const customLinkInput = document.getElementById('custom-link');
     
+    const customTitle = customTitleInput ? customTitleInput.value.trim() : '';
     const customText = customTextInput ? customTextInput.value.trim() : '';
     const customLink = customLinkInput ? customLinkInput.value.trim() : '';
     
@@ -951,6 +982,7 @@ async function saveProfile() {
                 'X-Init-Data': initData
             },
             body: JSON.stringify({
+                custom_title: customTitle || null,
                 custom_text: customText || null,
                 custom_link: customLink || null
             })
@@ -965,6 +997,7 @@ async function saveProfile() {
         
         // Update local userData
         if (userData) {
+            userData.custom_title = data.custom_title;
             userData.custom_text = data.custom_text;
             userData.custom_link = data.custom_link;
         }

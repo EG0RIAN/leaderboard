@@ -31,13 +31,14 @@ async def get_all_time_leaderboard(
             User.username,
             User.first_name,
             User.photo_url,
+            User.custom_title,
             User.custom_text,
             User.custom_link,
             func.coalesce(func.sum(Donation.tons_amount), 0).label("tons_total")
         )
         .outerjoin(Donation, User.tg_id == Donation.tg_id)
         .where(User.is_blocked == False)
-        .group_by(User.tg_id, User.username, User.first_name, User.photo_url, User.custom_text, User.custom_link)
+        .group_by(User.tg_id, User.username, User.first_name, User.photo_url, User.custom_title, User.custom_text, User.custom_link)
         .order_by(desc("tons_total"), User.tg_id)
         .limit(limit)
         .offset(offset)
@@ -54,6 +55,7 @@ async def get_all_time_leaderboard(
             "username": row.username,
             "first_name": row.first_name,
             "photo_url": row.photo_url,
+            "custom_title": row.custom_title,
             "custom_text": row.custom_text,
             "custom_link": row.custom_link,
             "tons_total": float(row.tons_total)
@@ -78,13 +80,14 @@ async def get_week_leaderboard(
             User.username,
             User.first_name,
             User.photo_url,
+            User.custom_title,
             User.custom_text,
             User.custom_link,
             func.coalesce(func.sum(Donation.tons_amount), 0).label("tons_week")
         )
         .outerjoin(Donation, (User.tg_id == Donation.tg_id) & (Donation.week_key == week_key))
         .where(User.is_blocked == False)
-        .group_by(User.tg_id, User.username, User.first_name, User.photo_url, User.custom_text, User.custom_link)
+        .group_by(User.tg_id, User.username, User.first_name, User.photo_url, User.custom_title, User.custom_text, User.custom_link)
         .order_by(desc("tons_week"), User.tg_id)
         .limit(limit)
         .offset(offset)
@@ -101,8 +104,9 @@ async def get_week_leaderboard(
             "username": row.username,
             "first_name": row.first_name,
             "photo_url": row.photo_url,
-            "custom_link": row.custom_link,
+            "custom_title": row.custom_title,
             "custom_text": row.custom_text,
+            "custom_link": row.custom_link,
             "tons_week": float(row.tons_week)
         })
     
@@ -137,6 +141,7 @@ async def get_referrals_leaderboard(
             User.username,
             User.first_name,
             User.photo_url,
+            User.custom_title,
             User.custom_text,
             User.custom_link,
             func.coalesce(subquery.c.referrals_count, 0).label("referrals_count"),
@@ -149,6 +154,7 @@ async def get_referrals_leaderboard(
             User.username,
             User.first_name,
             User.photo_url,
+            User.custom_title,
             User.custom_text,
             User.custom_link,
             subquery.c.referrals_count,
@@ -174,6 +180,7 @@ async def get_referrals_leaderboard(
                 "username": row.username,
                 "first_name": row.first_name,
                 "photo_url": row.photo_url,
+                "custom_title": row.custom_title,
                 "custom_text": row.custom_text,
                 "custom_link": row.custom_link,
                 "referrals_count": int(row.referrals_count),

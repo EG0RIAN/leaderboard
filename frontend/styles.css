@@ -1156,3 +1156,21 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+
+/* Profile form textarea */
+.profile-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--tg-theme-hint-color, #cccccc);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+    color: var(--tg-theme-text-color, #000000);
+    resize: none;
+    font-family: inherit;
+}
+
+.profile-form textarea:focus {
+    outline: none;
+    border-color: var(--tg-theme-button-color, #3390ec);
+}

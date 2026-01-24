@@ -244,18 +244,26 @@
                     </div>
                 </div>
                 
-                <!-- Custom text & link form -->
+                <!-- Profile form -->
                 <div class="profile-form">
                     <div class="form-group">
-                        <label for="custom-text" data-i18n="customTextLabel">Ваш текст:</label>
-                        <input type="text" id="custom-text" maxlength="100" 
-                               data-i18n-placeholder="customTextPlaceholder" 
-                               placeholder="Мем, реклама, мысль...">
-                        <span class="char-counter"><span id="char-count">0</span>/100</span>
+                        <label for="custom-title" data-i18n="customTitleLabel">Заголовок:</label>
+                        <input type="text" id="custom-title" maxlength="50" 
+                               data-i18n-placeholder="customTitlePlaceholder" 
+                               placeholder="Виден в топе">
+                        <span class="char-counter"><span id="title-char-count">0</span>/50</span>
                     </div>
                     
                     <div class="form-group">
-                        <label for="custom-link" data-i18n="customLinkLabel">Ваша ссылка:</label>
+                        <label for="custom-text" data-i18n="customTextLabel">Описание:</label>
+                        <textarea id="custom-text" maxlength="200" rows="3"
+                               data-i18n-placeholder="customTextPlaceholder" 
+                               placeholder="Видно при нажатии на профиль..."></textarea>
+                        <span class="char-counter"><span id="text-char-count">0</span>/200</span>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="custom-link" data-i18n="customLinkLabel">Ссылка:</label>
                         <input type="url" id="custom-link" maxlength="500" 
                                data-i18n-placeholder="customLinkPlaceholder" 
                                placeholder="https://...">
@@ -264,7 +272,7 @@
                     <button class="btn-primary" id="save-profile" data-i18n="saveProfile">Сохранить</button>
                     
                     <div class="profile-info">
-                        <p data-i18n="profileInfo">Текст и ссылка будут видны всем в лидерборде!</p>
+                        <p data-i18n="profileInfo">Заголовок виден в топе, описание и ссылка — при нажатии!</p>
                     </div>
                 </div>
             </div>

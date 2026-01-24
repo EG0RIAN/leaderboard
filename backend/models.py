@@ -50,8 +50,9 @@ class User(Base):
     language_code = Column(String, nullable=True)
     is_premium = Column(Boolean, nullable=True)
     photo_url = Column(String, nullable=True)
-    custom_text = Column(String(100), nullable=True)  # Custom text shown in leaderboard
-    custom_link = Column(String(500), nullable=True)  # Custom link shown in leaderboard
+    custom_title = Column(String(50), nullable=True)  # Short title shown in leaderboard list
+    custom_text = Column(String(200), nullable=True)  # Description shown in profile modal
+    custom_link = Column(String(500), nullable=True)  # Custom link shown in profile modal
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     last_seen_at = Column(DateTime, default=datetime.utcnow, nullable=False)
