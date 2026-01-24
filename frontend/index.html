@@ -9,21 +9,90 @@
     <link rel="stylesheet" href="styles.css">
     <script src="translations.js"></script>
     <script>
-        // Set API URL - backend tunnel URL
-        window.API_URL = 'https://welding-feeding-possibilities-origin.trycloudflare.com';
+        // Set API URL - production server
+        window.API_URL = 'https://v3022889.hosted-by-vdsina.ru';
         // Set language on page load
         setLanguage();
     </script>
 </head>
 <body>
+    <!-- Onboarding Stories -->
+    <div id="onboarding" class="onboarding-overlay">
+        <div class="stories-container">
+            <!-- Progress bar -->
+            <div class="stories-progress">
+                <div class="progress-segment" data-story="0"><div class="progress-fill"></div></div>
+                <div class="progress-segment" data-story="1"><div class="progress-fill"></div></div>
+                <div class="progress-segment" data-story="2"><div class="progress-fill"></div></div>
+                <div class="progress-segment" data-story="3"><div class="progress-fill"></div></div>
+            </div>
+            
+            <!-- Stories content -->
+            <div class="stories-slides">
+                <!-- Story 1: Welcome -->
+                <div class="story-slide active" data-story="0">
+                    <div class="story-content">
+                        <div class="story-emoji">🏆</div>
+                        <h1 data-i18n="onboardingTitle1">Добро пожаловать!</h1>
+                        <p data-i18n="onboardingText1">Это лидерборд донатов. Соревнуйтесь с друзьями и поднимайтесь в топ!</p>
+                    </div>
+                </div>
+                
+                <!-- Story 2: Donate -->
+                <div class="story-slide" data-story="1">
+                    <div class="story-content">
+                        <div class="story-emoji">⭐</div>
+                        <h1 data-i18n="onboardingTitle2">Пополняйте баланс</h1>
+                        <p data-i18n="onboardingText2">Используйте Telegram Stars для пополнения. Чем больше донат — тем выше позиция!</p>
+                    </div>
+                </div>
+                
+                <!-- Story 3: Referrals -->
+                <div class="story-slide" data-story="2">
+                    <div class="story-content">
+                        <div class="story-emoji">👥</div>
+                        <h1 data-i18n="onboardingTitle3">Приглашайте друзей</h1>
+                        <p data-i18n="onboardingText3">Приводите друзей и получайте бонусы от их донатов. Топ рефералов ждёт вас!</p>
+                    </div>
+                </div>
+                
+                <!-- Story 4: Profile -->
+                <div class="story-slide" data-story="3">
+                    <div class="story-content">
+                        <div class="story-emoji">✨</div>
+                        <h1 data-i18n="onboardingTitle4">Персонализируйте</h1>
+                        <p data-i18n="onboardingText4">Добавьте свой текст или ссылку в профиле — он будет виден всем в лидерборде!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Navigation zones -->
+            <div class="story-nav story-nav-prev"></div>
+            <div class="story-nav story-nav-next"></div>
+            
+            <!-- Skip button -->
+            <button class="stories-skip" id="skip-onboarding" data-i18n="onboardingSkip">Пропустить</button>
+            
+            <!-- Start button (on last slide) -->
+            <button class="stories-start" id="start-app" data-i18n="onboardingStart">Начать</button>
+        </div>
+    </div>
+
     <div id="app">
         <div class="container">
-            <!-- Header with tabs -->
-            <div class="tabs">
-                <button class="tab active" data-tab="all-time" data-i18n="tabAllTime">За всё время</button>
-                <button class="tab" data-tab="week" data-i18n="tabWeek">За неделю</button>
-                <button class="tab" data-tab="referrals" data-i18n="tabReferrals">Топ рефералов</button>
-                <button class="tab" data-tab="profile" data-i18n="tabProfile">Профиль</button>
+            <!-- Header with tabs and profile button -->
+            <div class="header-row">
+                <div class="tabs">
+                    <button class="tab active" data-tab="all-time" data-i18n="tabAllTime">За всё время</button>
+                    <button class="tab" data-tab="week" data-i18n="tabWeek">За неделю</button>
+                    <button class="tab" data-tab="referrals" data-i18n="tabReferrals">Топ рефералов</button>
+                </div>
+                <button class="profile-btn" id="open-profile" title="Профиль">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="4"/>
+                        <path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>
+                    </svg>
+                </button>
             </div>
 
             <!-- Tab content -->
@@ -59,28 +128,6 @@
                     </div>
                 </div>
                 
-                <!-- Profile settings -->
-                <div class="tab-pane" id="profile">
-                    <div class="profile-section">
-                        <h2 data-i18n="profileTitle">Настройки профиля</h2>
-                        
-                        <div class="profile-form">
-                            <div class="form-group">
-                                <label for="custom-text" data-i18n="customTextLabel">Ваш текст в лидерборде:</label>
-                                <input type="text" id="custom-text" maxlength="100" 
-                                       data-i18n-placeholder="customTextPlaceholder" 
-                                       placeholder="Введите текст (макс. 100 символов)">
-                                <span class="char-counter"><span id="char-count">0</span>/100</span>
-                            </div>
-                            
-                            <button class="btn-primary" id="save-custom-text" data-i18n="saveText">Сохранить</button>
-                            
-                            <div class="profile-info">
-                                <p data-i18n="customTextInfo">Этот текст будет отображаться рядом с вашим именем в лидерборде.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <!-- My position block -->
@@ -129,8 +176,82 @@
                 </div>
             </div>
         </div>
+
+        <!-- User profile modal (for viewing other users) -->
+        <div id="user-profile-modal" class="user-profile-modal">
+            <div class="user-profile-content">
+                <button class="user-profile-close" id="close-user-profile">&times;</button>
+                <div class="user-profile-header">
+                    <div class="user-profile-avatar" id="user-profile-avatar">
+                        <span>U</span>
+                    </div>
+                    <div class="user-profile-name" id="user-profile-name">User</div>
+                    <div class="user-profile-username" id="user-profile-username">@username</div>
+                </div>
+                <div class="user-profile-stats">
+                    <div class="user-profile-stat">
+                        <span class="stat-value" id="user-profile-tons">0</span>
+                        <span class="stat-label">💎</span>
+                    </div>
+                    <div class="user-profile-stat">
+                        <span class="stat-value" id="user-profile-rank">#1</span>
+                        <span class="stat-label" data-i18n="position">место</span>
+                    </div>
+                </div>
+                <div class="user-profile-custom-text" id="user-profile-custom-text"></div>
+            </div>
+        </div>
+        <div id="user-profile-backdrop" class="user-profile-backdrop"></div>
+
+        <!-- Profile slide-out panel -->
+        <div id="profile-panel" class="profile-panel">
+            <div class="profile-panel-header">
+                <h3 data-i18n="profileTitle">Профиль</h3>
+                <button class="profile-panel-close" id="close-profile">&times;</button>
+            </div>
+            <div class="profile-panel-content">
+                <!-- User info -->
+                <div class="profile-user-info">
+                    <div class="profile-avatar" id="profile-avatar">
+                        <span>U</span>
+                    </div>
+                    <div class="profile-name" id="profile-name">User</div>
+                    <div class="profile-stats">
+                        <div class="profile-stat">
+                            <span class="stat-value" id="profile-tons">0</span>
+                            <span class="stat-label">💎</span>
+                        </div>
+                        <div class="profile-stat">
+                            <span class="stat-value" id="profile-refs">0</span>
+                            <span class="stat-label" data-i18n="referralsCount">реф.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Custom text form -->
+                <div class="profile-form">
+                    <div class="form-group">
+                        <label for="custom-text" data-i18n="customTextLabel">Ваш текст в лидерборде:</label>
+                        <input type="text" id="custom-text" maxlength="100" 
+                               data-i18n-placeholder="customTextPlaceholder" 
+                               placeholder="Введите текст (макс. 100 символов)">
+                        <span class="char-counter"><span id="char-count">0</span>/100</span>
+                    </div>
+                    
+                    <button class="btn-primary" id="save-custom-text" data-i18n="saveText">Сохранить</button>
+                    
+                    <div class="profile-info">
+                        <p data-i18n="customTextInfo">Этот текст будет отображаться рядом с вашим именем в лидерборде.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile panel backdrop -->
+        <div id="profile-backdrop" class="profile-backdrop"></div>
     </div>
 
+    <script src="onboarding.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

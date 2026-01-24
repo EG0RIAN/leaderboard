@@ -64,7 +64,19 @@ const translations = {
         saveText: "Сохранить",
         customTextInfo: "Этот текст будет отображаться рядом с вашим именем в лидерборде.",
         customTextSaved: "✅ Текст сохранен!",
-        customTextError: "❌ Ошибка сохранения. Попробуйте позже."
+        customTextError: "❌ Ошибка сохранения. Попробуйте позже.",
+        
+        // Onboarding
+        onboardingTitle1: "Добро пожаловать!",
+        onboardingText1: "Это лидерборд донатов. Соревнуйтесь с друзьями и поднимайтесь в топ!",
+        onboardingTitle2: "Пополняйте баланс",
+        onboardingText2: "Используйте Telegram Stars для пополнения. Чем больше донат — тем выше позиция!",
+        onboardingTitle3: "Приглашайте друзей",
+        onboardingText3: "Приводите друзей и получайте бонусы от их донатов. Топ рефералов ждёт вас!",
+        onboardingTitle4: "Персонализируйте",
+        onboardingText4: "Добавьте свой текст или ссылку в профиле — он будет виден всем в лидерборде!",
+        onboardingSkip: "Пропустить",
+        onboardingStart: "Начать"
     },
     en: {
         // Tabs
@@ -130,7 +142,19 @@ const translations = {
         saveText: "Save",
         customTextInfo: "This text will be displayed next to your name in the leaderboard.",
         customTextSaved: "✅ Text saved!",
-        customTextError: "❌ Error saving. Please try later."
+        customTextError: "❌ Error saving. Please try later.",
+        
+        // Onboarding
+        onboardingTitle1: "Welcome!",
+        onboardingText1: "This is the donation leaderboard. Compete with friends and climb to the top!",
+        onboardingTitle2: "Top up your balance",
+        onboardingText2: "Use Telegram Stars to top up. The bigger the donation — the higher your position!",
+        onboardingTitle3: "Invite friends",
+        onboardingText3: "Bring friends and earn bonuses from their donations. Top referrals await you!",
+        onboardingTitle4: "Personalize",
+        onboardingText4: "Add your text or link in profile — it will be visible to everyone in the leaderboard!",
+        onboardingSkip: "Skip",
+        onboardingStart: "Start"
     }
 };
 

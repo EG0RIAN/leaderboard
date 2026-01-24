@@ -3,6 +3,34 @@ const tg = window.Telegram.WebApp;
 tg.ready();
 tg.expand();
 
+// Haptic Feedback Helper
+const haptic = {
+    // Impact feedback: 'light', 'medium', 'heavy', 'rigid', 'soft'
+    impact: (style = 'medium') => {
+        try {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred(style);
+            }
+        } catch (e) {}
+    },
+    // Notification feedback: 'error', 'success', 'warning'
+    notification: (type = 'success') => {
+        try {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred(type);
+            }
+        } catch (e) {}
+    },
+    // Selection changed feedback
+    selection: () => {
+        try {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.selectionChanged();
+            }
+        } catch (e) {}
+    }
+};
+
 // API base URL (should be configured)
 // In production, this should be your backend URL
 const API_BASE_URL = window.API_URL || 'http://localhost:8000';
@@ -93,6 +121,7 @@ function setupEventListeners() {
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
+            haptic.selection(); // Vibration on tab switch
             const tabName = tab.dataset.tab;
             switchTab(tabName);
         });
@@ -100,17 +129,20 @@ function setupEventListeners() {
     
     // Donate button
     document.getElementById('donate-btn').addEventListener('click', () => {
+        haptic.impact('medium'); // Vibration on donate button
         showDonateModal();
     });
     
     // Modal close
     document.getElementById('close-modal').addEventListener('click', () => {
+        haptic.impact('light'); // Vibration on close
         hideDonateModal();
     });
     
     // Preset buttons
     document.querySelectorAll('.preset-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
+            haptic.impact('light'); // Vibration on preset select
             const presetId = parseInt(btn.dataset.preset);
             selectPreset(presetId, e.currentTarget);
         });
@@ -148,6 +180,7 @@ function setupEventListeners() {
     
     // Create invoice button
     document.getElementById('create-invoice-btn').addEventListener('click', () => {
+        haptic.impact('heavy'); // Strong vibration on payment
         createInvoice();
     });
     
@@ -157,6 +190,7 @@ function setupEventListeners() {
         shareBtn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
+            haptic.impact('medium'); // Vibration on share
             console.log('Share button clicked');
             shareReferralLink();
         });
@@ -177,7 +211,53 @@ function setupEventListeners() {
     const saveCustomTextBtn = document.getElementById('save-custom-text');
     if (saveCustomTextBtn) {
         saveCustomTextBtn.addEventListener('click', () => {
+            haptic.impact('medium'); // Vibration on save
             saveCustomText();
+        });
+    }
+    
+    // Profile panel: open
+    const openProfileBtn = document.getElementById('open-profile');
+    if (openProfileBtn) {
+        openProfileBtn.addEventListener('click', () => {
+            haptic.impact('medium');
+            showProfilePanel();
+        });
+    }
+    
+    // Profile panel: close
+    const closeProfileBtn = document.getElementById('close-profile');
+    if (closeProfileBtn) {
+        closeProfileBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            hideProfilePanel();
+        });
+    }
+    
+    // Profile backdrop: close on click
+    const profileBackdrop = document.getElementById('profile-backdrop');
+    if (profileBackdrop) {
+        profileBackdrop.addEventListener('click', () => {
+            haptic.impact('light');
+            hideProfilePanel();
+        });
+    }
+    
+    // User profile modal: close button
+    const closeUserProfileBtn = document.getElementById('close-user-profile');
+    if (closeUserProfileBtn) {
+        closeUserProfileBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            hideUserProfileModal();
+        });
+    }
+    
+    // User profile backdrop: close on click
+    const userProfileBackdrop = document.getElementById('user-profile-backdrop');
+    if (userProfileBackdrop) {
+        userProfileBackdrop.addEventListener('click', () => {
+            haptic.impact('light');
+            hideUserProfileModal();
         });
     }
 }
@@ -196,12 +276,8 @@ function switchTab(tabName) {
         pane.classList.toggle('active', pane.id === tabName);
     });
     
-    // Load content based on tab
-    if (tabName === 'profile') {
-        loadProfile();
-    } else {
-        loadLeaderboard(tabName);
-    }
+    // Load leaderboard content
+    loadLeaderboard(tabName);
 }
 
 // Load leaderboard
@@ -234,8 +310,16 @@ async function loadLeaderboard(type) {
 }
 
 // Render leaderboard
+// Store leaderboard data for user profiles
+let leaderboardData = {};
+
 function renderLeaderboard(type, items) {
     const listElement = document.getElementById(`${type}-list`);
+    
+    // Store items for user profile lookup
+    items.forEach(item => {
+        leaderboardData[item.tg_id] = item;
+    });
     
     if (items.length === 0) {
         listElement.innerHTML = `<div class="loading">${t('noData')}</div>`;
@@ -249,27 +333,34 @@ function renderLeaderboard(type, items) {
         
         const displayName = item.username || item.first_name || (currentLanguage === 'ru' ? 'Пользователь' : 'User');
         
-        // Custom text (if set) - with clickable links and marquee for long text
-        const customTextHtml = item.custom_text 
-            ? `<div class="user-custom-text"><span class="user-custom-text-inner">${linkify(item.custom_text)}</span></div>` 
+        // Custom text preview (truncated for leaderboard)
+        const customTextPreview = item.custom_text 
+            ? `<div class="user-custom-text"><span class="user-custom-text-inner">${escapeHtml(item.custom_text)}</span></div>` 
             : '';
         
         let amountText = '';
+        let tons = 0;
         if (type === 'referrals') {
-            amountText = `${item.referrals_tons_total} 💎 (${item.referrals_count} ${t('referralsCount')})`;
+            tons = item.referrals_tons_total;
+            amountText = `${tons} 💎 (${item.referrals_count} ${t('referralsCount')})`;
         } else if (type === 'week') {
-            amountText = `${item.tons_week} 💎`;
+            tons = item.tons_week;
+            amountText = `${tons} 💎`;
         } else {
-            amountText = `${item.tons_total} 💎`;
+            tons = item.tons_total;
+            amountText = `${tons} 💎`;
         }
         
+        // Store tons for profile view
+        item._displayTons = tons;
+        
         return `
-            <div class="leaderboard-item">
+            <div class="leaderboard-item" data-tg-id="${item.tg_id}" onclick="openUserProfile(${item.tg_id}, ${item.rank})">
                 <div class="rank">#${item.rank}</div>
                 <div class="avatar">${avatar}</div>
                 <div class="user-info">
                     <div class="username">${displayName}</div>
-                    ${customTextHtml}
+                    ${customTextPreview}
                 </div>
                 <div class="amount">${amountText}</div>
             </div>
@@ -328,7 +419,9 @@ function showDonateModal() {
 // Hide donate modal
 function hideDonateModal() {
     document.getElementById('donate-modal').classList.remove('active');
-    tg.BackButton.hide();
+    if (!document.getElementById('user-profile-modal').classList.contains('active')) {
+        tg.BackButton.hide();
+    }
     // Reset selection
     document.querySelectorAll('.preset-btn').forEach(btn => {
         btn.classList.remove('selected');
@@ -346,6 +439,97 @@ function hideDonateModal() {
 function selectPaymentMethod(method) {
     // Only Stars is available
     selectedPaymentMethod = 'stars';
+}
+
+// Open user profile modal
+function openUserProfile(tgId, rank) {
+    haptic.impact('light');
+    
+    const user = leaderboardData[tgId];
+    if (!user) return;
+    
+    const modal = document.getElementById('user-profile-modal');
+    const backdrop = document.getElementById('user-profile-backdrop');
+    
+    // Set avatar
+    const avatarEl = document.getElementById('user-profile-avatar');
+    if (user.photo_url) {
+        avatarEl.innerHTML = `<img src="${user.photo_url}" alt="">`;
+    } else {
+        const initial = (user.first_name || user.username || 'U')[0].toUpperCase();
+        avatarEl.innerHTML = `<span>${initial}</span>`;
+    }
+    
+    // Set name
+    const nameEl = document.getElementById('user-profile-name');
+    nameEl.textContent = user.first_name || user.username || 'User';
+    
+    // Set username
+    const usernameEl = document.getElementById('user-profile-username');
+    usernameEl.textContent = user.username ? `@${user.username}` : '';
+    usernameEl.style.display = user.username ? 'block' : 'none';
+    
+    // Set stats
+    document.getElementById('user-profile-tons').textContent = user._displayTons || user.tons_total || 0;
+    document.getElementById('user-profile-rank').textContent = `#${rank}`;
+    
+    // Set custom text with clickable links
+    const customTextEl = document.getElementById('user-profile-custom-text');
+    if (user.custom_text) {
+        customTextEl.innerHTML = linkifyProfile(user.custom_text);
+        customTextEl.style.display = 'block';
+    } else {
+        customTextEl.innerHTML = '';
+        customTextEl.style.display = 'none';
+    }
+    
+    // Show modal
+    modal.classList.add('active');
+    backdrop.classList.add('active');
+    
+    tg.BackButton.show();
+    tg.BackButton.onClick(hideUserProfileModal);
+}
+
+// Linkify for profile (makes links look nicer with button style)
+function linkifyProfile(text) {
+    if (!text) return '';
+    
+    const escaped = escapeHtml(text);
+    const urlPattern = /(https?:\/\/[^\s<]+)/g;
+    
+    // Split text by URLs
+    const parts = escaped.split(urlPattern);
+    const urls = escaped.match(urlPattern) || [];
+    
+    let result = '';
+    let urlIndex = 0;
+    
+    parts.forEach((part, i) => {
+        if (urlPattern.test(part)) {
+            // This is a URL
+            const url = urls[urlIndex] || part;
+            const displayUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+            const shortUrl = displayUrl.length > 35 ? displayUrl.substring(0, 32) + '...' : displayUrl;
+            result += `<a href="${url}" onclick="event.preventDefault(); haptic.impact('light'); Telegram.WebApp.openLink('${url}');">🔗 ${shortUrl}</a>`;
+            urlIndex++;
+        } else if (part.trim()) {
+            // Regular text
+            result += `<p style="margin: 0 0 8px 0;">${part}</p>`;
+        }
+    });
+    
+    return result;
+}
+
+// Hide user profile modal
+function hideUserProfileModal() {
+    const modal = document.getElementById('user-profile-modal');
+    const backdrop = document.getElementById('user-profile-backdrop');
+    
+    modal.classList.remove('active');
+    backdrop.classList.remove('active');
+    tg.BackButton.hide();
 }
 
 let selectedAmount = null;
@@ -420,6 +604,7 @@ async function createInvoice() {
             console.error('Invoice creation failed:', errorMsg, data);
             
             // Check if it's a crypto payment provider error
+            haptic.notification('error'); // Error vibration
             if (errorMsg.includes('CRYPTO_PROVIDER_TOKEN') || errorMsg.includes('payment provider')) {
                 tg.showAlert(t('cryptoProviderError'));
             } else {
@@ -435,6 +620,7 @@ async function createInvoice() {
             console.error('Invoice creation error in response:', errorMsg, data);
             
             // Check if it's a crypto payment provider error
+            haptic.notification('error'); // Error vibration
             if (errorMsg.includes('CRYPTO_PROVIDER_TOKEN') || errorMsg.includes('payment provider')) {
                 tg.showAlert(t('cryptoProviderError'));
             } else {
@@ -471,6 +657,7 @@ async function createInvoice() {
                     tg.openInvoice(invoiceSlug, (status) => {
                         console.log('Invoice payment status:', status);
                         if (status === 'paid') {
+                            haptic.notification('success'); // Success vibration
                             tg.showAlert(t('paymentSuccess'));
                             // Reload leaderboard to show updated stats
                             setTimeout(() => {
@@ -479,8 +666,10 @@ async function createInvoice() {
                                 init();
                             }, 1000);
                         } else if (status === 'failed') {
+                            haptic.notification('error'); // Error vibration
                             tg.showAlert(t('paymentFailed'));
                         } else if (status === 'cancelled') {
+                            haptic.impact('light'); // Light vibration on cancel
                             console.log('Payment cancelled by user');
                         } else {
                             console.log('Unknown payment status:', status);
@@ -584,9 +773,11 @@ function shareReferralLink() {
         if (navigator.clipboard && navigator.clipboard.writeText) {
             console.log('Using clipboard');
             navigator.clipboard.writeText(shareText).then(() => {
+                haptic.notification('success'); // Success vibration
                 tg.showAlert(t('linkCopied'));
             }).catch((err) => {
                 console.error('Clipboard error:', err);
+                haptic.notification('warning'); // Warning vibration
                 tg.showAlert(t('shareLink', { link: telegramLink }));
             });
             return;
@@ -631,15 +822,75 @@ function linkify(text) {
     });
 }
 
+// Show profile panel
+function showProfilePanel() {
+    const panel = document.getElementById('profile-panel');
+    const backdrop = document.getElementById('profile-backdrop');
+    
+    if (panel && backdrop) {
+        panel.classList.add('active');
+        backdrop.classList.add('active');
+        loadProfile();
+        
+        // Use Telegram back button
+        tg.BackButton.show();
+        tg.BackButton.onClick(hideProfilePanel);
+    }
+}
+
+// Hide profile panel
+function hideProfilePanel() {
+    const panel = document.getElementById('profile-panel');
+    const backdrop = document.getElementById('profile-backdrop');
+    
+    if (panel && backdrop) {
+        panel.classList.remove('active');
+        backdrop.classList.remove('active');
+        tg.BackButton.hide();
+    }
+}
+
 // Load profile data
 function loadProfile() {
     const customTextInput = document.getElementById('custom-text');
     const charCountSpan = document.getElementById('char-count');
     
-    if (customTextInput && userData && userData.custom_text) {
-        customTextInput.value = userData.custom_text;
+    // Load custom text
+    if (customTextInput && userData) {
+        customTextInput.value = userData.custom_text || '';
         if (charCountSpan) {
-            charCountSpan.textContent = userData.custom_text.length;
+            charCountSpan.textContent = (userData.custom_text || '').length;
+        }
+    }
+    
+    // Update profile user info
+    if (userData) {
+        // Avatar
+        const avatarEl = document.getElementById('profile-avatar');
+        if (avatarEl) {
+            if (userData.photo_url) {
+                avatarEl.innerHTML = `<img src="${userData.photo_url}" alt="">`;
+            } else {
+                const initial = (userData.first_name || userData.username || 'U')[0].toUpperCase();
+                avatarEl.innerHTML = `<span>${initial}</span>`;
+            }
+        }
+        
+        // Name
+        const nameEl = document.getElementById('profile-name');
+        if (nameEl) {
+            nameEl.textContent = userData.username || userData.first_name || 'User';
+        }
+        
+        // Stats
+        const tonsEl = document.getElementById('profile-tons');
+        if (tonsEl) {
+            tonsEl.textContent = userData.tons_all_time || 0;
+        }
+        
+        const refsEl = document.getElementById('profile-refs');
+        if (refsEl) {
+            refsEl.textContent = userData.referrals_count || 0;
         }
     }
 }
@@ -674,9 +925,11 @@ async function saveCustomText() {
             userData.custom_text = data.custom_text;
         }
         
+        haptic.notification('success'); // Success vibration
         tg.showAlert(t('customTextSaved'));
     } catch (error) {
         console.error('Error saving custom text:', error);
+        haptic.notification('error'); // Error vibration
         tg.showAlert(t('customTextError'));
     }
 }

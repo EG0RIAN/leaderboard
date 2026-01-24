@@ -1,0 +1,16 @@
+[Unit]
+Description=Leaderboard Telegram Bot
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/leaderboard
+Environment=PATH=/home/leaderboard/venv/bin
+ExecStart=/home/leaderboard/venv/bin/python run-bot.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+

@@ -1,0 +1,16 @@
+[Unit]
+Description=Leaderboard Backend API
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home/leaderboard
+Environment=PATH=/home/leaderboard/venv/bin
+ExecStart=/home/leaderboard/venv/bin/python -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+
