@@ -368,9 +368,13 @@ function renderLeaderboard(type, items) {
         // Store tons for profile view
         item._displayTons = tons;
         
+        // Top 3 special styling
+        const rankClass = item.rank <= 3 ? `top-${item.rank}` : '';
+        const rankDisplay = item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : item.rank === 3 ? '🥉' : `#${item.rank}`;
+        
         return `
-            <div class="leaderboard-item" data-tg-id="${item.tg_id}" onclick="openUserProfile(${item.tg_id}, ${item.rank})">
-                <div class="rank">#${item.rank}</div>
+            <div class="leaderboard-item ${rankClass}" data-tg-id="${item.tg_id}" onclick="openUserProfile(${item.tg_id}, ${item.rank})">
+                <div class="rank">${rankDisplay}</div>
                 <div class="avatar">${avatar}</div>
                 <div class="user-info">
                     <div class="username">${displayName}</div>
