@@ -30,6 +30,13 @@ const translations = {
         crypto: "Криптовалюта",
         selectCrypto: "Выберите валюту:",
         
+        // Countdown
+        weekResetIn: "До обновления:",
+        days: "д",
+        hours: "ч",
+        minutes: "м",
+        seconds: "с",
+        
         // Messages
         loading: "Загрузка...",
         noData: "Нет данных",
@@ -120,6 +127,13 @@ const translations = {
         telegramStars: "Telegram Stars",
         crypto: "Cryptocurrency",
         selectCrypto: "Select currency:",
+        
+        // Countdown
+        weekResetIn: "Resets in:",
+        days: "d",
+        hours: "h",
+        minutes: "m",
+        seconds: "s",
         
         // Messages
         loading: "Loading...",

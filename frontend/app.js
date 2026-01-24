@@ -1044,5 +1044,61 @@ async function saveProfile() {
     }
 }
 
+// Week countdown timer
+let countdownInterval = null;
+
+function startWeekCountdown() {
+    updateCountdown();
+    // Update every second
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
+    countdownInterval = setInterval(updateCountdown, 1000);
+}
+
+function updateCountdown() {
+    // Get next Monday 00:00:00 (Europe/Berlin timezone, but we'll approximate with local)
+    const now = new Date();
+    const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    
+    // Calculate days until next Monday
+    let daysUntilMonday = (8 - dayOfWeek) % 7;
+    if (daysUntilMonday === 0) daysUntilMonday = 7; // If today is Monday, next week
+    
+    // Create next Monday date at 00:00:00
+    const nextMonday = new Date(now);
+    nextMonday.setDate(now.getDate() + daysUntilMonday);
+    nextMonday.setHours(0, 0, 0, 0);
+    
+    // Calculate difference
+    const diff = nextMonday - now;
+    
+    if (diff <= 0) {
+        // Week just reset, recalculate
+        setTimeout(updateCountdown, 1000);
+        return;
+    }
+    
+    // Convert to days, hours, minutes, seconds
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    // Update DOM
+    const daysEl = document.getElementById('countdown-days');
+    const hoursEl = document.getElementById('countdown-hours');
+    const minutesEl = document.getElementById('countdown-minutes');
+    const secondsEl = document.getElementById('countdown-seconds');
+    
+    if (daysEl) daysEl.textContent = days;
+    if (hoursEl) hoursEl.textContent = hours.toString().padStart(2, '0');
+    if (minutesEl) minutesEl.textContent = minutes.toString().padStart(2, '0');
+    if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
+}
+
 // Initialize on load
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+    startWeekCountdown();
+});
