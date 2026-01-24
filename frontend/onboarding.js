@@ -3,7 +3,7 @@
 class OnboardingStories {
     constructor() {
         this.currentStory = 0;
-        this.totalStories = 4;
+        this.totalStories = 5;
         this.autoAdvanceTimer = null;
         this.autoAdvanceDelay = 5000; // 5 seconds per story
         this.isActive = false;
