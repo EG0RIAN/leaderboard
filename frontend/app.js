@@ -856,7 +856,22 @@ function linkify(text) {
 }
 
 // Load profile data
-function loadProfile() {
+async function loadProfile() {
+    // Fetch fresh user data from backend
+    try {
+        const response = await fetch(`${API_BASE_URL}/user/me`, {
+            headers: {
+                'X-Init-Data': initData
+            }
+        });
+        
+        if (response.ok) {
+            userData = await response.json();
+        }
+    } catch (error) {
+        console.error('Failed to refresh user data:', error);
+    }
+    
     const customTitleInput = document.getElementById('custom-title');
     const customTextInput = document.getElementById('custom-text');
     const customLinkInput = document.getElementById('custom-link');
