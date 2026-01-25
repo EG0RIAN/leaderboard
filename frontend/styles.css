@@ -1414,6 +1414,96 @@ body {
     box-shadow: 0 0 6px rgba(205, 127, 50, 0.4);
 }
 
+/* ==================== RANK RANGE COLORS ==================== */
+
+/* 4-10 place - Light Blue */
+.leaderboard-item.rank-4-10 {
+    background: rgba(143, 227, 255, 0.25);
+    border-radius: 10px;
+    margin: 2px 8px;
+}
+
+.leaderboard-item.rank-4-10 .rank {
+    color: #0891B2;
+    font-weight: 600;
+}
+
+/* 11-25 place - Very Light Blue/Gray */
+.leaderboard-item.rank-11-25 {
+    background: rgba(229, 240, 245, 0.6);
+    border-radius: 10px;
+    margin: 2px 8px;
+}
+
+.leaderboard-item.rank-11-25 .rank {
+    color: #64748B;
+    font-weight: 600;
+}
+
+/* 26-50 place - Purple */
+.leaderboard-item.rank-26-50 {
+    background: rgba(106, 27, 154, 0.15);
+    border-radius: 10px;
+    margin: 2px 8px;
+}
+
+.leaderboard-item.rank-26-50 .rank {
+    color: #6A1B9A;
+    font-weight: 600;
+}
+
+.leaderboard-item.rank-26-50 .username {
+    color: var(--tg-theme-text-color, #000000);
+}
+
+/* 51-100 place - Dark Blue */
+.leaderboard-item.rank-51-100 {
+    background: rgba(30, 58, 138, 0.15);
+    border-radius: 10px;
+    margin: 2px 8px;
+}
+
+.leaderboard-item.rank-51-100 .rank {
+    color: #1E3A8A;
+    font-weight: 600;
+}
+
+/* 101-250 place - Green */
+.leaderboard-item.rank-101-250 {
+    background: rgba(31, 170, 89, 0.15);
+    border-radius: 10px;
+    margin: 2px 8px;
+}
+
+.leaderboard-item.rank-101-250 .rank {
+    color: #1FAA59;
+    font-weight: 600;
+}
+
+/* 251-500 place - Orange */
+.leaderboard-item.rank-251-500 {
+    background: rgba(255, 140, 0, 0.15);
+    border-radius: 10px;
+    margin: 2px 8px;
+}
+
+.leaderboard-item.rank-251-500 .rank {
+    color: #FF8C00;
+    font-weight: 600;
+}
+
+/* 501-1000 place - Gold/Yellow */
+.leaderboard-item.rank-501-1000 {
+    background: rgba(255, 215, 0, 0.2);
+    border-radius: 10px;
+    margin: 2px 8px;
+}
+
+.leaderboard-item.rank-501-1000 .rank {
+    color: #B8860B;
+    font-weight: 600;
+}
+
 /* ==================== PROFILE RANK BADGE ==================== */
 .profile-rank-badge {
     display: inline-flex;

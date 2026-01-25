@@ -391,9 +391,21 @@ function renderLeaderboard(type, items) {
         // Store tons for profile view
         item._displayTons = tons;
         
-        // Top 3 special styling
-        const rankClass = item.rank <= 3 ? `top-${item.rank}` : '';
-        const rankDisplay = item.rank === 1 ? '🥇' : item.rank === 2 ? '🥈' : item.rank === 3 ? '🥉' : `#${item.rank}`;
+        // Rank styling classes
+        let rankClass = '';
+        const rank = item.rank;
+        if (rank === 1) rankClass = 'top-1';
+        else if (rank === 2) rankClass = 'top-2';
+        else if (rank === 3) rankClass = 'top-3';
+        else if (rank >= 4 && rank <= 10) rankClass = 'rank-4-10';
+        else if (rank >= 11 && rank <= 25) rankClass = 'rank-11-25';
+        else if (rank >= 26 && rank <= 50) rankClass = 'rank-26-50';
+        else if (rank >= 51 && rank <= 100) rankClass = 'rank-51-100';
+        else if (rank >= 101 && rank <= 250) rankClass = 'rank-101-250';
+        else if (rank >= 251 && rank <= 500) rankClass = 'rank-251-500';
+        else if (rank >= 501 && rank <= 1000) rankClass = 'rank-501-1000';
+        
+        const rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
         
         return `
             <div class="leaderboard-item ${rankClass}" data-tg-id="${item.tg_id}" onclick="openUserProfile(${item.tg_id}, ${item.rank})">
