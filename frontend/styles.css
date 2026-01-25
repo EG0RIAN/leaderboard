@@ -1435,9 +1435,13 @@ body {
 }
 
 .nav-icon {
-    font-size: 22px;
-    line-height: 1;
+    width: 24px;
+    height: 24px;
     transition: transform 0.2s;
+}
+
+.nav-item.active .nav-icon {
+    stroke-width: 2.5;
 }
 
 .nav-label {
@@ -1475,7 +1479,10 @@ body {
 }
 
 .donate-icon {
-    font-size: 20px;
+    width: 22px;
+    height: 22px;
+    fill: currentColor;
+    stroke: currentColor;
 }
 
 .donate-text {
