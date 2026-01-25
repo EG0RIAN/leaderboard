@@ -6,17 +6,20 @@ let connectedWallet = null;
 // Initialize TON Connect
 async function initTonConnect() {
     try {
-        // Check if TON Connect UI is loaded
-        if (typeof TonConnectUI === 'undefined') {
+        // Check if TON Connect UI is loaded (it's exposed as window.TON_CONNECT_UI)
+        const TonConnectUIClass = window.TON_CONNECT_UI?.TonConnectUI || window.TonConnectUI;
+        
+        if (!TonConnectUIClass) {
             console.log('TON Connect UI not loaded yet, retrying...');
             setTimeout(initTonConnect, 500);
             return;
         }
         
+        console.log('TON Connect UI class found:', TonConnectUIClass);
+        
         // Initialize TON Connect UI
-        tonConnectUI = new TonConnectUI.TonConnectUI({
-            manifestUrl: window.location.origin + '/tonconnect-manifest.json',
-            buttonRootId: null // We'll handle the button ourselves
+        tonConnectUI = new TonConnectUIClass({
+            manifestUrl: 'https://v3022889.hosted-by-vdsina.ru/tonconnect-manifest.json'
         });
         
         // Subscribe to wallet connection changes
@@ -180,8 +183,12 @@ async function sendTransaction(toAddress, amount, comment = '') {
 
 // Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM loaded, checking TON Connect availability...');
+    console.log('window.TON_CONNECT_UI:', window.TON_CONNECT_UI);
+    console.log('window.TonConnectUI:', window.TonConnectUI);
+    
     // Wait a bit for other scripts to load
-    setTimeout(initTonConnect, 100);
+    setTimeout(initTonConnect, 300);
 });
 
 // Export for use in other scripts
