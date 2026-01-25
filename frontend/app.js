@@ -31,6 +31,46 @@ const haptic = {
     }
 };
 
+// Confetti celebration effect
+function celebrateConfetti() {
+    if (typeof confetti !== 'function') {
+        console.log('Confetti not loaded');
+        return;
+    }
+    
+    // First burst
+    confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+    });
+    
+    // Side bursts with delay
+    setTimeout(() => {
+        confetti({
+            particleCount: 50,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 }
+        });
+        confetti({
+            particleCount: 50,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 }
+        });
+    }, 150);
+    
+    // Final burst
+    setTimeout(() => {
+        confetti({
+            particleCount: 80,
+            spread: 100,
+            origin: { y: 0.7 }
+        });
+    }, 300);
+}
+
 // API base URL (should be configured)
 // In production, this should be your backend URL
 const API_BASE_URL = window.API_URL || 'http://localhost:8000';
@@ -852,6 +892,7 @@ async function activateCharts() {
         
         hideActivateModal();
         haptic.notification('success');
+        celebrateConfetti(); // 🎉 Confetti!
         tg.showAlert(t('chartsActivated', { amount: amount }));
         
         // Reload leaderboard if on leaderboard tab
@@ -1017,6 +1058,7 @@ async function createInvoice() {
                         console.log('Invoice payment status:', status);
                         if (status === 'paid') {
                             haptic.notification('success'); // Success vibration
+                            celebrateConfetti(); // 🎉 Confetti!
                             tg.showAlert(t('paymentSuccess'));
                             // Reload leaderboard to show updated stats
                             setTimeout(() => {
