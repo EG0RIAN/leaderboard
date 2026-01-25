@@ -52,7 +52,7 @@ const translations = {
         referralsCount: "реф.",
         referralsLabel: "рефералов",
         yourPosition: "место в топе",
-        diamonds: "алмазов",
+        diamonds: "чартсов",
         notInTop: "Пока не в топе",
         
         // Errors
@@ -167,7 +167,7 @@ const translations = {
         referralsCount: "ref.",
         referralsLabel: "referrals",
         yourPosition: "place in top",
-        diamonds: "diamonds",
+        diamonds: "charts",
         notInTop: "Not in top yet",
         
         // Errors

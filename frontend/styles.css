@@ -1700,6 +1700,38 @@ body {
     stroke: currentColor;
 }
 
+/* Charts/Diamond icon */
+.charts-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: -0.125em;
+    background-image: url('charts-icon.svg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.charts-icon-sm {
+    width: 16px;
+    height: 16px;
+}
+
+.charts-icon-md {
+    width: 24px;
+    height: 24px;
+}
+
+.charts-icon-lg {
+    width: 32px;
+    height: 32px;
+}
+
+.charts-icon-xl {
+    width: 64px;
+    height: 64px;
+}
+
 .donate-text {
     font-size: 16px;
 }

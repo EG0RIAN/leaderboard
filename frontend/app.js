@@ -379,13 +379,13 @@ function renderLeaderboard(type, items) {
         let tons = 0;
         if (type === 'referrals') {
             tons = item.referrals_tons_total;
-            amountText = `${tons} 💎 (${item.referrals_count} ${t('referralsCount')})`;
+            amountText = `${tons} <span class="charts-icon charts-icon-sm"></span> (${item.referrals_count} ${t('referralsCount')})`;
         } else if (type === 'week') {
             tons = item.tons_week;
-            amountText = `${tons} 💎`;
+            amountText = `${tons} <span class="charts-icon charts-icon-sm"></span>`;
         } else {
             tons = item.tons_total;
-            amountText = `${tons} 💎`;
+            amountText = `${tons} <span class="charts-icon charts-icon-sm"></span>`;
         }
         
         // Store tons for profile view
