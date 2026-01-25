@@ -210,6 +210,44 @@ class ActivateChartsRequest(BaseModel):
     amount: float  # Amount of charts to activate
 
 
+class SaveWalletRequest(BaseModel):
+    wallet_address: str
+
+
+@router.post("/me/wallet")
+async def save_wallet(
+    request: SaveWalletRequest,
+    x_init_data: str = Header(..., alias="X-Init-Data"),
+    session: AsyncSession = Depends(get_db)
+):
+    """Save user's connected TON wallet address"""
+    user_data = validate_telegram_init_data(x_init_data)
+    if not user_data or not user_data.get("tg_id"):
+        raise HTTPException(status_code=401, detail="Invalid initData")
+    
+    tg_id = user_data["tg_id"]
+    
+    # Validate wallet address (basic check)
+    wallet = request.wallet_address.strip()
+    if len(wallet) < 48 or len(wallet) > 100:
+        raise HTTPException(status_code=400, detail="Invalid wallet address")
+    
+    # Update user's wallet
+    query = select(User).where(User.tg_id == tg_id)
+    result = await session.execute(query)
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user.ton_wallet_address = wallet
+    await session.commit()
+    
+    logger.info(f"User {tg_id} saved wallet: {wallet[:10]}...")
+    
+    return {"success": True, "wallet_address": wallet}
+
+
 @router.post("/me/activate-charts")
 async def activate_charts_endpoint(
     request: ActivateChartsRequest,

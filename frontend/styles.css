@@ -414,6 +414,128 @@ body {
     margin-top: 12px;
 }
 
+/* Payment method selector (Stars/TON) */
+.payment-method-selector {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.payment-method-selector .payment-method {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--tg-theme-text-color, #000);
+}
+
+.payment-method-selector .payment-method:hover {
+    border-color: var(--tg-theme-button-color, #3390ec);
+}
+
+.payment-method-selector .payment-method.active {
+    background: var(--tg-theme-button-color, #3390ec);
+    color: var(--tg-theme-button-text-color, #fff);
+    border-color: var(--tg-theme-button-color, #3390ec);
+}
+
+.payment-method-selector .method-icon {
+    font-size: 20px;
+}
+
+/* TON amount section */
+.ton-amount-section {
+    margin-bottom: 16px;
+}
+
+.ton-conversion {
+    text-align: center;
+    color: var(--tg-theme-hint-color, #999);
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+/* TON payment info */
+.ton-payment-info {
+    margin-top: 16px;
+    padding: 16px;
+    background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+    border-radius: 12px;
+}
+
+.ton-qr-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.ton-wallet-address {
+    font-family: monospace;
+    font-size: 12px;
+    word-break: break-all;
+    background: var(--tg-theme-bg-color, #fff);
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.ton-comment {
+    text-align: center;
+    font-size: 14px;
+    color: var(--tg-theme-hint-color, #666);
+    padding: 8px;
+    background: rgba(255, 193, 7, 0.15);
+    border-radius: 8px;
+}
+
+.ton-comment strong {
+    color: var(--tg-theme-text-color, #000);
+    display: block;
+    margin-top: 4px;
+    font-family: monospace;
+}
+
+.ton-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(255, 193, 7, 0.1);
+    border-radius: 8px;
+    color: var(--tg-theme-text-color, #000);
+}
+
+.ton-status.completed {
+    background: rgba(76, 175, 80, 0.15);
+}
+
+.ton-status .status-icon {
+    font-size: 20px;
+}
+
+.ton-timer {
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--tg-theme-hint-color, #999);
+}
+
+#copy-ton-address, #ton-payment-link {
+    width: 100%;
+    margin-top: 8px;
+}
+
 
 /* Profile section */
 .profile-section {

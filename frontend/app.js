@@ -379,6 +379,32 @@ function setupEventListeners() {
             hideActivateModal();
         });
     }
+    
+    // Payment method selection (Stars/TON)
+    document.querySelectorAll('.payment-method-selector .payment-method').forEach(btn => {
+        btn.addEventListener('click', () => {
+            haptic.selection();
+            selectPaymentMethod(btn.dataset.method);
+        });
+    });
+    
+    // TON amount input
+    const tonAmountInput = document.getElementById('ton-amount');
+    if (tonAmountInput) {
+        tonAmountInput.addEventListener('input', updateTonPreview);
+    }
+    
+    // Copy TON address button
+    const copyTonBtn = document.getElementById('copy-ton-address');
+    if (copyTonBtn) {
+        copyTonBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            copyTonAddress();
+        });
+    }
+    
+    // Load TON config
+    loadTonConfig();
 }
 
 // Tab switching
@@ -934,7 +960,244 @@ function updateProfileNameDisplay() {
 
 let selectedAmount = null;
 let selectedPresetId = null;
-let selectedPaymentMethod = 'stars'; // Only 'stars' available (crypto requires provider setup)
+let selectedPaymentMethod = 'stars';
+let currentTonPayment = null;
+let tonPaymentCheckInterval = null;
+let tonConfig = null;
+
+// Initialize TON payment config
+async function loadTonConfig() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/ton/config`);
+        if (response.ok) {
+            tonConfig = await response.json();
+            console.log('TON config loaded:', tonConfig);
+        }
+    } catch (error) {
+        console.log('TON payments not available:', error);
+    }
+}
+
+// Select payment method (stars or ton)
+function selectPaymentMethod(method) {
+    selectedPaymentMethod = method;
+    
+    // Update UI
+    document.querySelectorAll('.payment-method-selector .payment-method').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.method === method);
+    });
+    
+    const starsSection = document.querySelector('.presets');
+    const customStarsSection = document.querySelector('.custom-amount');
+    const tonSection = document.getElementById('ton-amount-section');
+    const tonPaymentInfo = document.getElementById('ton-payment-info');
+    const createBtn = document.getElementById('create-invoice-btn');
+    
+    if (method === 'ton') {
+        // Hide stars, show TON
+        if (starsSection) starsSection.style.display = 'none';
+        if (customStarsSection) customStarsSection.style.display = 'none';
+        if (tonSection) tonSection.style.display = 'block';
+        if (createBtn) createBtn.textContent = t('createTonPayment');
+        updateTonPreview();
+    } else {
+        // Show stars, hide TON
+        if (starsSection) starsSection.style.display = 'grid';
+        if (customStarsSection) customStarsSection.style.display = 'block';
+        if (tonSection) tonSection.style.display = 'none';
+        if (tonPaymentInfo) tonPaymentInfo.style.display = 'none';
+        if (createBtn) createBtn.textContent = t('createPayment');
+    }
+    
+    // Reset state
+    currentTonPayment = null;
+    if (tonPaymentCheckInterval) {
+        clearInterval(tonPaymentCheckInterval);
+        tonPaymentCheckInterval = null;
+    }
+}
+
+// Update TON preview (charts amount)
+function updateTonPreview() {
+    const tonInput = document.getElementById('ton-amount');
+    const previewEl = document.getElementById('ton-charts-preview');
+    const createBtn = document.getElementById('create-invoice-btn');
+    
+    if (!tonInput || !previewEl) return;
+    
+    const tonAmount = parseFloat(tonInput.value) || 0;
+    const rate = tonConfig?.charts_per_ton || 100;
+    const charts = Math.floor(tonAmount * rate);
+    
+    previewEl.textContent = charts;
+    
+    if (createBtn) {
+        createBtn.disabled = tonAmount < 0.1;
+    }
+}
+
+// Create TON payment
+async function createTonPayment() {
+    const tonInput = document.getElementById('ton-amount');
+    const tonAmount = parseFloat(tonInput.value) || 0;
+    
+    if (tonAmount < 0.1) {
+        tg.showAlert(t('minTonAmount'));
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/ton/create-payment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Init-Data': initData
+            },
+            body: JSON.stringify({ amount_ton: tonAmount })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to create payment');
+        }
+        
+        const payment = await response.json();
+        currentTonPayment = payment;
+        
+        // Show payment info
+        showTonPaymentInfo(payment);
+        
+        // Start checking payment status
+        startTonPaymentCheck(payment.payment_comment);
+        
+    } catch (error) {
+        console.error('Error creating TON payment:', error);
+        haptic.notification('error');
+        tg.showAlert(error.message);
+    }
+}
+
+// Show TON payment info
+function showTonPaymentInfo(payment) {
+    const createBtn = document.getElementById('create-invoice-btn');
+    const tonPaymentInfo = document.getElementById('ton-payment-info');
+    const walletDisplay = document.getElementById('ton-wallet-display');
+    const commentDisplay = document.getElementById('ton-comment-display');
+    const paymentLink = document.getElementById('ton-payment-link');
+    const timerEl = document.getElementById('ton-timer');
+    
+    if (createBtn) createBtn.style.display = 'none';
+    if (tonPaymentInfo) tonPaymentInfo.style.display = 'block';
+    
+    if (walletDisplay) {
+        walletDisplay.textContent = payment.to_wallet;
+    }
+    
+    if (commentDisplay) {
+        commentDisplay.innerHTML = `${t('paymentComment')}: <strong>${payment.payment_comment}</strong>`;
+    }
+    
+    if (paymentLink) {
+        paymentLink.href = payment.payment_link;
+    }
+    
+    // Start countdown timer
+    if (timerEl) {
+        updateTonTimer(payment.expires_at, timerEl);
+    }
+}
+
+// Update TON payment timer
+function updateTonTimer(expiresAt, timerEl) {
+    const update = () => {
+        const now = new Date();
+        const expires = new Date(expiresAt);
+        const diff = expires - now;
+        
+        if (diff <= 0) {
+            timerEl.textContent = t('paymentExpired');
+            if (tonPaymentCheckInterval) {
+                clearInterval(tonPaymentCheckInterval);
+            }
+            return;
+        }
+        
+        const minutes = Math.floor(diff / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+        timerEl.textContent = t('expiresIn', { time: `${minutes}:${seconds.toString().padStart(2, '0')}` });
+    };
+    
+    update();
+    setInterval(update, 1000);
+}
+
+// Start checking TON payment status
+function startTonPaymentCheck(comment) {
+    if (tonPaymentCheckInterval) {
+        clearInterval(tonPaymentCheckInterval);
+    }
+    
+    tonPaymentCheckInterval = setInterval(async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/ton/payment/${comment}`, {
+                headers: { 'X-Init-Data': initData }
+            });
+            
+            if (!response.ok) return;
+            
+            const payment = await response.json();
+            
+            if (payment.status === 'completed') {
+                clearInterval(tonPaymentCheckInterval);
+                tonPaymentCheckInterval = null;
+                
+                // Success!
+                haptic.notification('success');
+                celebrateConfetti();
+                
+                // Update status UI
+                const statusEl = document.getElementById('ton-status');
+                if (statusEl) {
+                    statusEl.classList.add('completed');
+                    statusEl.innerHTML = `<span class="status-icon">✅</span><span class="status-text">${t('paymentReceived')}</span>`;
+                }
+                
+                tg.showAlert(t('tonPaymentSuccess', { charts: payment.charts_amount }));
+                
+                // Reload data
+                setTimeout(() => {
+                    hideDonateModal();
+                    loadLeaderboard(currentTab);
+                    init();
+                }, 1500);
+            } else if (payment.status === 'expired') {
+                clearInterval(tonPaymentCheckInterval);
+                tonPaymentCheckInterval = null;
+                
+                const statusEl = document.getElementById('ton-status');
+                if (statusEl) {
+                    statusEl.innerHTML = `<span class="status-icon">⏰</span><span class="status-text">${t('paymentExpired')}</span>`;
+                }
+            }
+        } catch (error) {
+            console.error('Error checking payment:', error);
+        }
+    }, 5000); // Check every 5 seconds
+}
+
+// Copy TON address to clipboard
+function copyTonAddress() {
+    if (!currentTonPayment) return;
+    
+    const text = `${currentTonPayment.to_wallet}\n${t('comment')}: ${currentTonPayment.payment_comment}`;
+    
+    navigator.clipboard.writeText(text).then(() => {
+        haptic.notification('success');
+        tg.showAlert(t('addressCopied'));
+    }).catch(err => {
+        console.error('Copy error:', err);
+    });
+}
 
 // Select preset
 function selectPreset(presetId, buttonElement) {
@@ -968,8 +1231,13 @@ function selectCustomAmount(amount) {
     document.getElementById('create-invoice-btn').disabled = false;
 }
 
-// Create invoice
+// Create invoice (or TON payment)
 async function createInvoice() {
+    // Handle TON payment
+    if (selectedPaymentMethod === 'ton') {
+        return createTonPayment();
+    }
+    
     if (!selectedAmount) {
         return;
     }

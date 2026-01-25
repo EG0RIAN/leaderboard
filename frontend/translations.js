@@ -86,6 +86,21 @@ const translations = {
         paymentErrorMsg: "❌ Ошибка создания платежа: {error}\n\nПопробуйте позже.",
         cryptoProviderError: "❌ Криптоплатежи временно недоступны.\n\nИспользуйте Telegram Stars для оплаты.",
         
+        // TON Payment
+        tonAmount: "Сумма в TON:",
+        createTonPayment: "Создать платеж TON",
+        paymentComment: "Комментарий к переводу",
+        comment: "Комментарий",
+        copyAddress: "Скопировать адрес",
+        openWallet: "Открыть кошелёк",
+        waitingPayment: "Ожидание оплаты...",
+        paymentReceived: "Платеж получен!",
+        paymentExpired: "Время платежа истекло",
+        expiresIn: "Истекает через {time}",
+        minTonAmount: "Минимальная сумма: 0.1 TON",
+        addressCopied: "✅ Адрес и комментарий скопированы!",
+        tonPaymentSuccess: "✅ Получено {charts} чартсов!",
+        
         // Share
         shareText: "🎮 Присоединяйся к лидерборду донатов!\n\n{link}",
         
@@ -217,6 +232,21 @@ const translations = {
         paymentFailed: "❌ Payment failed. Please try again.",
         paymentErrorMsg: "❌ Payment creation error: {error}\n\nPlease try later.",
         cryptoProviderError: "❌ Cryptocurrency payments are temporarily unavailable.\n\nPlease use Telegram Stars for payment.",
+        
+        // TON Payment
+        tonAmount: "Amount in TON:",
+        createTonPayment: "Create TON Payment",
+        paymentComment: "Transfer comment",
+        comment: "Comment",
+        copyAddress: "Copy address",
+        openWallet: "Open wallet",
+        waitingPayment: "Waiting for payment...",
+        paymentReceived: "Payment received!",
+        paymentExpired: "Payment expired",
+        expiresIn: "Expires in {time}",
+        minTonAmount: "Minimum amount: 0.1 TON",
+        addressCopied: "✅ Address and comment copied!",
+        tonPaymentSuccess: "✅ Received {charts} charts!",
         
         // Share
         shareText: "🎮 Join the donation leaderboard!\n\n{link}",

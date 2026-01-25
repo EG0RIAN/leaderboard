@@ -105,6 +105,43 @@ class Payment(Base):
     donation = relationship("Donation", back_populates="payment", uselist=False)
 
 
+class TonPayment(Base):
+    """Tracks TON blockchain payments"""
+    __tablename__ = "ton_payments"
+    
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    tg_id = Column(BigInteger, ForeignKey("users.tg_id"), nullable=False)
+    
+    # Payment details
+    amount_ton = Column(Numeric(20, 9), nullable=False)  # TON amount (9 decimals)
+    charts_amount = Column(Numeric(10, 2), nullable=True)  # Converted charts amount
+    
+    # Unique comment for identifying the payment
+    payment_comment = Column(String(100), unique=True, nullable=False)
+    
+    # Wallet addresses
+    from_wallet = Column(String(100), nullable=True)  # Sender wallet
+    to_wallet = Column(String(100), nullable=False)  # Our receiving wallet
+    
+    # Transaction details
+    tx_hash = Column(String(100), unique=True, nullable=True)  # Blockchain tx hash
+    tx_lt = Column(BigInteger, nullable=True)  # Logical time
+    
+    # Status: pending, completed, expired, failed
+    status = Column(String(20), nullable=False, default="pending")
+    
+    # Rate at time of payment
+    rate_used = Column(Numeric(10, 4), nullable=True)  # Charts per TON
+    
+    # Timestamps
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    expires_at = Column(DateTime, nullable=False)  # When the payment expires
+    completed_at = Column(DateTime, nullable=True)
+    
+    # Relationship
+    user = relationship("User", backref="ton_payments")
+
+
 class Setting(Base):
     __tablename__ = "settings"
     

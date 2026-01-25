@@ -30,6 +30,14 @@ class Settings(BaseSettings):
     crypto_provider_token: str = ""  # Provider token for crypto payments (if using external provider)
     supported_crypto_currencies: list = ["TON", "BTC", "ETH", "USDT"]  # Supported crypto currencies
     
+    # TON Payments
+    ton_wallet_address: str = ""  # Our receiving TON wallet address
+    ton_api_key: str = ""  # API key for toncenter.com or similar
+    ton_api_url: str = "https://toncenter.com/api/v2"  # TON API endpoint
+    ton_testnet: bool = False  # Use testnet
+    ton_payment_expiry_minutes: int = 30  # How long payment is valid
+    charts_per_ton: float = 100.0  # How many charts per 1 TON
+    
     # Security
     secret_key: str = "your_secret_key_here"
     
