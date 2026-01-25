@@ -92,6 +92,13 @@ const translations = {
         profileError: "❌ Ошибка сохранения. Попробуйте позже.",
         invalidLink: "❌ Введите корректную ссылку (начинается с http:// или https://)",
         
+        // Edit Display Name
+        editDisplayName: "Изменить имя",
+        displayNamePlaceholder: "Как вас называть?",
+        displayNameHint: "Будет отображаться в лидерборде",
+        cancel: "Отмена",
+        save: "Сохранить",
+        
         // Onboarding
         onboardingTitle1: "Самый честный лидерборд",
         onboardingText1: "Встречайте самый честный лидерборд в Telegram!",
@@ -199,6 +206,13 @@ const translations = {
         profileSaved: "✅ Profile saved!",
         profileError: "❌ Error saving. Please try later.",
         invalidLink: "❌ Enter a valid link (starts with http:// or https://)",
+        
+        // Edit Display Name
+        editDisplayName: "Change Name",
+        displayNamePlaceholder: "What should we call you?",
+        displayNameHint: "Will be shown in the leaderboard",
+        cancel: "Cancel",
+        save: "Save",
         
         // Onboarding
         onboardingTitle1: "The Fairest Leaderboard",

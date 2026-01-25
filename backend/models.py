@@ -44,9 +44,10 @@ class User(Base):
     __tablename__ = "users"
     
     tg_id = Column(BigInteger, primary_key=True)
-    username = Column(String, nullable=True)
-    first_name = Column(String, nullable=True)
+    username = Column(String, nullable=True)  # Original Telegram username
+    first_name = Column(String, nullable=True)  # Original Telegram first name
     last_name = Column(String, nullable=True)
+    display_name = Column(String(50), nullable=True)  # Custom display name set by user
     language_code = Column(String, nullable=True)
     is_premium = Column(Boolean, nullable=True)
     photo_url = Column(String, nullable=True)

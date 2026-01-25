@@ -242,6 +242,42 @@ function setupEventListeners() {
             hideUserProfileModal();
         });
     }
+    
+    // Edit name: open modal
+    const editNameBtn = document.getElementById('profile-name-edit');
+    if (editNameBtn) {
+        editNameBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            showEditNameModal();
+        });
+    }
+    
+    // Edit name: save
+    const editNameSaveBtn = document.getElementById('edit-name-save');
+    if (editNameSaveBtn) {
+        editNameSaveBtn.addEventListener('click', () => {
+            haptic.impact('medium');
+            saveDisplayName();
+        });
+    }
+    
+    // Edit name: cancel
+    const editNameCancelBtn = document.getElementById('edit-name-cancel');
+    if (editNameCancelBtn) {
+        editNameCancelBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            hideEditNameModal();
+        });
+    }
+    
+    // Edit name: backdrop close
+    const editNameBackdrop = document.getElementById('edit-name-backdrop');
+    if (editNameBackdrop) {
+        editNameBackdrop.addEventListener('click', () => {
+            haptic.impact('light');
+            hideEditNameModal();
+        });
+    }
 }
 
 // Tab switching
@@ -323,7 +359,7 @@ function renderLeaderboard(type, items) {
             ? `<img src="${item.photo_url}" alt="">`
             : `<span>${(item.first_name || item.username || 'U')[0].toUpperCase()}</span>`;
         
-        const displayName = item.username || item.first_name || (currentLanguage === 'ru' ? 'Пользователь' : 'User');
+        const displayName = item.display_name || item.username || item.first_name || (currentLanguage === 'ru' ? 'Пользователь' : 'User');
         
         // Show title in leaderboard list (link icon if has link/description)
         let customInfo = '';
@@ -461,9 +497,9 @@ function openUserProfile(tgId, rank) {
         avatarEl.innerHTML = `<span>${initial}</span>`;
     }
     
-    // Set name
+    // Set name (prefer display_name if set)
     const nameEl = document.getElementById('user-profile-name');
-    nameEl.textContent = user.first_name || user.username || 'User';
+    nameEl.textContent = user.display_name || user.first_name || user.username || 'User';
     
     // Set username
     const usernameEl = document.getElementById('user-profile-username');
@@ -563,6 +599,94 @@ function hideUserProfileModal() {
     modal.classList.remove('active');
     backdrop.classList.remove('active');
     tg.BackButton.hide();
+}
+
+// Edit Display Name Modal
+function showEditNameModal() {
+    const modal = document.getElementById('edit-name-modal');
+    const backdrop = document.getElementById('edit-name-backdrop');
+    const input = document.getElementById('edit-name-input');
+    
+    // Pre-fill with current display name or original name
+    if (userData) {
+        input.value = userData.display_name || userData.username || userData.first_name || '';
+    }
+    
+    modal.classList.add('active');
+    backdrop.classList.add('active');
+    input.focus();
+}
+
+function hideEditNameModal() {
+    const modal = document.getElementById('edit-name-modal');
+    const backdrop = document.getElementById('edit-name-backdrop');
+    
+    modal.classList.remove('active');
+    backdrop.classList.remove('active');
+}
+
+async function saveDisplayName() {
+    const input = document.getElementById('edit-name-input');
+    const displayName = input.value.trim();
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/user/me/profile`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Init-Data': initData
+            },
+            body: JSON.stringify({
+                display_name: displayName || null  // Send null to clear
+            })
+        });
+        
+        if (!response.ok) {
+            throw new Error('Failed to save');
+        }
+        
+        const result = await response.json();
+        
+        // Update local userData
+        userData.display_name = result.display_name;
+        
+        // Update profile display
+        updateProfileNameDisplay();
+        
+        hideEditNameModal();
+        haptic.notification('success');
+        tg.showAlert(t('profileSaved'));
+        
+    } catch (error) {
+        console.error('Error saving display name:', error);
+        haptic.notification('error');
+        tg.showAlert(t('profileError'));
+    }
+}
+
+function updateProfileNameDisplay() {
+    const nameEl = document.getElementById('profile-name');
+    const originalNameEl = document.getElementById('profile-original-name');
+    
+    if (!userData) return;
+    
+    const displayName = userData.display_name;
+    const originalName = userData.username ? `@${userData.username}` : userData.first_name;
+    
+    if (displayName) {
+        // Show custom name, with original below
+        nameEl.textContent = displayName;
+        if (originalNameEl) {
+            originalNameEl.textContent = originalName;
+            originalNameEl.style.display = 'block';
+        }
+    } else {
+        // Show original name only
+        nameEl.textContent = userData.username || userData.first_name || 'User';
+        if (originalNameEl) {
+            originalNameEl.style.display = 'none';
+        }
+    }
 }
 
 let selectedAmount = null;
@@ -912,11 +1036,8 @@ async function loadProfile() {
             }
         }
         
-        // Name
-        const nameEl = document.getElementById('profile-name');
-        if (nameEl) {
-            nameEl.textContent = userData.username || userData.first_name || 'User';
-        }
+        // Name (with display_name support)
+        updateProfileNameDisplay();
         
         // Stats - Diamonds
         const tonsEl = document.getElementById('profile-tons');

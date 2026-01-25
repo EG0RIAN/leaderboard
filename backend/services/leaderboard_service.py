@@ -30,6 +30,7 @@ async def get_all_time_leaderboard(
             User.tg_id,
             User.username,
             User.first_name,
+            User.display_name,
             User.photo_url,
             User.custom_title,
             User.custom_text,
@@ -38,7 +39,7 @@ async def get_all_time_leaderboard(
         )
         .outerjoin(Donation, User.tg_id == Donation.tg_id)
         .where(User.is_blocked == False)
-        .group_by(User.tg_id, User.username, User.first_name, User.photo_url, User.custom_title, User.custom_text, User.custom_link)
+        .group_by(User.tg_id, User.username, User.first_name, User.display_name, User.photo_url, User.custom_title, User.custom_text, User.custom_link)
         .order_by(desc("tons_total"), User.tg_id)
         .limit(limit)
         .offset(offset)
@@ -54,6 +55,7 @@ async def get_all_time_leaderboard(
             "tg_id": row.tg_id,
             "username": row.username,
             "first_name": row.first_name,
+            "display_name": row.display_name,
             "photo_url": row.photo_url,
             "custom_title": row.custom_title,
             "custom_text": row.custom_text,
@@ -79,6 +81,7 @@ async def get_week_leaderboard(
             User.tg_id,
             User.username,
             User.first_name,
+            User.display_name,
             User.photo_url,
             User.custom_title,
             User.custom_text,
@@ -87,7 +90,7 @@ async def get_week_leaderboard(
         )
         .outerjoin(Donation, (User.tg_id == Donation.tg_id) & (Donation.week_key == week_key))
         .where(User.is_blocked == False)
-        .group_by(User.tg_id, User.username, User.first_name, User.photo_url, User.custom_title, User.custom_text, User.custom_link)
+        .group_by(User.tg_id, User.username, User.first_name, User.display_name, User.photo_url, User.custom_title, User.custom_text, User.custom_link)
         .order_by(desc("tons_week"), User.tg_id)
         .limit(limit)
         .offset(offset)
@@ -103,6 +106,7 @@ async def get_week_leaderboard(
             "tg_id": row.tg_id,
             "username": row.username,
             "first_name": row.first_name,
+            "display_name": row.display_name,
             "photo_url": row.photo_url,
             "custom_title": row.custom_title,
             "custom_text": row.custom_text,
@@ -140,6 +144,7 @@ async def get_referrals_leaderboard(
             User.tg_id,
             User.username,
             User.first_name,
+            User.display_name,
             User.photo_url,
             User.custom_title,
             User.custom_text,
@@ -153,6 +158,7 @@ async def get_referrals_leaderboard(
             User.tg_id,
             User.username,
             User.first_name,
+            User.display_name,
             User.photo_url,
             User.custom_title,
             User.custom_text,
@@ -179,6 +185,7 @@ async def get_referrals_leaderboard(
                 "tg_id": row.tg_id,
                 "username": row.username,
                 "first_name": row.first_name,
+                "display_name": row.display_name,
                 "photo_url": row.photo_url,
                 "custom_title": row.custom_title,
                 "custom_text": row.custom_text,

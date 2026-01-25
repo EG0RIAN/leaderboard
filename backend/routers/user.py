@@ -15,6 +15,7 @@ router = APIRouter(tags=["user"])
 
 
 class UpdateProfileRequest(BaseModel):
+    display_name: Optional[str] = None  # Custom display name (instead of Telegram username)
     custom_title: Optional[str] = None  # Short title for leaderboard
     custom_text: Optional[str] = None   # Description for profile modal
     custom_link: Optional[str] = None   # Clickable link
@@ -65,6 +66,7 @@ async def get_me(
         "username": user.username,
         "first_name": user.first_name,
         "last_name": user.last_name,
+        "display_name": user.display_name,  # Custom display name set by user
         "photo_url": user.photo_url,
         "is_premium": user.is_premium,
         "language_code": user.language_code,
@@ -132,23 +134,30 @@ async def update_profile(
     
     tg_id = user_data["tg_id"]
     
+    # Validate display_name length
+    display_name = request.display_name
+    if display_name is not None:
+        display_name = display_name.strip()[:50]  # Max 50 characters
+        if len(display_name) == 0:
+            display_name = None
+    
     # Validate custom_title length (shown in leaderboard list)
     custom_title = request.custom_title
-    if custom_title:
+    if custom_title is not None:
         custom_title = custom_title.strip()[:50]  # Max 50 characters
         if len(custom_title) == 0:
             custom_title = None
     
     # Validate custom_text length (description in profile modal)
     custom_text = request.custom_text
-    if custom_text:
+    if custom_text is not None:
         custom_text = custom_text.strip()[:200]  # Max 200 characters
         if len(custom_text) == 0:
             custom_text = None
     
     # Validate custom_link
     custom_link = request.custom_link
-    if custom_link:
+    if custom_link is not None:
         custom_link = custom_link.strip()[:500]  # Max 500 characters
         if len(custom_link) == 0:
             custom_link = None
@@ -163,18 +172,25 @@ async def update_profile(
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     
-    user.custom_title = custom_title
-    user.custom_text = custom_text
-    user.custom_link = custom_link
+    # Only update fields that were provided (not None in request)
+    if request.display_name is not None:
+        user.display_name = display_name
+    if request.custom_title is not None:
+        user.custom_title = custom_title
+    if request.custom_text is not None:
+        user.custom_text = custom_text
+    if request.custom_link is not None:
+        user.custom_link = custom_link
     await session.commit()
     
-    logger.info(f"User {tg_id} updated profile: title='{custom_title}', text='{custom_text}', link='{custom_link}'")
+    logger.info(f"User {tg_id} updated profile: display_name='{user.display_name}', title='{user.custom_title}'")
     
     return {
         "success": True,
-        "custom_title": custom_title,
-        "custom_text": custom_text,
-        "custom_link": custom_link
+        "display_name": user.display_name,
+        "custom_title": user.custom_title,
+        "custom_text": user.custom_text,
+        "custom_link": user.custom_link
     }
 
 
