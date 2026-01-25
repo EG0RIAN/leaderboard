@@ -722,21 +722,9 @@ body {
     transform: translateX(-50%) scale(0.95);
 }
 
-/* Different backgrounds for each story */
-.story-slide[data-story="0"] {
+/* Same background for all stories */
+.story-slide {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-}
-
-.story-slide[data-story="1"] {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-}
-
-.story-slide[data-story="2"] {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-}
-
-.story-slide[data-story="3"] {
-    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
 }
 
 /* ==================== HEADER ROW ==================== */
