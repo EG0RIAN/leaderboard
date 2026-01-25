@@ -103,6 +103,7 @@ body {
 .avatar {
     width: 40px;
     height: 40px;
+    min-width: 40px;
     border-radius: 50%;
     margin: 0 12px;
     background: var(--tg-theme-secondary-bg-color, #f0f0f0);
@@ -112,6 +113,7 @@ body {
     font-weight: 600;
     color: var(--tg-theme-text-color, #000000);
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .avatar img {
@@ -1177,104 +1179,91 @@ body {
 
 /* ==================== TOP 3 STYLING ==================== */
 
-/* Gold - 1st place */
-.leaderboard-item.top-1 {
-    background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 193, 7, 0.08) 100%);
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    border-radius: 12px;
-    margin: 4px 8px;
-    position: relative;
+/* Base styles for top 3 */
+.leaderboard-item.top-1,
+.leaderboard-item.top-2,
+.leaderboard-item.top-3 {
+    margin: 6px 12px;
+    padding: 14px 12px;
+    border-radius: 14px;
+    border-bottom: none;
 }
 
-.leaderboard-item.top-1::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #FFD700, transparent);
+/* Gold - 1st place */
+.leaderboard-item.top-1 {
+    background: linear-gradient(135deg, rgba(255, 215, 0, 0.12) 0%, rgba(255, 193, 7, 0.06) 100%);
+    border: 1.5px solid rgba(255, 215, 0, 0.35);
 }
 
 .leaderboard-item.top-1 .rank {
-    font-size: 24px;
+    font-size: 22px;
+    width: 44px;
+    color: #D4A800;
 }
 
 .leaderboard-item.top-1 .username {
-    color: #B8860B;
     font-weight: 700;
 }
 
 .leaderboard-item.top-1 .amount {
-    color: #DAA520;
     font-weight: 700;
+    color: #C49800;
+}
+
+.leaderboard-item.top-1 .avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    border: 2px solid #FFD700;
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
 }
 
 /* Silver - 2nd place */
 .leaderboard-item.top-2 {
-    background: linear-gradient(135deg, rgba(192, 192, 192, 0.15) 0%, rgba(169, 169, 169, 0.08) 100%);
-    border: 1px solid rgba(192, 192, 192, 0.3);
-    border-radius: 12px;
-    margin: 4px 8px;
-    position: relative;
-}
-
-.leaderboard-item.top-2::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #C0C0C0, transparent);
+    background: linear-gradient(135deg, rgba(180, 180, 190, 0.12) 0%, rgba(160, 160, 170, 0.06) 100%);
+    border: 1.5px solid rgba(180, 180, 190, 0.35);
 }
 
 .leaderboard-item.top-2 .rank {
-    font-size: 22px;
+    font-size: 20px;
+    width: 44px;
+    color: #8E8E93;
 }
 
 .leaderboard-item.top-2 .username {
     font-weight: 600;
 }
 
-/* Bronze - 3rd place */
-.leaderboard-item.top-3 {
-    background: linear-gradient(135deg, rgba(205, 127, 50, 0.15) 0%, rgba(184, 115, 51, 0.08) 100%);
-    border: 1px solid rgba(205, 127, 50, 0.3);
-    border-radius: 12px;
-    margin: 4px 8px;
-    position: relative;
+.leaderboard-item.top-2 .avatar {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border: 2px solid #A8A8AD;
+    box-shadow: 0 0 8px rgba(180, 180, 190, 0.4);
 }
 
-.leaderboard-item.top-3::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, #CD7F32, transparent);
+/* Bronze - 3rd place */
+.leaderboard-item.top-3 {
+    background: linear-gradient(135deg, rgba(205, 127, 50, 0.12) 0%, rgba(184, 115, 51, 0.06) 100%);
+    border: 1.5px solid rgba(205, 127, 50, 0.35);
 }
 
 .leaderboard-item.top-3 .rank {
-    font-size: 20px;
+    font-size: 18px;
+    width: 44px;
+    color: #B87333;
 }
 
 .leaderboard-item.top-3 .username {
     font-weight: 600;
 }
 
-/* Top 3 avatars glow effect */
-.leaderboard-item.top-1 .avatar {
-    box-shadow: 0 0 12px rgba(255, 215, 0, 0.5);
-}
-
-.leaderboard-item.top-2 .avatar {
-    box-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
-}
-
 .leaderboard-item.top-3 .avatar {
-    box-shadow: 0 0 8px rgba(205, 127, 50, 0.5);
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border: 2px solid #CD7F32;
+    box-shadow: 0 0 6px rgba(205, 127, 50, 0.4);
 }
 
 /* ==================== PROFILE RANK BADGE ==================== */
