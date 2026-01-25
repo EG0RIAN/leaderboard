@@ -6,7 +6,7 @@
     <title>Лидерборд донатов</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@2.0.0/dist/css/style.css">
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="stylesheet" href="styles.css?v=7">
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="translations.js"></script>
@@ -290,87 +290,77 @@
                     </button>
                 </nav>
                 
-                <!-- Donate button -->
+                <!-- Rise in ranking button -->
                 <div class="bottom-donate" id="donate-button-container">
                     <button class="btn-donate" id="donate-btn">
                         <svg class="donate-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            <path d="M12 19V5M5 12l7-7 7 7"/>
                         </svg>
-                        <span class="donate-text" data-i18n="donate">Пополнить</span>
+                        <span class="donate-text" data-i18n="riseInRating">Подняться в рейтинге</span>
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Donate modal -->
-        <div id="donate-modal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 data-i18n="donateTitle">Пополнить донат</h3>
-                    <button class="modal-close" id="close-modal">&times;</button>
+        <!-- Top up balance modal -->
+        <div id="topup-modal" class="topup-modal">
+            <div class="topup-content">
+                <div class="topup-header">
+                    <h3 data-i18n="topupTitle">Пополнить баланс</h3>
+                    <button class="topup-close" id="close-topup">&times;</button>
                 </div>
-                <div class="modal-body">
-                    <div class="presets">
-                        <button class="preset-btn" data-preset="1" data-amount="">
-                            <span class="preset-label" data-i18n="preset1">1 место</span>
-                            <span class="preset-amount"></span>
-                        </button>
-                        <button class="preset-btn" data-preset="2" data-amount="">
-                            <span class="preset-label" data-i18n="preset2">2 место</span>
-                            <span class="preset-amount"></span>
-                        </button>
-                        <button class="preset-btn" data-preset="3" data-amount="">
-                            <span class="preset-label" data-i18n="preset3">3 место</span>
-                            <span class="preset-amount"></span>
-                        </button>
+                
+                <!-- Payment method tabs -->
+                <div class="topup-methods">
+                    <button class="topup-method active" data-method="ton" id="topup-method-ton">
+                        <svg class="method-icon-svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        <span>TON</span>
+                    </button>
+                    <button class="topup-method" data-method="stars" id="topup-method-stars">
+                        <span class="method-icon-emoji">⭐</span>
+                        <span>Stars</span>
+                    </button>
+                </div>
+                
+                <!-- Amount display -->
+                <div class="topup-amount-display">
+                    <input type="number" id="topup-amount" class="topup-amount-input" value="1" min="0.1" step="0.1">
+                    <span class="topup-currency" id="topup-currency">TON</span>
+                </div>
+                
+                <!-- Charts preview -->
+                <div class="topup-charts-preview">
+                    <span class="charts-icon charts-icon-md"></span>
+                    <span id="topup-charts-amount">100</span>
+                </div>
+                
+                <!-- Quick amounts -->
+                <div class="topup-quick-amounts">
+                    <button class="quick-amount-btn" data-amount="0.5">0.5</button>
+                    <button class="quick-amount-btn" data-amount="1">1</button>
+                    <button class="quick-amount-btn" data-amount="5">5</button>
+                    <button class="quick-amount-btn" data-amount="10">10</button>
+                </div>
+                
+                <!-- TON payment section -->
+                <div class="topup-ton-section" id="topup-ton-section">
+                    <div class="topup-wallet-connect" id="topup-wallet-connect">
+                        <button class="btn-primary btn-full" id="topup-connect-wallet" data-i18n="connectWallet">Подключить</button>
                     </div>
-                    <div class="custom-amount">
-                        <label data-i18n="customAmount">Своя сумма (Stars):</label>
-                        <input type="number" id="custom-stars" min="1" data-i18n-placeholder="enterAmount" placeholder="Введите сумму">
+                    <div class="topup-wallet-pay" id="topup-wallet-pay" style="display: none;">
+                        <button class="btn-primary btn-full" id="topup-pay-btn" data-i18n="payNow">Оплатить</button>
                     </div>
-                    
-                    <!-- Payment method selector -->
-                    <div class="payment-method-selector">
-                        <button class="payment-method active" data-method="stars" id="method-stars">
-                            <span class="method-icon">⭐</span>
-                            <span class="method-name">Stars</span>
-                        </button>
-                        <button class="payment-method" data-method="ton" id="method-ton">
-                            <span class="method-icon">💎</span>
-                            <span class="method-name">TON</span>
-                        </button>
-                    </div>
-                    
-                    <!-- TON amount input (hidden by default) -->
-                    <div class="ton-amount-section" id="ton-amount-section" style="display: none;">
-                        <div class="custom-amount">
-                            <label data-i18n="tonAmount">Сумма в TON:</label>
-                            <input type="number" id="ton-amount" min="0.1" step="0.1" placeholder="0.1">
-                        </div>
-                        <div class="ton-conversion" id="ton-conversion">
-                            <span>≈ <span id="ton-charts-preview">0</span> <span class="charts-icon charts-icon-sm"></span></span>
-                        </div>
-                    </div>
-                    
-                    <button class="btn-primary" id="create-invoice-btn" disabled data-i18n="createPayment">Создать платеж</button>
-                    
-                    <!-- TON payment info (shown when TON selected) -->
-                    <div class="ton-payment-info" id="ton-payment-info" style="display: none;">
-                        <div class="ton-qr-section">
-                            <div class="ton-wallet-address" id="ton-wallet-display"></div>
-                            <div class="ton-comment" id="ton-comment-display"></div>
-                            <button class="btn-secondary" id="copy-ton-address" data-i18n="copyAddress">Скопировать адрес</button>
-                            <a class="btn-primary" id="ton-payment-link" href="#" target="_blank" data-i18n="openWallet">Открыть кошелёк</a>
-                        </div>
-                        <div class="ton-status" id="ton-status">
-                            <span class="status-icon">⏳</span>
-                            <span class="status-text" data-i18n="waitingPayment">Ожидание оплаты...</span>
-                        </div>
-                        <div class="ton-timer" id="ton-timer"></div>
-                    </div>
+                </div>
+                
+                <!-- Stars payment section (hidden by default) -->
+                <div class="topup-stars-section" id="topup-stars-section" style="display: none;">
+                    <button class="btn-primary btn-full" id="topup-stars-btn" data-i18n="payWithStars">Оплатить Stars</button>
                 </div>
             </div>
         </div>
+        <div id="topup-backdrop" class="topup-backdrop"></div>
 
         <!-- User profile modal (for viewing other users) -->
         <div id="user-profile-modal" class="user-profile-modal">
@@ -422,7 +412,12 @@
         <div id="activate-modal" class="activate-modal">
             <div class="activate-content">
                 <h3 data-i18n="activateChartsTitle">Активировать чартсы</h3>
-                <p class="activate-balance" data-i18n="availableBalance">Доступно: <span id="activate-available">0</span> чартсов</p>
+                <p class="activate-balance">
+                    <span data-i18n="availableBalance">Доступно:</span> 
+                    <span id="activate-available">0</span> 
+                    <span class="charts-icon charts-icon-sm"></span>
+                    <button class="btn-topup-inline" id="activate-topup-btn" data-i18n="topUp">+</button>
+                </p>
                 <div class="activate-input-group">
                     <input type="number" id="activate-amount" min="1" step="1" 
                            data-i18n-placeholder="enterAmount" 
@@ -442,7 +437,7 @@
 
     <script src="onboarding.js?v=2"></script>
     <script src="tonconnect.js?v=4">
-    <script src="app.js?v=8"></script>
+    <script src="app.js?v=9"></script>
 </body>
 </html>
 

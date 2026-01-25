@@ -22,6 +22,14 @@ const translations = {
         createPayment: "Создать платеж",
         close: "Закрыть",
         
+        // Rise in rating
+        riseInRating: "Подняться в рейтинге",
+        topupTitle: "Пополнить баланс",
+        topUp: "+",
+        payNow: "Оплатить",
+        payWithStars: "Оплатить Stars",
+        needMoreCharts: "Нужно ещё чартсов для активации",
+        
         // Donate modal
         donateTitle: "Пополнить донат",
         preset1: "1 место",
@@ -168,6 +176,14 @@ const translations = {
         inviteFriend: "Invite Friend",
         createPayment: "Create Payment",
         close: "Close",
+        
+        // Rise in rating
+        riseInRating: "Rise in ranking",
+        topupTitle: "Top up balance",
+        topUp: "+",
+        payNow: "Pay",
+        payWithStars: "Pay with Stars",
+        needMoreCharts: "Need more charts to activate",
         
         // Donate modal
         donateTitle: "Top Up Donation",

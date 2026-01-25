@@ -537,6 +537,198 @@ body {
 }
 
 
+/* Top-up Modal (Rolls-style) */
+.topup-modal {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a2e;
+    border-radius: 24px 24px 0 0;
+    z-index: 1001;
+    transform: translateY(100%);
+    transition: transform 0.3s ease-out;
+    max-height: 85vh;
+    overflow-y: auto;
+}
+
+.topup-modal.active {
+    transform: translateY(0);
+}
+
+.topup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+}
+
+.topup-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.topup-content {
+    padding: 24px 20px 40px;
+}
+
+.topup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.topup-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.topup-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Payment method tabs */
+.topup-methods {
+    display: flex;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 32px;
+}
+
+.topup-method {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.topup-method.active {
+    background: #3390ec;
+    color: #fff;
+}
+
+.topup-method .method-icon-svg {
+    width: 20px;
+    height: 20px;
+}
+
+.topup-method .method-icon-emoji {
+    font-size: 18px;
+}
+
+/* Amount display */
+.topup-amount-display {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.topup-amount-input {
+    background: transparent;
+    border: none;
+    font-size: 56px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.4);
+    width: 120px;
+    text-align: right;
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.topup-amount-input::-webkit-outer-spin-button,
+.topup-amount-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.topup-amount-input:focus {
+    color: #fff;
+}
+
+.topup-currency {
+    font-size: 56px;
+    font-weight: 300;
+    color: #fff;
+}
+
+/* Charts preview */
+.topup-charts-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 24px;
+}
+
+#topup-charts-amount {
+    font-weight: 500;
+}
+
+/* Quick amounts */
+.topup-quick-amounts {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-bottom: 32px;
+}
+
+.quick-amount-btn {
+    padding: 8px 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    border-radius: 20px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.quick-amount-btn:hover,
+.quick-amount-btn.active {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Action buttons */
+.btn-full {
+    width: 100%;
+    padding: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    border-radius: 14px;
+}
+
+
 /* Profile section */
 .profile-section {
     padding: 20px;
@@ -2076,6 +2268,23 @@ body {
 .activate-balance span {
     font-weight: 600;
     color: var(--tg-theme-text-color, #000000);
+}
+
+.btn-topup-inline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-left: 8px;
+    background: var(--tg-theme-button-color, #3390ec);
+    color: var(--tg-theme-button-text-color, #fff);
+    border: none;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    vertical-align: middle;
 }
 
 .activate-input-group {

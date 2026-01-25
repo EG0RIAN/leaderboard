@@ -168,17 +168,86 @@ function setupEventListeners() {
         });
     });
     
-    // Donate button
+    // Rise in rating button - opens activate or top-up modal
     document.getElementById('donate-btn').addEventListener('click', () => {
-        haptic.impact('medium'); // Vibration on donate button
-        showDonateModal();
+        haptic.impact('medium');
+        handleRiseInRating();
     });
     
-    // Modal close
-    document.getElementById('close-modal').addEventListener('click', () => {
-        haptic.impact('light'); // Vibration on close
-        hideDonateModal();
+    // Top-up modal close
+    const closeTopupBtn = document.getElementById('close-topup');
+    if (closeTopupBtn) {
+        closeTopupBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            hideTopupModal();
+        });
+    }
+    
+    // Top-up backdrop
+    const topupBackdrop = document.getElementById('topup-backdrop');
+    if (topupBackdrop) {
+        topupBackdrop.addEventListener('click', () => {
+            haptic.impact('light');
+            hideTopupModal();
+        });
+    }
+    
+    // Top-up method tabs
+    document.querySelectorAll('.topup-method').forEach(btn => {
+        btn.addEventListener('click', () => {
+            haptic.selection();
+            selectTopupMethod(btn.dataset.method);
+        });
     });
+    
+    // Top-up quick amounts
+    document.querySelectorAll('.quick-amount-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            haptic.impact('light');
+            const amount = parseFloat(btn.dataset.amount);
+            document.getElementById('topup-amount').value = amount;
+            updateTopupPreview();
+            
+            // Highlight selected
+            document.querySelectorAll('.quick-amount-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        });
+    });
+    
+    // Top-up amount input
+    const topupAmountInput = document.getElementById('topup-amount');
+    if (topupAmountInput) {
+        topupAmountInput.addEventListener('input', updateTopupPreview);
+    }
+    
+    // Top-up connect wallet
+    const topupConnectBtn = document.getElementById('topup-connect-wallet');
+    if (topupConnectBtn) {
+        topupConnectBtn.addEventListener('click', async () => {
+            haptic.impact('medium');
+            if (window.tonConnect && window.tonConnect.connect) {
+                await window.tonConnect.connect();
+            }
+        });
+    }
+    
+    // Top-up pay with TON
+    const topupPayBtn = document.getElementById('topup-pay-btn');
+    if (topupPayBtn) {
+        topupPayBtn.addEventListener('click', () => {
+            haptic.impact('heavy');
+            processTopupTonPayment();
+        });
+    }
+    
+    // Top-up pay with Stars
+    const topupStarsBtn = document.getElementById('topup-stars-btn');
+    if (topupStarsBtn) {
+        topupStarsBtn.addEventListener('click', () => {
+            haptic.impact('heavy');
+            processTopupStarsPayment();
+        });
+    }
     
     // Preset buttons
     document.querySelectorAll('.preset-btn').forEach(btn => {
@@ -377,6 +446,16 @@ function setupEventListeners() {
         activateBackdrop.addEventListener('click', () => {
             haptic.impact('light');
             hideActivateModal();
+        });
+    }
+    
+    // Activate charts: top-up button
+    const activateTopupBtn = document.getElementById('activate-topup-btn');
+    if (activateTopupBtn) {
+        activateTopupBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            hideActivateModal();
+            showTopupModal();
         });
     }
     
@@ -609,19 +688,223 @@ function updatePresetButtons() {
     });
 }
 
-// Show donate modal
-function showDonateModal() {
-    document.getElementById('donate-modal').classList.add('active');
-    tg.BackButton.show();
-    tg.BackButton.onClick(hideDonateModal);
+// Handle Rise in Rating button click
+function handleRiseInRating() {
+    const balance = userData?.balance_charts || 0;
+    
+    if (balance > 0) {
+        // User has charts, show activate modal
+        showActivateModal();
+    } else {
+        // No charts, show top-up modal
+        showTopupModal();
+    }
 }
 
-// Hide donate modal
-function hideDonateModal() {
-    document.getElementById('donate-modal').classList.remove('active');
-    if (!document.getElementById('user-profile-modal').classList.contains('active')) {
+// Show top-up modal
+function showTopupModal() {
+    const modal = document.getElementById('topup-modal');
+    const backdrop = document.getElementById('topup-backdrop');
+    
+    if (modal) modal.classList.add('active');
+    if (backdrop) backdrop.classList.add('active');
+    
+    tg.BackButton.show();
+    tg.BackButton.onClick(hideTopupModal);
+    
+    // Check wallet connection status
+    updateTopupWalletStatus();
+    updateTopupPreview();
+}
+
+// Hide top-up modal
+function hideTopupModal() {
+    const modal = document.getElementById('topup-modal');
+    const backdrop = document.getElementById('topup-backdrop');
+    
+    if (modal) modal.classList.remove('active');
+    if (backdrop) backdrop.classList.remove('active');
+    
+    if (!document.getElementById('user-profile-modal')?.classList.contains('active') &&
+        !document.getElementById('activate-modal')?.classList.contains('active')) {
         tg.BackButton.hide();
     }
+}
+
+// Select top-up payment method
+let currentTopupMethod = 'ton';
+
+function selectTopupMethod(method) {
+    currentTopupMethod = method;
+    
+    // Update tabs
+    document.querySelectorAll('.topup-method').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.method === method);
+    });
+    
+    // Update currency display
+    const currencyEl = document.getElementById('topup-currency');
+    if (currencyEl) {
+        currencyEl.textContent = method === 'ton' ? 'TON' : 'Stars';
+    }
+    
+    // Show/hide sections
+    const tonSection = document.getElementById('topup-ton-section');
+    const starsSection = document.getElementById('topup-stars-section');
+    
+    if (tonSection) tonSection.style.display = method === 'ton' ? 'block' : 'none';
+    if (starsSection) starsSection.style.display = method === 'stars' ? 'block' : 'none';
+    
+    // Update preview
+    updateTopupPreview();
+}
+
+// Update top-up charts preview
+function updateTopupPreview() {
+    const amountInput = document.getElementById('topup-amount');
+    const chartsEl = document.getElementById('topup-charts-amount');
+    
+    if (!amountInput || !chartsEl) return;
+    
+    const amount = parseFloat(amountInput.value) || 0;
+    let charts = 0;
+    
+    if (currentTopupMethod === 'ton') {
+        const rate = tonConfig?.charts_per_ton || 100;
+        charts = Math.floor(amount * rate);
+    } else {
+        // Stars: 1 star = 1 chart (or use rate from config)
+        charts = Math.floor(amount);
+    }
+    
+    chartsEl.textContent = charts;
+}
+
+// Update wallet connection status in top-up modal
+function updateTopupWalletStatus() {
+    const connectSection = document.getElementById('topup-wallet-connect');
+    const paySection = document.getElementById('topup-wallet-pay');
+    
+    const isConnected = window.tonConnect && window.tonConnect.isConnected && window.tonConnect.isConnected();
+    
+    if (connectSection) connectSection.style.display = isConnected ? 'none' : 'block';
+    if (paySection) paySection.style.display = isConnected ? 'block' : 'none';
+}
+
+// Process TON payment from top-up modal
+async function processTopupTonPayment() {
+    const amount = parseFloat(document.getElementById('topup-amount').value) || 0;
+    
+    if (amount < 0.1) {
+        tg.showAlert(t('minTonAmount'));
+        return;
+    }
+    
+    try {
+        // Create payment
+        const response = await fetch(`${API_BASE_URL}/ton/create-payment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Init-Data': initData
+            },
+            body: JSON.stringify({ amount_ton: amount })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to create payment');
+        }
+        
+        const payment = await response.json();
+        
+        // Send transaction via TON Connect
+        if (window.tonConnect && window.tonConnect.sendTransaction) {
+            await window.tonConnect.sendTransaction(
+                payment.to_wallet,
+                amount,
+                payment.payment_comment
+            );
+            
+            haptic.notification('success');
+            tg.showAlert(t('paymentCreated', { amount: amount }));
+            
+            // Start checking status
+            startTonPaymentCheck(payment.payment_comment);
+        }
+    } catch (error) {
+        console.error('TON payment error:', error);
+        haptic.notification('error');
+        tg.showAlert(error.message);
+    }
+}
+
+// Process Stars payment from top-up modal
+async function processTopupStarsPayment() {
+    const amount = parseInt(document.getElementById('topup-amount').value) || 0;
+    
+    if (amount < 1) {
+        tg.showAlert('Минимум 1 Star');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/payments/create-invoice`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Init-Data': initData
+            },
+            body: JSON.stringify({
+                stars_amount: amount,
+                payment_type: 'stars'
+            })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Failed to create invoice');
+        }
+        
+        const data = await response.json();
+        
+        if (data.invoice_url) {
+            hideTopupModal();
+            
+            let invoiceSlug = data.invoice_url;
+            if (invoiceSlug.includes('t.me/')) {
+                invoiceSlug = invoiceSlug.split('t.me/')[1].split('?')[0];
+            }
+            
+            if (tg && typeof tg.openInvoice === 'function') {
+                tg.openInvoice(invoiceSlug, (status) => {
+                    if (status === 'paid') {
+                        haptic.notification('success');
+                        celebrateConfetti();
+                        tg.showAlert(t('paymentSuccess'));
+                        setTimeout(() => {
+                            loadLeaderboard(currentTab);
+                            init();
+                        }, 1000);
+                    }
+                });
+            }
+        }
+    } catch (error) {
+        console.error('Stars payment error:', error);
+        haptic.notification('error');
+        tg.showAlert(error.message);
+    }
+}
+
+// Legacy: Show donate modal (keep for backwards compatibility)
+function showDonateModal() {
+    showTopupModal();
+}
+
+// Legacy: Hide donate modal
+function hideDonateModal() {
+    hideTopupModal();
     // Reset selection
     document.querySelectorAll('.preset-btn').forEach(btn => {
         btn.classList.remove('selected');
