@@ -79,42 +79,33 @@ async function initTonConnect() {
     }
 }
 
-// Setup wallet button handlers
+// Setup wallet button handlers using event delegation
 function setupWalletButtons() {
-    const connectBtn = document.getElementById('ton-connect-btn');
-    const disconnectBtn = document.getElementById('disconnect-wallet');
+    console.log('Setting up wallet buttons with event delegation');
     
-    console.log('Setting up wallet buttons - connect:', connectBtn, 'disconnect:', disconnectBtn);
-    
-    if (connectBtn) {
-        // Remove old listeners first
-        connectBtn.replaceWith(connectBtn.cloneNode(true));
-        const newConnectBtn = document.getElementById('ton-connect-btn');
+    // Use event delegation on document to catch all clicks
+    document.addEventListener('click', async (e) => {
+        const connectBtn = e.target.closest('#ton-connect-btn');
+        const disconnectBtn = e.target.closest('#disconnect-wallet');
         
-        newConnectBtn.addEventListener('click', async (e) => {
+        if (connectBtn) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Connect button clicked!');
+            console.log('Connect button clicked via delegation!');
             if (window.haptic) window.haptic.impact('medium');
             await connectWallet();
-        });
-        console.log('Connect button listener added');
-    }
-    
-    if (disconnectBtn) {
-        // Remove old listeners first
-        disconnectBtn.replaceWith(disconnectBtn.cloneNode(true));
-        const newDisconnectBtn = document.getElementById('disconnect-wallet');
+        }
         
-        newDisconnectBtn.addEventListener('click', async (e) => {
+        if (disconnectBtn) {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Disconnect button clicked!');
+            console.log('Disconnect button clicked via delegation!');
             if (window.haptic) window.haptic.impact('light');
             await disconnectWallet();
-        });
-        console.log('Disconnect button listener added');
-    }
+        }
+    });
+    
+    console.log('Wallet button event delegation set up');
 }
 
 // Connect wallet
