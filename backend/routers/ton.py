@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import get_db
-from backend.auth import validate_telegram_init_data
+from backend.telegram_auth import validate_telegram_init_data
 from backend.config import settings
 from backend.services.ton_service import (
     create_ton_payment,
