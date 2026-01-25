@@ -394,6 +394,7 @@ function renderLeaderboard(type, items) {
         // Rank styling classes
         let rankClass = '';
         const rank = item.rank;
+        console.log('Rendering item with rank:', rank);
         if (rank === 1) rankClass = 'top-1';
         else if (rank === 2) rankClass = 'top-2';
         else if (rank === 3) rankClass = 'top-3';
@@ -404,6 +405,7 @@ function renderLeaderboard(type, items) {
         else if (rank >= 101 && rank <= 250) rankClass = 'rank-101-250';
         else if (rank >= 251 && rank <= 500) rankClass = 'rank-251-500';
         else if (rank >= 501 && rank <= 1000) rankClass = 'rank-501-1000';
+        console.log('Assigned rankClass:', rankClass);
         
         const rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
         
