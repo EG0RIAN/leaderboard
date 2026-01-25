@@ -245,8 +245,12 @@ function setupEventListeners() {
     
     // Edit name: open modal
     const editNameBtn = document.getElementById('profile-name-edit');
+    console.log('Edit name button found:', editNameBtn);
     if (editNameBtn) {
-        editNameBtn.addEventListener('click', () => {
+        editNameBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Edit name button clicked');
             haptic.impact('light');
             showEditNameModal();
         });
@@ -603,9 +607,17 @@ function hideUserProfileModal() {
 
 // Edit Display Name Modal
 function showEditNameModal() {
+    console.log('showEditNameModal called');
     const modal = document.getElementById('edit-name-modal');
     const backdrop = document.getElementById('edit-name-backdrop');
     const input = document.getElementById('edit-name-input');
+    
+    console.log('Modal:', modal, 'Backdrop:', backdrop, 'Input:', input);
+    
+    if (!modal || !backdrop || !input) {
+        console.error('Edit name modal elements not found!');
+        return;
+    }
     
     // Pre-fill with current display name or original name
     if (userData) {
@@ -615,6 +627,7 @@ function showEditNameModal() {
     modal.classList.add('active');
     backdrop.classList.add('active');
     input.focus();
+    console.log('Modal should be visible now');
 }
 
 function hideEditNameModal() {

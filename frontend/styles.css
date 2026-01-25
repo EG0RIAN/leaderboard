@@ -884,13 +884,18 @@ body {
 .profile-name-edit {
     background: none;
     border: none;
-    padding: 4px;
+    padding: 8px;
     cursor: pointer;
     color: var(--tg-theme-hint-color, #999999);
     transition: color 0.2s, transform 0.15s;
     display: flex;
     align-items: center;
     justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.profile-name-edit svg {
+    pointer-events: none;
 }
 
 .profile-name-edit:hover {
