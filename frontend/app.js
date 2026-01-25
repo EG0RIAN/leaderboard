@@ -258,17 +258,21 @@ function setupEventListeners() {
         });
     });
     
-    // Custom amount input
-    document.getElementById('custom-stars').addEventListener('input', (e) => {
-        const value = parseInt(e.target.value);
-        if (value > 0) {
-            selectCustomAmount(value);
-        } else {
-            document.getElementById('create-invoice-btn').disabled = true;
-        }
-    });
+    // Custom amount input (legacy - may not exist)
+    const customStarsInput = document.getElementById('custom-stars');
+    if (customStarsInput) {
+        customStarsInput.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            if (value > 0) {
+                selectCustomAmount(value);
+            } else {
+                const invoiceBtn = document.getElementById('create-invoice-btn');
+                if (invoiceBtn) invoiceBtn.disabled = true;
+            }
+        });
+    }
     
-    // Payment method selection (only Stars available without crypto provider)
+    // Payment method selection (legacy - may not exist)
     const paymentMethodBtns = document.querySelectorAll('.payment-method-btn');
     if (paymentMethodBtns.length > 0) {
         paymentMethodBtns.forEach(btn => {
@@ -280,7 +284,7 @@ function setupEventListeners() {
         });
     }
     
-    // Crypto currency selection
+    // Crypto currency selection (legacy - may not exist)
     const cryptoCurrencySelect = document.getElementById('crypto-currency');
     if (cryptoCurrencySelect) {
         cryptoCurrencySelect.addEventListener('change', (e) => {
@@ -288,11 +292,14 @@ function setupEventListeners() {
         });
     }
     
-    // Create invoice button
-    document.getElementById('create-invoice-btn').addEventListener('click', () => {
-        haptic.impact('heavy'); // Strong vibration on payment
-        createInvoice();
-    });
+    // Create invoice button (legacy - may not exist)
+    const createInvoiceBtn = document.getElementById('create-invoice-btn');
+    if (createInvoiceBtn) {
+        createInvoiceBtn.addEventListener('click', () => {
+            haptic.impact('heavy');
+            createInvoice();
+        });
+    }
     
     // Share referral button
     const shareBtn = document.getElementById('share-ref-btn');
