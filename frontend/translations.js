@@ -58,6 +58,7 @@ const translations = {
         notInTop: "Пока не в топе",
         
         // Balance & Activation
+        balance: "Баланс:",
         balanceTitle: "Ваш баланс",
         balanceHint: "Активируйте чартсы, чтобы войти в лидерборд",
         activateCharts: "Активировать",
@@ -189,6 +190,7 @@ const translations = {
         notInTop: "Not in top yet",
         
         // Balance & Activation
+        balance: "Balance:",
         balanceTitle: "Your Balance",
         balanceHint: "Activate charts to enter the leaderboard",
         activateCharts: "Activate",

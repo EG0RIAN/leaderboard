@@ -89,6 +89,7 @@ async function init() {
         
         updatePresetButtons();
         setupEventListeners();
+        updateBalanceBar();
         loadLeaderboard('all-time');
     } catch (error) {
         console.error('Init error:', error);
@@ -283,10 +284,19 @@ function setupEventListeners() {
         });
     }
     
-    // Activate charts: open modal
+    // Activate charts: open modal (profile button)
     const activateBtn = document.getElementById('activate-charts-btn');
     if (activateBtn) {
         activateBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            showActivateModal();
+        });
+    }
+    
+    // Activate charts: open modal (balance bar button)
+    const balanceBarActivateBtn = document.getElementById('balance-bar-activate');
+    if (balanceBarActivateBtn) {
+        balanceBarActivateBtn.addEventListener('click', () => {
             haptic.impact('light');
             showActivateModal();
         });
@@ -351,11 +361,33 @@ function switchTab(tabName) {
         donateContainer.style.display = tabName === 'profile' ? 'none' : 'block';
     }
     
+    // Show/hide balance bar (hide on profile tab, show on leaderboard tabs)
+    const balanceBar = document.getElementById('balance-bar');
+    if (balanceBar) {
+        balanceBar.classList.toggle('hidden', tabName === 'profile');
+        updateBalanceBar();
+    }
+    
     // Load content based on tab
     if (tabName === 'profile') {
         loadProfile();
     } else {
         loadLeaderboard(tabName);
+    }
+}
+
+// Update balance bar on leaderboard pages
+function updateBalanceBar() {
+    const balanceValue = document.getElementById('balance-bar-value');
+    const activateBtn = document.getElementById('balance-bar-activate');
+    
+    if (balanceValue && userData) {
+        const balance = userData.balance_charts || 0;
+        balanceValue.textContent = balance;
+        
+        if (activateBtn) {
+            activateBtn.disabled = balance <= 0;
+        }
     }
 }
 
@@ -799,9 +831,18 @@ async function activateCharts() {
         userData.balance_charts = result.new_balance;
         userData.tons_all_time = (userData.tons_all_time || 0) + amount;
         
-        // Update UI
-        document.getElementById('profile-balance').textContent = result.new_balance;
-        document.getElementById('profile-tons').textContent = userData.tons_all_time;
+        // Update UI - Profile section
+        const profileBalanceEl = document.getElementById('profile-balance');
+        if (profileBalanceEl) {
+            profileBalanceEl.textContent = result.new_balance;
+        }
+        const profileTonsEl = document.getElementById('profile-tons');
+        if (profileTonsEl) {
+            profileTonsEl.textContent = userData.tons_all_time;
+        }
+        
+        // Update balance bar
+        updateBalanceBar();
         
         // Disable button if no balance left
         const activateBtn = document.getElementById('activate-charts-btn');

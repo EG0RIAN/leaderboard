@@ -6,7 +6,7 @@
     <title>Лидерборд донатов</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@2.0.0/dist/css/style.css">
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=5">
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <script src="translations.js"></script>
     <script>
@@ -93,6 +93,16 @@
 
     <div id="app">
         <div class="container">
+
+            <!-- Balance Bar (shown on leaderboard pages) -->
+            <div class="balance-bar" id="balance-bar">
+                <div class="balance-bar-left">
+                    <span class="charts-icon charts-icon-sm"></span>
+                    <span class="balance-bar-label" data-i18n="balance">Баланс:</span>
+                    <span class="balance-bar-value" id="balance-bar-value">0</span>
+                </div>
+                <button class="balance-bar-btn" id="balance-bar-activate" data-i18n="activateCharts">Активировать</button>
+            </div>
 
             <!-- Tab content -->
             <div class="tab-content">
@@ -395,7 +405,7 @@
 
     <script src="onboarding.js"></script>
     <script src="tonconnect.js"></script>
-    <script src="app.js?v=4"></script>
+    <script src="app.js?v=5"></script>
 </body>
 </html>
 
