@@ -86,23 +86,69 @@ async def process_payment_success(
     if raw_payload:
         existing.raw_payload = raw_payload
     
-    # Create donation
-    week_key = get_week_key()
-    donation = Donation(
-        id=uuid.uuid4(),
-        tg_id=existing.tg_id,
-        stars_amount=existing.stars_amount,
-        tons_amount=tons_amount,
-        created_at=datetime.utcnow(),
-        week_key=week_key,
-        payment_id=existing.id
-    )
-    session.add(donation)
+    # Add charts to user's balance (instead of directly to leaderboard)
+    user_query = select(User).where(User.tg_id == existing.tg_id)
+    user = (await session.execute(user_query)).scalar_one_or_none()
+    if user:
+        user.balance_charts = float(user.balance_charts or 0) + float(tons_amount)
+        logger.info(f"Added {tons_amount} charts to user {existing.tg_id} balance. New balance: {user.balance_charts}")
     
     await session.commit()
     await session.refresh(existing)
     
-    logger.info(f"Payment {telegram_payment_charge_id} processed: {existing.stars_amount} stars -> {tons_amount} tons")
+    logger.info(f"Payment {telegram_payment_charge_id} processed: {existing.stars_amount} stars -> {tons_amount} charts (to balance)")
     
     return existing
+
+
+async def activate_charts(
+    session: AsyncSession,
+    tg_id: int,
+    amount: float
+) -> dict:
+    """
+    Activate charts from user's balance to the leaderboard.
+    Creates a Donation record which affects the leaderboard ranking.
+    """
+    # Get user
+    user_query = select(User).where(User.tg_id == tg_id)
+    user = (await session.execute(user_query)).scalar_one_or_none()
+    
+    if not user:
+        return {"success": False, "error": "User not found"}
+    
+    current_balance = float(user.balance_charts or 0)
+    
+    if amount <= 0:
+        return {"success": False, "error": "Amount must be positive"}
+    
+    if amount > current_balance:
+        return {"success": False, "error": "Insufficient balance", "balance": current_balance}
+    
+    # Deduct from balance
+    user.balance_charts = current_balance - amount
+    
+    # Create donation (this adds to leaderboard)
+    week_key = get_week_key()
+    donation = Donation(
+        id=uuid.uuid4(),
+        tg_id=tg_id,
+        stars_amount=0,  # Activated from balance, not direct payment
+        tons_amount=amount,
+        created_at=datetime.utcnow(),
+        week_key=week_key,
+        payment_id=None  # No payment, activated from balance
+    )
+    session.add(donation)
+    
+    await session.commit()
+    
+    logger.info(f"User {tg_id} activated {amount} charts. Remaining balance: {user.balance_charts}")
+    
+    return {
+        "success": True,
+        "activated": amount,
+        "new_balance": float(user.balance_charts),
+        "week_key": week_key
+    }
 

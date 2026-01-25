@@ -54,6 +54,7 @@ class User(Base):
     custom_title = Column(String(50), nullable=True)  # Short title shown in leaderboard list
     custom_text = Column(String(200), nullable=True)  # Description shown in profile modal
     custom_link = Column(String(500), nullable=True)  # Custom link shown in profile modal
+    balance_charts = Column(Numeric(10, 2), default=0, nullable=False)  # Internal balance of charts
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     last_seen_at = Column(DateTime, default=datetime.utcnow, nullable=False)

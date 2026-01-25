@@ -53,7 +53,23 @@ const translations = {
         referralsLabel: "рефералов",
         yourPosition: "место в топе",
         diamonds: "чартсов",
+        charts: "чартсов",
+        inLeaderboard: "в топе",
         notInTop: "Пока не в топе",
+        
+        // Balance & Activation
+        balanceTitle: "Ваш баланс",
+        balanceHint: "Активируйте чартсы, чтобы войти в лидерборд",
+        activateCharts: "Активировать",
+        activateChartsTitle: "Активировать чартсы",
+        availableBalance: "Доступно:",
+        enterAmount: "Введите количество",
+        max: "MAX",
+        activateHint: "Чартсы будут добавлены в текущий недельный лидерборд",
+        activate: "Активировать",
+        chartsActivated: "✅ Активировано {amount} чартсов!",
+        activationError: "❌ Ошибка активации",
+        insufficientBalance: "❌ Недостаточно чартсов на балансе",
         
         // Errors
         initError: "Ошибка инициализации",
@@ -168,7 +184,23 @@ const translations = {
         referralsLabel: "referrals",
         yourPosition: "place in top",
         diamonds: "charts",
+        charts: "charts",
+        inLeaderboard: "in top",
         notInTop: "Not in top yet",
+        
+        // Balance & Activation
+        balanceTitle: "Your Balance",
+        balanceHint: "Activate charts to enter the leaderboard",
+        activateCharts: "Activate",
+        activateChartsTitle: "Activate Charts",
+        availableBalance: "Available:",
+        enterAmount: "Enter amount",
+        max: "MAX",
+        activateHint: "Charts will be added to current weekly leaderboard",
+        activate: "Activate",
+        chartsActivated: "✅ Activated {amount} charts!",
+        activationError: "❌ Activation error",
+        insufficientBalance: "❌ Insufficient balance",
         
         // Errors
         initError: "Initialization error",

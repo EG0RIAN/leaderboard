@@ -73,6 +73,7 @@ async def get_me(
         "custom_title": user.custom_title,
         "custom_text": user.custom_text,
         "custom_link": user.custom_link,
+        "balance_charts": float(user.balance_charts or 0),  # Internal balance
         "bot_username": settings.telegram_bot_username,
         **stats
     }
@@ -203,4 +204,33 @@ async def update_custom_text(
 ):
     """Update user's custom text (deprecated, use /me/profile instead)"""
     return await update_profile(request, x_init_data, session)
+
+
+class ActivateChartsRequest(BaseModel):
+    amount: float  # Amount of charts to activate
+
+
+@router.post("/me/activate-charts")
+async def activate_charts_endpoint(
+    request: ActivateChartsRequest,
+    x_init_data: str = Header(..., alias="X-Init-Data"),
+    session: AsyncSession = Depends(get_db)
+):
+    """Activate charts from balance to leaderboard"""
+    from backend.services.payment_service import activate_charts
+    
+    user_data = validate_telegram_init_data(x_init_data)
+    if not user_data or not user_data.get("tg_id"):
+        raise HTTPException(status_code=401, detail="Invalid initData")
+    
+    tg_id = user_data["tg_id"]
+    
+    result = await activate_charts(session, tg_id, request.amount)
+    
+    if not result["success"]:
+        raise HTTPException(status_code=400, detail=result.get("error", "Activation failed"))
+    
+    logger.info(f"User {tg_id} activated {request.amount} charts")
+    
+    return result
 

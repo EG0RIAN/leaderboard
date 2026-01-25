@@ -6,7 +6,7 @@
     <title>Лидерборд донатов</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@2.0.0/dist/css/style.css">
-    <link rel="stylesheet" href="styles.css?v=3">
+    <link rel="stylesheet" href="styles.css?v=4">
     <script src="https://unpkg.com/@tonconnect/ui@2.0.0/dist/tonconnect-ui.min.js"></script>
     <script src="translations.js"></script>
     <script>
@@ -166,12 +166,28 @@
                             <div class="profile-stats">
                                 <div class="profile-stat highlight">
                                     <span class="stat-value" id="profile-tons">0</span>
-                                    <span class="stat-label"><span class="charts-icon charts-icon-sm"></span> <span data-i18n="diamonds">чартсов</span></span>
+                                    <span class="stat-label"><span class="charts-icon charts-icon-sm"></span> <span data-i18n="inLeaderboard">в топе</span></span>
                                 </div>
                                 <div class="profile-stat">
                                     <span class="stat-value" id="profile-refs">0</span>
                                     <span class="stat-label" data-i18n="referralsLabel">рефералов</span>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Balance Section -->
+                        <div class="balance-section">
+                            <div class="balance-header">
+                                <span class="balance-icon"><span class="charts-icon charts-icon-md"></span></span>
+                                <span class="balance-title" data-i18n="balanceTitle">Ваш баланс</span>
+                            </div>
+                            <div class="balance-amount">
+                                <span class="balance-value" id="profile-balance">0</span>
+                                <span class="balance-unit" data-i18n="charts">чартсов</span>
+                            </div>
+                            <p class="balance-hint" data-i18n="balanceHint">Активируйте чартсы, чтобы войти в лидерборд</p>
+                            <div class="balance-actions">
+                                <button class="btn-activate" id="activate-charts-btn" data-i18n="activateCharts">Активировать</button>
                             </div>
                         </div>
                         
@@ -355,11 +371,31 @@
         </div>
         <div id="edit-name-backdrop" class="edit-name-backdrop"></div>
 
+        <!-- Activate Charts Modal -->
+        <div id="activate-modal" class="activate-modal">
+            <div class="activate-content">
+                <h3 data-i18n="activateChartsTitle">Активировать чартсы</h3>
+                <p class="activate-balance" data-i18n="availableBalance">Доступно: <span id="activate-available">0</span> чартсов</p>
+                <div class="activate-input-group">
+                    <input type="number" id="activate-amount" min="1" step="1" 
+                           data-i18n-placeholder="enterAmount" 
+                           placeholder="Количество">
+                    <button class="btn-max" id="activate-max" data-i18n="max">MAX</button>
+                </div>
+                <p class="activate-hint" data-i18n="activateHint">Чартсы будут добавлены в текущий недельный лидерборд</p>
+                <div class="activate-buttons">
+                    <button class="btn-secondary" id="activate-cancel" data-i18n="cancel">Отмена</button>
+                    <button class="btn-primary" id="activate-confirm" data-i18n="activate">Активировать</button>
+                </div>
+            </div>
+        </div>
+        <div id="activate-backdrop" class="activate-backdrop"></div>
+
     </div>
 
     <script src="onboarding.js"></script>
     <script src="tonconnect.js"></script>
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=4"></script>
 </body>
 </html>
 

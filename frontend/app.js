@@ -282,6 +282,53 @@ function setupEventListeners() {
             hideEditNameModal();
         });
     }
+    
+    // Activate charts: open modal
+    const activateBtn = document.getElementById('activate-charts-btn');
+    if (activateBtn) {
+        activateBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            showActivateModal();
+        });
+    }
+    
+    // Activate charts: MAX button
+    const activateMaxBtn = document.getElementById('activate-max');
+    if (activateMaxBtn) {
+        activateMaxBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            const input = document.getElementById('activate-amount');
+            const balance = userData?.balance_charts || 0;
+            input.value = Math.floor(balance);
+        });
+    }
+    
+    // Activate charts: confirm
+    const activateConfirmBtn = document.getElementById('activate-confirm');
+    if (activateConfirmBtn) {
+        activateConfirmBtn.addEventListener('click', () => {
+            haptic.impact('medium');
+            activateCharts();
+        });
+    }
+    
+    // Activate charts: cancel
+    const activateCancelBtn = document.getElementById('activate-cancel');
+    if (activateCancelBtn) {
+        activateCancelBtn.addEventListener('click', () => {
+            haptic.impact('light');
+            hideActivateModal();
+        });
+    }
+    
+    // Activate charts: backdrop close
+    const activateBackdrop = document.getElementById('activate-backdrop');
+    if (activateBackdrop) {
+        activateBackdrop.addEventListener('click', () => {
+            haptic.impact('light');
+            hideActivateModal();
+        });
+    }
 }
 
 // Tab switching
@@ -691,6 +738,93 @@ async function saveDisplayName() {
     }
 }
 
+// Activate Charts Modal
+function showActivateModal() {
+    const modal = document.getElementById('activate-modal');
+    const backdrop = document.getElementById('activate-backdrop');
+    const input = document.getElementById('activate-amount');
+    const availableEl = document.getElementById('activate-available');
+    
+    const balance = userData?.balance_charts || 0;
+    availableEl.textContent = balance;
+    input.value = '';
+    input.max = Math.floor(balance);
+    
+    modal.classList.add('active');
+    backdrop.classList.add('active');
+    input.focus();
+}
+
+function hideActivateModal() {
+    const modal = document.getElementById('activate-modal');
+    const backdrop = document.getElementById('activate-backdrop');
+    
+    modal.classList.remove('active');
+    backdrop.classList.remove('active');
+}
+
+async function activateCharts() {
+    const input = document.getElementById('activate-amount');
+    const amount = parseFloat(input.value);
+    
+    if (!amount || amount <= 0) {
+        tg.showAlert(t('enterAmount'));
+        return;
+    }
+    
+    const balance = userData?.balance_charts || 0;
+    if (amount > balance) {
+        tg.showAlert(t('insufficientBalance'));
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/user/me/activate-charts`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Init-Data': initData
+            },
+            body: JSON.stringify({ amount: amount })
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.detail || 'Activation failed');
+        }
+        
+        const result = await response.json();
+        
+        // Update local userData
+        userData.balance_charts = result.new_balance;
+        userData.tons_all_time = (userData.tons_all_time || 0) + amount;
+        
+        // Update UI
+        document.getElementById('profile-balance').textContent = result.new_balance;
+        document.getElementById('profile-tons').textContent = userData.tons_all_time;
+        
+        // Disable button if no balance left
+        const activateBtn = document.getElementById('activate-charts-btn');
+        if (activateBtn) {
+            activateBtn.disabled = result.new_balance <= 0;
+        }
+        
+        hideActivateModal();
+        haptic.notification('success');
+        tg.showAlert(t('chartsActivated', { amount: amount }));
+        
+        // Reload leaderboard if on leaderboard tab
+        if (currentTab !== 'profile') {
+            loadLeaderboard(currentTab);
+        }
+        
+    } catch (error) {
+        console.error('Error activating charts:', error);
+        haptic.notification('error');
+        tg.showAlert(error.message || t('activationError'));
+    }
+}
+
 function updateProfileNameDisplay() {
     const nameEl = document.getElementById('profile-name');
     const originalNameEl = document.getElementById('profile-original-name');
@@ -1066,7 +1200,7 @@ async function loadProfile() {
         // Name (with display_name support)
         updateProfileNameDisplay();
         
-        // Stats - Diamonds
+        // Stats - Charts in leaderboard
         const tonsEl = document.getElementById('profile-tons');
         if (tonsEl) {
             tonsEl.textContent = userData.tons_all_time || 0;
@@ -1076,6 +1210,19 @@ async function loadProfile() {
         const refsEl = document.getElementById('profile-refs');
         if (refsEl) {
             refsEl.textContent = userData.referrals_count || 0;
+        }
+        
+        // Balance
+        const balanceEl = document.getElementById('profile-balance');
+        if (balanceEl) {
+            const balance = userData.balance_charts || 0;
+            balanceEl.textContent = balance;
+            
+            // Disable activate button if no balance
+            const activateBtn = document.getElementById('activate-charts-btn');
+            if (activateBtn) {
+                activateBtn.disabled = balance <= 0;
+            }
         }
         
         // Rank badge

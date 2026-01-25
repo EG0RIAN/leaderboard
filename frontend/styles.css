@@ -1766,6 +1766,233 @@ body {
     display: none !important;
 }
 
+/* ==================== BALANCE SECTION ==================== */
+.balance-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 20px;
+    color: white;
+    text-align: center;
+}
+
+.balance-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.balance-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.balance-title {
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.balance-amount {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.balance-value {
+    font-size: 42px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.balance-unit {
+    font-size: 16px;
+    opacity: 0.8;
+}
+
+.balance-hint {
+    font-size: 13px;
+    opacity: 0.7;
+    margin: 0 0 16px 0;
+}
+
+.balance-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.btn-activate {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 12px 32px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-activate:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.btn-activate:active {
+    transform: scale(0.98);
+}
+
+.btn-activate:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ==================== ACTIVATE MODAL ==================== */
+.activate-modal {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(0.9);
+    z-index: 1003;
+    background: var(--tg-theme-bg-color, #ffffff);
+    border-radius: 16px;
+    width: calc(100% - 48px);
+    max-width: 320px;
+    padding: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s, opacity 0.25s;
+}
+
+.activate-modal.active {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.activate-modal h3 {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--tg-theme-text-color, #000000);
+    text-align: center;
+}
+
+.activate-balance {
+    text-align: center;
+    color: var(--tg-theme-hint-color, #999999);
+    font-size: 14px;
+    margin: 0 0 16px 0;
+}
+
+.activate-balance span {
+    font-weight: 600;
+    color: var(--tg-theme-text-color, #000000);
+}
+
+.activate-input-group {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.activate-input-group input {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 18px;
+    font-weight: 600;
+    border: 1px solid var(--tg-theme-hint-color, #cccccc);
+    border-radius: 10px;
+    background: var(--tg-theme-secondary-bg-color, #f7f7f7);
+    color: var(--tg-theme-text-color, #000000);
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.activate-input-group input:focus {
+    outline: none;
+    border-color: var(--tg-theme-button-color, #3390ec);
+}
+
+.btn-max {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    background: var(--tg-theme-button-color, #3390ec);
+    color: var(--tg-theme-button-text-color, #ffffff);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+}
+
+.btn-max:active {
+    opacity: 0.8;
+}
+
+.activate-hint {
+    font-size: 13px;
+    color: var(--tg-theme-hint-color, #999999);
+    text-align: center;
+    margin: 0 0 20px 0;
+}
+
+.activate-buttons {
+    display: flex;
+    gap: 12px;
+}
+
+.activate-buttons button {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.activate-buttons .btn-secondary {
+    background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+    color: var(--tg-theme-text-color, #000000);
+}
+
+.activate-buttons .btn-primary {
+    background: var(--tg-theme-button-color, #3390ec);
+    color: var(--tg-theme-button-text-color, #ffffff);
+}
+
+.activate-buttons button:active {
+    transform: scale(0.98);
+}
+
+.activate-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1002;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s;
+}
+
+.activate-backdrop.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 /* ==================== TON WALLET SECTION ==================== */
 .wallet-section {
     background: var(--tg-theme-secondary-bg-color, #f5f5f5);
