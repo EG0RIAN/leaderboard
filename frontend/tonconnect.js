@@ -2,25 +2,52 @@
 
 let tonConnectUI = null;
 let connectedWallet = null;
+let initAttempts = 0;
+const MAX_INIT_ATTEMPTS = 10;
 
 // Initialize TON Connect
 async function initTonConnect() {
     try {
-        // Check if TON Connect UI is loaded (it's exposed as window.TON_CONNECT_UI)
-        const TonConnectUIClass = window.TON_CONNECT_UI?.TonConnectUI || window.TonConnectUI;
+        initAttempts++;
         
-        if (!TonConnectUIClass) {
-            console.log('TON Connect UI not loaded yet, retrying...');
-            setTimeout(initTonConnect, 500);
-            return;
+        // Log all possible locations of TON Connect
+        console.log('Init attempt', initAttempts);
+        console.log('window.TON_CONNECT_UI:', typeof window.TON_CONNECT_UI, window.TON_CONNECT_UI);
+        console.log('window.TonConnectUI:', typeof window.TonConnectUI, window.TonConnectUI);
+        
+        // Try different ways the SDK might be exposed
+        let TonConnectUIClass = null;
+        
+        if (window.TON_CONNECT_UI && window.TON_CONNECT_UI.TonConnectUI) {
+            TonConnectUIClass = window.TON_CONNECT_UI.TonConnectUI;
+            console.log('Found via window.TON_CONNECT_UI.TonConnectUI');
+        } else if (window.TonConnectUI && typeof window.TonConnectUI === 'function') {
+            TonConnectUIClass = window.TonConnectUI;
+            console.log('Found via window.TonConnectUI (function)');
+        } else if (window.TonConnectUI && window.TonConnectUI.TonConnectUI) {
+            TonConnectUIClass = window.TonConnectUI.TonConnectUI;
+            console.log('Found via window.TonConnectUI.TonConnectUI');
         }
         
-        console.log('TON Connect UI class found:', TonConnectUIClass);
+        if (!TonConnectUIClass) {
+            if (initAttempts < MAX_INIT_ATTEMPTS) {
+                console.log('TON Connect UI not loaded yet, retrying in 500ms...');
+                setTimeout(initTonConnect, 500);
+                return;
+            } else {
+                console.error('TON Connect UI failed to load after', MAX_INIT_ATTEMPTS, 'attempts');
+                return;
+            }
+        }
+        
+        console.log('TON Connect UI class found, creating instance...');
         
         // Initialize TON Connect UI
         tonConnectUI = new TonConnectUIClass({
             manifestUrl: 'https://v3022889.hosted-by-vdsina.ru/tonconnect-manifest.json'
         });
+        
+        console.log('TON Connect UI instance created:', tonConnectUI);
         
         // Subscribe to wallet connection changes
         tonConnectUI.onStatusChange((wallet) => {
@@ -45,9 +72,10 @@ async function initTonConnect() {
         // Setup button handlers
         setupWalletButtons();
         
-        console.log('TON Connect initialized');
+        console.log('TON Connect fully initialized!');
     } catch (error) {
         console.error('Error initializing TON Connect:', error);
+        console.error('Stack:', error.stack);
     }
 }
 
@@ -56,32 +84,56 @@ function setupWalletButtons() {
     const connectBtn = document.getElementById('ton-connect-btn');
     const disconnectBtn = document.getElementById('disconnect-wallet');
     
+    console.log('Setting up wallet buttons - connect:', connectBtn, 'disconnect:', disconnectBtn);
+    
     if (connectBtn) {
-        connectBtn.addEventListener('click', async () => {
+        // Remove old listeners first
+        connectBtn.replaceWith(connectBtn.cloneNode(true));
+        const newConnectBtn = document.getElementById('ton-connect-btn');
+        
+        newConnectBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Connect button clicked!');
             if (window.haptic) window.haptic.impact('medium');
             await connectWallet();
         });
+        console.log('Connect button listener added');
     }
     
     if (disconnectBtn) {
-        disconnectBtn.addEventListener('click', async () => {
+        // Remove old listeners first
+        disconnectBtn.replaceWith(disconnectBtn.cloneNode(true));
+        const newDisconnectBtn = document.getElementById('disconnect-wallet');
+        
+        newDisconnectBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Disconnect button clicked!');
             if (window.haptic) window.haptic.impact('light');
             await disconnectWallet();
         });
+        console.log('Disconnect button listener added');
     }
 }
 
 // Connect wallet
 async function connectWallet() {
+    console.log('connectWallet called, tonConnectUI:', tonConnectUI);
+    
     if (!tonConnectUI) {
         console.error('TON Connect not initialized');
+        alert('TON Connect не инициализирован. Попробуйте перезагрузить страницу.');
         return;
     }
     
     try {
+        console.log('Opening modal...');
         await tonConnectUI.openModal();
+        console.log('Modal opened');
     } catch (error) {
         console.error('Error connecting wallet:', error);
+        alert('Ошибка подключения: ' + error.message);
     }
 }
 

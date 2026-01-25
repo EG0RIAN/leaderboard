@@ -55,6 +55,7 @@ class User(Base):
     custom_text = Column(String(200), nullable=True)  # Description shown in profile modal
     custom_link = Column(String(500), nullable=True)  # Custom link shown in profile modal
     balance_charts = Column(Numeric(10, 2), default=0, nullable=False)  # Internal balance of charts
+    ton_wallet_address = Column(String(100), nullable=True)  # Connected TON wallet address
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     last_seen_at = Column(DateTime, default=datetime.utcnow, nullable=False)
