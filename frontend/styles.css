@@ -131,20 +131,21 @@ body {
 
 /* Rank separator */
 .rank-separator {
-    margin: 8px 12px;
-    padding: 6px 16px;
-    border-radius: 20px;
+    margin: 4px 12px;
+    padding: 2px 8px;
+    border-radius: 8px;
     border: 1px solid;
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    justify-content: flex-start;
+    align-self: flex-start;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
 }
 
 .rank-separator-text {
-    font-size: 13px;
+    font-size: 10px;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.3px;
     text-transform: uppercase;
 }
 
