@@ -148,6 +148,8 @@ const translations = {
         profileInfo: "Заголовок виден в топе, описание и ссылка — при нажатии!",
         profileSaved: "Профиль сохранен!",
         profileError: "Ошибка сохранения. Попробуйте позже.",
+        takeTheirPlace: "Занять его место",
+        takeTheirPlaceHint: "Пополнить на +1 чартс к этому месту",
         invalidLink: "Введите корректную ссылку (начинается с http:// или https://)",
         
         // Edit Display Name
@@ -324,6 +326,8 @@ const translations = {
         profileInfo: "Title shows in leaderboard, description and link — on click!",
         profileSaved: "Profile saved!",
         profileError: "Error saving. Please try later.",
+        takeTheirPlace: "Take their place",
+        takeTheirPlaceHint: "Deposit +1 chart to overtake",
         invalidLink: "Enter a valid link (starts with http:// or https://)",
         
         // Edit Display Name

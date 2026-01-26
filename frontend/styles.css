@@ -1720,6 +1720,45 @@ body {
     white-space: nowrap;
 }
 
+/* Take their place button (in user profile modal) */
+.btn-take-place {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 100%;
+    margin-top: 16px;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--tg-theme-button-text-color, #fff);
+    background: var(--tg-theme-button-color, #3390ec);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.15s;
+}
+
+.btn-take-place:hover {
+    opacity: 0.95;
+}
+
+.btn-take-place:active {
+    transform: scale(0.98);
+}
+
+.btn-take-place-text {
+    display: block;
+}
+
+.btn-take-place-hint {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    opacity: 0.9;
+}
+
 /* Profile form textarea */
 .profile-form textarea {
     width: 100%;

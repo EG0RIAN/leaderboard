@@ -918,8 +918,8 @@ function handleRiseInRating() {
     }
 }
 
-// Show top-up modal
-function showTopupModal() {
+// Show top-up modal (optional: suggestedCharts = target charts to pre-fill, e.g. "their place + 1")
+function showTopupModal(suggestedCharts) {
     const modal = document.getElementById('topup-modal');
     const backdrop = document.getElementById('topup-backdrop');
     
@@ -928,6 +928,17 @@ function showTopupModal() {
     
     tg.BackButton.show();
     tg.BackButton.onClick(hideTopupModal);
+    
+    // Pre-fill amount so that charts = suggestedCharts (for "take their place")
+    const amountInput = document.getElementById('topup-amount');
+    if (amountInput && typeof suggestedCharts === 'number' && suggestedCharts > 0) {
+        const rate = currentTopupMethod === 'ton' ? (tonConfig?.charts_per_ton || 100) : 1;
+        const amount = currentTopupMethod === 'ton'
+            ? Math.max(0.1, Math.ceil(suggestedCharts / rate * 100) / 100)
+            : suggestedCharts;
+        amountInput.value = amount;
+        updateTopupPreview();
+    }
     
     // Check wallet connection status
     updateTopupWalletStatus();
@@ -1213,6 +1224,26 @@ function openUserProfile(tgId, rank) {
         };
     } else if (linkEl) {
         linkEl.style.display = 'none';
+    }
+    
+    // "Take their place" button: only for other users, suggests deposit +1 charts
+    const takePlaceBtn = document.getElementById('take-place-btn');
+    const takePlaceHint = document.getElementById('take-place-hint');
+    const theirCharts = user._displayTons ?? user.tons_total ?? 0;
+    const targetCharts = Math.floor(theirCharts) + 1;
+    const isOwnProfile = userData && String(user.tg_id) === String(userData.tg_id);
+    if (takePlaceBtn && takePlaceHint) {
+        if (!isOwnProfile && targetCharts >= 1) {
+            takePlaceBtn.style.display = 'flex';
+            takePlaceHint.textContent = t('takeTheirPlaceHint') + ' (' + targetCharts + ')';
+            takePlaceBtn.onclick = () => {
+                haptic.impact('light');
+                hideUserProfileModal();
+                showTopupModal(targetCharts);
+            };
+        } else {
+            takePlaceBtn.style.display = 'none';
+        }
     }
     
     // Show modal
