@@ -13,22 +13,21 @@ class Settings(BaseSettings):
     # Telegram Mini App
     mini_app_url: str = "https://your-domain.com"
     
-    # Rate Provider
-    rate_provider_url: Optional[str] = None
-    rate_cache_ttl_minutes: int = 30
-    default_tons_per_star: float = 1.0
+    # Charts conversion rates
+    # 1 CHARTS = 10 STARS (fixed rate)
+    stars_per_chart: float = 10.0
+    
+    # TON rate is fetched from Fragment.com (stars price in TON)
+    fragment_api_url: str = "https://fragment.com/api/v1/stars"
+    rate_cache_ttl_minutes: int = 5  # Cache TON/Stars rate for 5 minutes
+    default_stars_per_ton: float = 500.0  # Fallback: ~500 stars per 1 TON
     
     # Settings
     preset_1_stars: int = 100
     preset_2_stars: int = 50
     preset_3_stars: int = 25
-    tons_rounding_method: str = "floor"  # floor, ceil, round
     leaderboard_limit: int = 50
     timezone: str = "Europe/Berlin"
-    
-    # Crypto Payments
-    crypto_provider_token: str = ""  # Provider token for crypto payments (if using external provider)
-    supported_crypto_currencies: list = ["TON", "BTC", "ETH", "USDT"]  # Supported crypto currencies
     
     # TON Payments
     ton_wallet_address: str = ""  # Our receiving TON wallet address
@@ -36,7 +35,6 @@ class Settings(BaseSettings):
     ton_api_url: str = "https://toncenter.com/api/v2"  # TON API endpoint
     ton_testnet: bool = False  # Use testnet
     ton_payment_expiry_minutes: int = 30  # How long payment is valid
-    charts_per_ton: float = 100.0  # How many charts per 1 TON
     
     # Security
     secret_key: str = "your_secret_key_here"

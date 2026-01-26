@@ -6,7 +6,7 @@
     <title>Лидерборд донатов</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@telegram-apps/sdk@2.0.0/dist/css/style.css">
-    <link rel="stylesheet" href="styles.css?v=8">
+    <link rel="stylesheet" href="styles.css?v=10">
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <script src="translations.js"></script>
@@ -110,7 +110,7 @@
                 <!-- All-time leaderboard -->
                 <div class="tab-pane active" id="all-time">
                     <div class="leaderboard-header">
-                        <h2 data-i18n="leaderboardAllTime">Лидерборд за всё время</h2>
+                        <h2><span class="header-icon">🏆</span> <span data-i18n="leaderboardAllTime">Вечный лидерборд</span></h2>
                     </div>
                     <div id="all-time-list" class="leaderboard-list">
                         <div class="loading">Загрузка...</div>
@@ -120,7 +120,7 @@
                 <!-- Week leaderboard -->
                 <div class="tab-pane" id="week">
                     <div class="week-countdown">
-                        <div class="countdown-label" data-i18n="weekResetIn">До обновления:</div>
+                        <div class="countdown-label" data-i18n="weekResetIn">До розыгрыша:</div>
                         <div class="countdown-timer" id="week-countdown-timer">
                             <div class="countdown-block">
                                 <span class="countdown-value" id="countdown-days">0</span>
@@ -144,7 +144,7 @@
                         </div>
                     </div>
                     <div class="leaderboard-header">
-                        <h2 data-i18n="leaderboardWeek">Лидерборд за неделю</h2>
+                        <h2><span class="header-icon">📅</span> <span data-i18n="leaderboardWeek">Недельный лидерборд</span></h2>
                     </div>
                     <div id="week-list" class="leaderboard-list">
                         <div class="loading">Загрузка...</div>
@@ -258,7 +258,9 @@
             <!-- My position block -->
             <div id="my-position" class="my-position" style="display: none;">
                 <div class="my-position-content">
-                    <span data-i18n="you">Вы</span>: #<span id="my-rank">-</span>
+                    <span data-i18n="yourPosition">Вы на</span> <span id="my-rank">-</span> <span data-i18n="place">месте</span>
+                    <span class="my-position-divider">•</span>
+                    <span id="my-charts">0</span> <span class="charts-icon charts-icon-sm"></span>
                 </div>
             </div>
 
@@ -437,7 +439,7 @@
 
     <script src="onboarding.js?v=2"></script>
     <script src="tonconnect.js?v=5"></script>
-    <script src="app.js?v=11"></script>
+    <script src="app.js?v=12"></script>
 </body>
 </html>
 

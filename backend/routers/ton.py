@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.database import get_db
 from backend.telegram_auth import validate_telegram_init_data
 from backend.config import settings
+from backend.rate_provider import rate_provider
 from backend.services.ton_service import (
     create_ton_payment,
     get_user_ton_payments,
@@ -37,19 +38,27 @@ class TonPaymentResponse(BaseModel):
 class TonConfigResponse(BaseModel):
     wallet_address: str
     charts_per_ton: float
+    stars_per_chart: float
+    stars_per_ton: float
     min_amount: float
     payment_expiry_minutes: int
 
 
 @router.get("/config")
 async def get_ton_config():
-    """Get TON payment configuration"""
+    """Get TON payment configuration with current rates"""
     if not settings.ton_wallet_address:
         raise HTTPException(status_code=503, detail="TON payments not configured")
     
+    # Get current rates
+    stars_per_ton = await rate_provider.get_stars_per_ton()
+    charts_per_ton = await rate_provider.get_charts_per_ton()
+    
     return TonConfigResponse(
         wallet_address=settings.ton_wallet_address,
-        charts_per_ton=settings.charts_per_ton,
+        charts_per_ton=charts_per_ton,
+        stars_per_chart=rate_provider.stars_per_chart,
+        stars_per_ton=stars_per_ton,
         min_amount=0.1,  # Minimum 0.1 TON
         payment_expiry_minutes=settings.ton_payment_expiry_minutes
     )

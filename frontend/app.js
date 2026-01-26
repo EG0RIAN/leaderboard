@@ -658,9 +658,17 @@ function renderLeaderboard(type, items) {
         const myItem = items.find(item => item.tg_id === userData.tg_id);
         if (myItem) {
             document.getElementById('my-rank').textContent = myItem.rank;
+            document.getElementById('my-charts').textContent = formatNumber(myItem.total_donated || 0);
             document.getElementById('my-position').style.display = 'block';
         } else {
-            document.getElementById('my-position').style.display = 'none';
+            // User not in leaderboard, still show if they have donated
+            if (userData.total_donated > 0) {
+                document.getElementById('my-rank').textContent = '-';
+                document.getElementById('my-charts').textContent = formatNumber(userData.total_donated);
+                document.getElementById('my-position').style.display = 'block';
+            } else {
+                document.getElementById('my-position').style.display = 'none';
+            }
         }
     }
     

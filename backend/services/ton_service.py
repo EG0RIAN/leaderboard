@@ -10,6 +10,7 @@ from sqlalchemy import select, and_
 
 from backend.models import TonPayment, User
 from backend.config import settings
+from backend.rate_provider import rate_provider
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,10 @@ async def create_ton_payment(
     if not settings.ton_wallet_address:
         raise ValueError("TON wallet address not configured")
     
+    # Get current charts per TON rate
+    charts_per_ton = await rate_provider.get_charts_per_ton()
+    expected_charts = await rate_provider.ton_to_charts(float(amount_ton))
+    
     payment = TonPayment(
         id=uuid.uuid4(),
         tg_id=tg_id,
@@ -36,7 +41,8 @@ async def create_ton_payment(
         payment_comment=generate_payment_comment(),
         to_wallet=settings.ton_wallet_address,
         status="pending",
-        rate_used=Decimal(str(settings.charts_per_ton)),
+        rate_used=Decimal(str(charts_per_ton)),  # Charts per TON at creation time
+        charts_amount=expected_charts,
         created_at=datetime.utcnow(),
         expires_at=datetime.utcnow() + timedelta(minutes=settings.ton_payment_expiry_minutes)
     )
@@ -45,7 +51,7 @@ async def create_ton_payment(
     await session.commit()
     await session.refresh(payment)
     
-    logger.info(f"Created TON payment {payment.id} for user {tg_id}: {amount_ton} TON")
+    logger.info(f"Created TON payment {payment.id} for user {tg_id}: {amount_ton} TON -> {expected_charts} charts (rate: {charts_per_ton})")
     
     return payment
 
@@ -125,7 +131,7 @@ async def check_ton_transactions(session: AsyncSession) -> int:
                     payment.tx_lt = tx.get("lt")
                     payment.from_wallet = tx.get("source")
                     payment.completed_at = datetime.utcnow()
-                    payment.charts_amount = payment.amount_ton * payment.rate_used
+                    # Charts amount was already calculated at payment creation using rate_used
                     
                     # Credit user's balance
                     user_query = select(User).where(User.tg_id == payment.tg_id)

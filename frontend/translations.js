@@ -12,8 +12,8 @@ const translations = {
         navProfile: "Профиль",
         
         // Leaderboards
-        leaderboardAllTime: "Лидерборд за всё время",
-        leaderboardWeek: "Лидерборд за неделю",
+        leaderboardAllTime: "Вечный лидерборд",
+        leaderboardWeek: "Недельный лидерборд",
         leaderboardReferrals: "Топ рефералов",
         
         // Buttons
@@ -43,7 +43,7 @@ const translations = {
         selectCrypto: "Выберите валюту:",
         
         // Countdown
-        weekResetIn: "До обновления:",
+        weekResetIn: "До розыгрыша:",
         days: "д",
         hours: "ч",
         minutes: "м",
@@ -54,6 +54,8 @@ const translations = {
         noData: "Нет данных",
         errorLoading: "Ошибка загрузки",
         you: "Вы",
+        yourPosition: "Вы на",
+        place: "месте",
         position: "Позиция",
         
         // Referrals
@@ -198,7 +200,7 @@ const translations = {
         selectCrypto: "Select currency:",
         
         // Countdown
-        weekResetIn: "Resets in:",
+        weekResetIn: "Until giveaway:",
         days: "d",
         hours: "h",
         minutes: "m",
@@ -209,12 +211,13 @@ const translations = {
         noData: "No data",
         errorLoading: "Error loading",
         you: "You",
+        yourPosition: "You're at",
+        place: "place",
         position: "Position",
         
         // Referrals
         referralsCount: "ref.",
         referralsLabel: "referrals",
-        yourPosition: "place in top",
         diamonds: "charts",
         charts: "charts",
         inLeaderboard: "in top",
