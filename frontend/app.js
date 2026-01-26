@@ -1302,7 +1302,7 @@ async function saveDisplayName() {
     const displayName = input.value.trim();
     
     try {
-        const response = await fetch(`${API_BASE_URL}/user/me/profile`, {
+        const response = await fetch(`${API_BASE_URL}/me/profile`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1384,7 +1384,7 @@ async function activateCharts() {
     }
     
     try {
-        const response = await fetch(`${API_BASE_URL}/user/me/activate-charts`, {
+        const response = await fetch(`${API_BASE_URL}/me/activate-charts`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -2033,7 +2033,7 @@ async function loadProfile() {
     updateLanguageSelectorState();
     // Fetch fresh user data from backend
     try {
-        const response = await fetch(`${API_BASE_URL}/user/me`, {
+        const response = await fetch(`${API_BASE_URL}/me`, {
             headers: {
                 'X-Init-Data': initData
             }
