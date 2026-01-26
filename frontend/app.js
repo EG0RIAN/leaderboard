@@ -1982,11 +1982,15 @@ function linkify(text) {
     });
 }
 
-// Update language selector active state (profile)
+// Update language selector active state and labels (profile)
 function updateLanguageSelectorState() {
     const lang = getLanguage();
+    const labelEl = document.querySelector('.profile-language-label');
+    if (labelEl) labelEl.textContent = t('languageLabel');
     document.querySelectorAll('.profile-lang-btn').forEach(btn => {
+        const isRu = btn.getAttribute('data-lang') === 'ru';
         btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+        btn.textContent = t(isRu ? 'languageRu' : 'languageEn');
     });
 }
 
