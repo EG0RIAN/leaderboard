@@ -197,31 +197,99 @@ function isWalletConnected() {
     return connectedWallet !== null;
 }
 
-// Send TON transaction (for future use)
+// Minimal BOC builder for one cell (opcode 0 + comment) — no external deps, works in WebView
+function buildCommentBocFallback(comment) {
+    if (!comment || typeof comment !== 'string') return null;
+    const utf8 = new TextEncoder().encode(comment);
+    const len = utf8.length;
+    if (len === 0) return null;
+    // Body: 32-bit zero (opcode) + string tail (UTF-8, last byte has high bit set)
+    const dataLen = 4 + len;
+    const data = new Uint8Array(dataLen);
+    data[0] = 0;
+    data[1] = 0;
+    data[2] = 0;
+    data[3] = 0;
+    for (let i = 0; i < len; i++) data[4 + i] = utf8[i];
+    data[4 + len - 1] |= 0x80;
+    // BOC (TON spec): magic, flags, size/off_bytes, cells, roots, absent, tot_cells_size, root_list, index, cell_data
+    const cellLen = 2 + dataLen;
+    const headerLen = 4 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1;
+    const boc = new Uint8Array(headerLen + cellLen);
+    let o = 0;
+    boc[o++] = 0xb5;
+    boc[o++] = 0xee;
+    boc[o++] = 0x9c;
+    boc[o++] = 0x72;
+    boc[o++] = 0x10; // has_idx=1, has_crc32c=0, has_cache_bits=0, flags=0
+    boc[o++] = 0x21; // size=1 (3b), off_bytes=1 (8b)
+    boc[o++] = 0x01; // cells
+    boc[o++] = 0x01; // roots
+    boc[o++] = 0x00; // absent
+    boc[o++] = cellLen & 0xff; // tot_cells_size (1 byte)
+    boc[o++] = 0x00; // root_list
+    boc[o++] = 0x00; // index
+    boc[o++] = 0x00; // refs
+    boc[o++] = dataLen; // bits in bytes
+    for (let i = 0; i < dataLen; i++) boc[o++] = data[i];
+    return btoa(String.fromCharCode.apply(null, boc));
+}
+
+// Build TON comment payload (opcode 0 + UTF-8 text) as base64 BOC
+async function buildCommentPayload(comment) {
+    if (!comment || typeof comment !== 'string') return null;
+    try {
+        const mod = await import('https://esm.sh/@ton/core@0.58.0');
+        const body = mod.beginCell()
+            .storeUint(0, 32)
+            .storeStringTail(comment)
+            .endCell();
+        return body.toBoc().toString('base64');
+    } catch (e) {
+        console.warn('Comment payload via @ton/core failed, using fallback:', e);
+        return buildCommentBocFallback(comment);
+    }
+}
+
+// Send TON transaction via TonConnect
 async function sendTransaction(toAddress, amount, comment = '') {
     if (!tonConnectUI || !connectedWallet) {
-        throw new Error('Wallet not connected');
+        throw new Error(isWalletConnected() ? 'Wallet not ready' : 'Подключите кошелёк в разделе Профиль');
     }
-    
+
+    const address = String(toAddress).trim();
     const amountNum = Number(amount);
-    const amountNano = Math.round(amountNum * 1e9);
-    const transaction = {
-        validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes
-        messages: [
-            {
-                address: String(toAddress).trim(),
-                amount: String(amountNano),
-                payload: comment ? btoa(unescape(encodeURIComponent(comment))) : undefined
-            }
-        ]
+    if (!isFinite(amountNum) || amountNum < 0.01) {
+        throw new Error('Неверная сумма');
+    }
+    const amountNano = Math.round(amountNum * 1e9).toString();
+
+    let payload = await buildCommentPayload(comment);
+    if (comment && !payload) {
+        payload = buildCommentBocFallback(comment);
+    }
+    if (comment && !payload) {
+        throw new Error('Не удалось подготовить комментарий к переводу. Обновите страницу.');
+    }
+    const msg = {
+        address: address,
+        amount: amountNano
     };
-    
+    if (payload) msg.payload = payload;
+    const transaction = {
+        validUntil: Math.floor(Date.now() / 1000) + 600,
+        messages: [msg]
+    };
+
     try {
         const result = await tonConnectUI.sendTransaction(transaction);
         console.log('Transaction sent:', result);
         return result;
     } catch (error) {
         console.error('Transaction error:', error);
+        if (error && error.message && error.message.includes('declined')) {
+            throw new Error('Перевод отменён');
+        }
         throw error;
     }
 }

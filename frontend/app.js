@@ -100,6 +100,7 @@ const settings = {
 // Get initData for authentication
 const initData = tg.initData;
 const initDataUnsafe = tg.initDataUnsafe;
+if (typeof window !== 'undefined') window.initData = initData;
 
 // State
 let currentTab = 'all-time';
@@ -1056,6 +1057,12 @@ async function processTopupTonPayment() {
     
     if (amount < 0.1) {
         showSnackbar(t('minTonAmount'), 'warning');
+        return;
+    }
+    
+    const walletOk = window.tonConnect && window.tonConnect.isConnected && window.tonConnect.isConnected();
+    if (!walletOk) {
+        showSnackbar(currentLanguage === 'ru' ? 'Сначала подключите TON кошелёк в Профиле' : 'Connect TON wallet in Profile first', 'error');
         return;
     }
     
