@@ -271,19 +271,23 @@ async def activate_charts_endpoint(
 ):
     """Activate charts from balance to leaderboard"""
     from backend.services.payment_service import activate_charts
-    
-    user_data = validate_telegram_init_data(x_init_data)
-    if not user_data or not user_data.get("tg_id"):
-        raise HTTPException(status_code=401, detail="Invalid initData")
-    
-    tg_id = user_data["tg_id"]
-    
-    result = await activate_charts(session, tg_id, request.amount)
-    
-    if not result["success"]:
-        raise HTTPException(status_code=400, detail=result.get("error", "Activation failed"))
-    
-    logger.info(f"User {tg_id} activated {request.amount} charts")
-    
-    return result
+
+    try:
+        user_data = validate_telegram_init_data(x_init_data)
+        if not user_data or not user_data.get("tg_id"):
+            raise HTTPException(status_code=401, detail="Invalid initData")
+
+        tg_id = user_data["tg_id"]
+        result = await activate_charts(session, tg_id, request.amount)
+
+        if not result["success"]:
+            raise HTTPException(status_code=400, detail=result.get("error", "Activation failed"))
+
+        logger.info(f"User {tg_id} activated {request.amount} charts")
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("activate_charts_endpoint error: %s", e)
+        raise HTTPException(status_code=500, detail="Activation failed")
 

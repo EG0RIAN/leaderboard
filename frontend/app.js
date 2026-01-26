@@ -1394,13 +1394,20 @@ async function activateCharts() {
         });
         
         if (!response.ok) {
-            const data = await response.json().catch(() => ({}));
+            const text = await response.text();
+            let data = {};
+            try {
+                data = text ? JSON.parse(text) : {};
+            } catch (_) {}
             let msg = data.detail;
             if (Array.isArray(msg) && msg[0] && msg[0].msg) msg = msg[0].msg;
-            else if (typeof msg !== 'string') msg = 'Activation failed';
+            else if (typeof msg !== 'string') msg = t('activationError');
+            if (msg === 'Insufficient balance') msg = t('insufficientBalance');
+            if (msg === 'Amount must be positive' || msg === 'amount must be a number') msg = t('enterAmount');
+            if (msg === 'User not found') msg = t('activationError');
             throw new Error(msg);
         }
-        
+
         const result = await response.json();
         
         // Update local userData
