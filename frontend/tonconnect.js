@@ -203,13 +203,15 @@ async function sendTransaction(toAddress, amount, comment = '') {
         throw new Error('Wallet not connected');
     }
     
+    const amountNum = Number(amount);
+    const amountNano = Math.round(amountNum * 1e9);
     const transaction = {
         validUntil: Math.floor(Date.now() / 1000) + 600, // 10 minutes
         messages: [
             {
-                address: toAddress,
-                amount: (amount * 1e9).toString(), // Convert to nanoton
-                payload: comment ? btoa(comment) : undefined
+                address: String(toAddress).trim(),
+                amount: String(amountNano),
+                payload: comment ? btoa(unescape(encodeURIComponent(comment))) : undefined
             }
         ]
     };

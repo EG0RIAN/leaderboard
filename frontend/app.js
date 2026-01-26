@@ -1055,22 +1055,26 @@ async function processTopupTonPayment() {
                 'Content-Type': 'application/json',
                 'X-Init-Data': initData
             },
-            body: JSON.stringify({ amount_ton: amount })
+            body: JSON.stringify({ amount_ton: Number(amount) })
         });
         
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Failed to create payment');
+            const errData = await response.json().catch(() => ({}));
+            let msg = errData.detail;
+            if (Array.isArray(msg) && msg[0] && msg[0].msg) msg = msg[0].msg;
+            else if (typeof msg !== 'string') msg = t('paymentError') || 'Failed to create payment';
+            if (typeof msg === 'string' && msg.includes('did not match the expected pattern')) msg = t('enterAmount');
+            throw new Error(msg);
         }
         
         const payment = await response.json();
         
-        // Send transaction via TON Connect
+        // Send transaction via TON Connect (amount in TON, converted to nanoton inside sendTransaction)
         if (window.tonConnect && window.tonConnect.sendTransaction) {
             await window.tonConnect.sendTransaction(
                 payment.to_wallet,
-                amount,
-                payment.payment_comment
+                Number(amount),
+                payment.payment_comment || ''
             );
             
             haptic.notification('success');
