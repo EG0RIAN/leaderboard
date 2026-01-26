@@ -855,22 +855,26 @@ function renderLeaderboard(type, items) {
     
     listElement.innerHTML = html;
     
-    // Show my position if user is in list
+    // Show my position (charts count depends on current tab: all-time / week / referrals)
     if (userData) {
-        const myItem = items.find(item => item.tg_id === userData.tg_id);
+        const myItem = items.find(item => String(item.tg_id) === String(userData.tg_id));
+        let chartsForTab = 0;
+        if (type === 'referrals') {
+            chartsForTab = myItem ? (myItem.referrals_tons_total || 0) : (userData.referrals_tons_total || 0);
+        } else if (type === 'week') {
+            chartsForTab = myItem ? (myItem.tons_week || 0) : (userData.tons_week || 0);
+        } else {
+            chartsForTab = myItem ? (myItem.tons_total || 0) : (userData.tons_all_time || 0);
+        }
         if (myItem) {
             document.getElementById('my-rank').textContent = myItem.rank;
-            document.getElementById('my-charts').textContent = formatNumber(myItem.total_donated || 0);
+            document.getElementById('my-charts').textContent = formatNumber(chartsForTab);
             document.getElementById('my-position').style.display = 'block';
         } else {
-            // User not in leaderboard, still show if they have donated
-            if (userData.total_donated > 0) {
-                document.getElementById('my-rank').textContent = '-';
-                document.getElementById('my-charts').textContent = formatNumber(userData.total_donated);
-                document.getElementById('my-position').style.display = 'block';
-            } else {
-                document.getElementById('my-position').style.display = 'none';
-            }
+            // User not in this list, still show rank and charts from userData
+            document.getElementById('my-rank').textContent = (type === 'all-time' && userData.rank_all_time) ? userData.rank_all_time : '-';
+            document.getElementById('my-charts').textContent = formatNumber(chartsForTab);
+            document.getElementById('my-position').style.display = 'block';
         }
     }
     
