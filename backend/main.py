@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 import asyncio
-from backend.routers import leaderboard, user, payments, webhook
+from backend.routers import leaderboard, user, payments, webhook, tasks
 from backend.routers import ton
 from backend.database import engine, Base, async_session_maker
 from backend.services.ton_service import check_ton_transactions, expire_old_payments
@@ -76,6 +76,7 @@ app.include_router(user.router)
 app.include_router(payments.router)
 app.include_router(webhook.router)
 app.include_router(ton.router)
+app.include_router(tasks.router)
 
 
 @app.get("/health")

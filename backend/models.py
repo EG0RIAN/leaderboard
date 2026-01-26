@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, ForeignKey, Integer, Numeric, Text, JSON
+from sqlalchemy import Column, BigInteger, String, Boolean, DateTime, ForeignKey, Integer, Numeric, Text, JSON, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID as PostgresUUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import TypeDecorator, CHAR
@@ -147,4 +147,29 @@ class Setting(Base):
     
     key = Column(String, primary_key=True)
     value_json = Column(JSON, nullable=False)
+
+
+# Task types: subscribe_channel, join_chat, open_app
+class Task(Base):
+    __tablename__ = "tasks"
+    
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    type = Column(String(30), nullable=False)  # subscribe_channel, join_chat, open_app
+    title = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+    charts_reward = Column(Numeric(10, 2), nullable=False)
+    config = Column(JSON, nullable=True)  # channel_username, invite_link, app_url, chat_id, etc.
+    is_active = Column(Boolean, default=True, nullable=False)
+    sort_order = Column(Integer, default=0, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+
+class TaskCompletion(Base):
+    __tablename__ = "task_completions"
+    __table_args__ = (UniqueConstraint("tg_id", "task_id", name="uq_task_completion_user_task"),)
+    
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    tg_id = Column(BigInteger, ForeignKey("users.tg_id"), nullable=False)
+    task_id = Column(GUID(), ForeignKey("tasks.id"), nullable=False)
+    completed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 

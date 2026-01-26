@@ -514,7 +514,7 @@ function switchTab(tabName) {
         donateContainer.style.display = 'block';
     }
     
-    // Show/hide balance bar and collected bar (hide on profile tab, show on leaderboard tabs)
+    // Show/hide balance bar and collected bar (hide on profile tab only)
     const balanceBar = document.getElementById('balance-bar');
     if (balanceBar) {
         balanceBar.classList.toggle('hidden', tabName === 'profile');
@@ -528,6 +528,8 @@ function switchTab(tabName) {
     // Load content based on tab
     if (tabName === 'profile') {
         loadProfile();
+    } else if (tabName === 'tasks') {
+        loadTasks();
     } else {
         loadLeaderboard(tabName);
     }
@@ -572,9 +574,122 @@ function updateBalanceBar() {
     }
 }
 
+// Load tasks tab
+function getTaskLink(task) {
+    const c = task.config || {};
+    if (task.type === 'subscribe_channel') {
+        const ch = (c.channel_username || '').replace(/^@/, '');
+        return ch ? `https://t.me/${ch}` : '#';
+    }
+    if (task.type === 'join_chat') {
+        return c.invite_link || c.chat_invite_link || '#';
+    }
+    if (task.type === 'open_app') {
+        return c.app_url || c.url || '#';
+    }
+    return '#';
+}
+
+async function loadTasks() {
+    const listEl = document.getElementById('tasks-list');
+    if (!listEl) return;
+    listEl.innerHTML = `<div class="loading">${t('loading')}</div>`;
+    try {
+        const response = await fetch(`${API_BASE_URL}/tasks`, {
+            headers: { 'X-Init-Data': initData }
+        });
+        if (!response.ok) throw new Error('Failed to load tasks');
+        const tasks = await response.json();
+        if (tasks.length === 0) {
+            listEl.innerHTML = `<div class="tasks-empty">${t('tasksEmpty')}</div>`;
+            return;
+        }
+        let html = '';
+        tasks.forEach(task => {
+            const link = getTaskLink(task);
+            const typeLabel = task.type === 'subscribe_channel' ? t('taskTypeSubscribe') : task.type === 'join_chat' ? t('taskTypeJoinChat') : t('taskTypeOpenApp');
+            const typeIcon = task.type === 'subscribe_channel' ? 'task-icon-channel' : task.type === 'join_chat' ? 'task-icon-chat' : 'task-icon-app';
+            if (task.completed) {
+                html += `
+                    <div class="task-card task-card-done" data-task-id="${escapeHtml(task.id)}">
+                        <div class="task-card-icon ${typeIcon}"></div>
+                        <div class="task-card-body">
+                            <span class="task-card-type">${escapeHtml(typeLabel)}</span>
+                            <h3 class="task-card-title">${escapeHtml(task.title)}</h3>
+                            ${task.description ? `<p class="task-card-desc">${escapeHtml(task.description)}</p>` : ''}
+                            <div class="task-card-reward"><span class="charts-icon charts-icon-sm"></span> ${task.charts_reward}</div>
+                        </div>
+                        <div class="task-card-done-badge">${t('taskDone')}</div>
+                    </div>`;
+            } else {
+                html += `
+                    <div class="task-card" data-task-id="${escapeHtml(task.id)}">
+                        <div class="task-card-icon ${typeIcon}"></div>
+                        <div class="task-card-body">
+                            <span class="task-card-type">${escapeHtml(typeLabel)}</span>
+                            <h3 class="task-card-title">${escapeHtml(task.title)}</h3>
+                            ${task.description ? `<p class="task-card-desc">${escapeHtml(task.description)}</p>` : ''}
+                            <div class="task-card-reward"><span class="charts-icon charts-icon-sm"></span> ${task.charts_reward}</div>
+                        </div>
+                        <div class="task-card-actions">
+                            <a href="${escapeHtml(link)}" class="task-btn task-btn-go" data-task-link="${escapeHtml(link)}" data-task-id="${escapeHtml(task.id)}">${t('taskGo')}</a>
+                            <button type="button" class="task-btn task-btn-claim" data-task-id="${escapeHtml(task.id)}">${t('taskClaim')}</button>
+                        </div>
+                    </div>`;
+            }
+        });
+        listEl.innerHTML = html;
+        listEl.querySelectorAll('.task-btn-go').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const url = btn.getAttribute('data-task-link') || btn.href;
+                if (url && url !== '#') {
+                    if (typeof tg !== 'undefined' && tg.openTelegramLink) {
+                        tg.openTelegramLink(url);
+                    } else {
+                        window.open(url, '_blank');
+                    }
+                }
+            });
+        });
+        listEl.querySelectorAll('.task-btn-claim').forEach(btn => {
+            btn.addEventListener('click', () => claimTaskReward(btn.getAttribute('data-task-id')));
+        });
+    } catch (err) {
+        console.error('Load tasks error:', err);
+        listEl.innerHTML = `<div class="loading">${t('errorLoading')}</div>`;
+    }
+}
+
+async function claimTaskReward(taskId) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/tasks/${taskId}/complete`, {
+            method: 'POST',
+            headers: { 'X-Init-Data': initData }
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            let msg = data.detail;
+            if (Array.isArray(msg) && msg[0] && msg[0].msg) msg = msg[0].msg;
+            else if (typeof msg !== 'string') msg = data.error || t('taskClaimError');
+            tg.showAlert(msg);
+            return;
+        }
+        if (userData) userData.balance_charts = data.new_balance;
+        updateBalanceBar();
+        haptic.notification('success');
+        tg.showAlert(t('taskClaimSuccess', { amount: data.charts_added }));
+        loadTasks();
+    } catch (err) {
+        console.error('Claim task error:', err);
+        tg.showAlert(t('taskClaimError'));
+    }
+}
+
 // Load leaderboard
 async function loadLeaderboard(type) {
     const listElement = document.getElementById(`${type}-list`);
+    if (!listElement) return;
     listElement.innerHTML = `<div class="loading">${t('loading')}</div>`;
     
     try {
