@@ -1,9 +1,16 @@
 from aiogram import Bot, Dispatcher
-from aiogram.types import Update, Message, PreCheckoutQuery
+from aiogram.types import (
+    Update,
+    Message,
+    PreCheckoutQuery,
+    InlineQuery,
+    InlineQueryResultArticle,
+    InputTextMessageContent,
+)
 from aiogram.filters import Command
 from backend.config import settings
 from backend.database import AsyncSessionLocal
-from backend.services import payment_service, user_service
+from backend.services import payment_service, user_service, leaderboard_service
 from datetime import datetime
 import logging
 
@@ -119,6 +126,61 @@ async def successful_payment_handler(message: Message):
         except Exception as e:
             logger.error(f"Error processing payment: {e}", exc_info=True)
             await message.answer("❌ Ошибка обработки платежа. Обратитесь в поддержку.")
+
+
+@dp.inline_query()
+async def inline_query_handler(inline_query: InlineQuery):
+    """Inline: показать своё место в лидерборде и реферальную ссылку"""
+    user = inline_query.from_user
+    tg_id = user.id
+    async with AsyncSessionLocal() as session:
+        try:
+            await user_service.get_or_create_user(
+                session=session,
+                tg_id=tg_id,
+                username=user.username,
+                first_name=user.first_name,
+                last_name=user.last_name,
+                language_code=user.language_code,
+                is_premium=getattr(user, "is_premium", None),
+                photo_url=None,
+            )
+            stats = await leaderboard_service.get_user_stats(session, tg_id)
+        except Exception as e:
+            logger.error(f"Inline query get_user_stats error: {e}", exc_info=True)
+            await bot.answer_inline_query(
+                inline_query.id,
+                results=[],
+                cache_time=60,
+            )
+            return
+    rank = stats.get("rank_all_time") or 0
+    tons = int(stats.get("tons_all_time") or 0)
+    ref_link = stats.get("referral_link") or f"{settings.mini_app_url}?startapp=ref_{tg_id}"
+    if rank > 0:
+        text = (
+            f"🏆 Моё место в лидерборде: #{rank}\n"
+            f"📊 Чартсов: {tons}\n\n"
+            f"Присоединяйся по моей ссылке:\n{ref_link}"
+        )
+        title = f"Место #{rank} • {tons} чартсов"
+    else:
+        text = (
+            "🏆 Я участвую в лидерборде донатов!\n\n"
+            f"Присоединяйся по моей ссылке:\n{ref_link}"
+        )
+        title = "Моё место и реферальная ссылка"
+    result = InlineQueryResultArticle(
+        id="1",
+        title=title,
+        description="Отправить в чат своё место и ссылку",
+        input_message_content=InputTextMessageContent(message_text=text),
+    )
+    await bot.answer_inline_query(
+        inline_query.id,
+        results=[result],
+        cache_time=300,
+    )
 
 
 async def process_telegram_update(update: dict):
