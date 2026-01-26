@@ -1460,6 +1460,7 @@ async function activateCharts() {
             if (msg === 'Insufficient balance') msg = t('insufficientBalance');
             if (msg === 'Amount must be positive' || (typeof msg === 'string' && msg.toLowerCase().includes('amount'))) msg = t('enterAmount');
             if (msg === 'User not found' || msg === 'Invalid initData') msg = t('activationError');
+            if (typeof msg === 'string' && msg.includes('did not match the expected pattern')) msg = t('enterAmount');
             throw new Error(msg);
         }
 

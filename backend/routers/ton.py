@@ -1,8 +1,8 @@
 """TON Payment endpoints"""
 from decimal import Decimal
-from typing import Optional, Union
+from typing import Optional, Union, Annotated
 from fastapi import APIRouter, Depends, HTTPException, Header
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, PlainValidator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import get_db
@@ -19,23 +19,26 @@ from backend.services.ton_service import (
 router = APIRouter(prefix="/ton", tags=["ton"])
 
 
-class CreateTonPaymentRequest(BaseModel):
-    amount_ton: float  # Amount in TON
-
-    @field_validator("amount_ton", mode="before")
-    @classmethod
-    def normalize_amount_ton(cls, v: Union[int, float, str]) -> float:
-        if isinstance(v, (int, float)):
-            return float(v)
-        if isinstance(v, str):
-            s = v.strip().replace(",", ".")
-            if not s:
-                raise ValueError("amount_ton is required")
-            try:
-                return float(s)
-            except ValueError:
-                raise ValueError("amount_ton must be a number")
+def _parse_amount_ton(v: Union[int, float, str, None]) -> float:
+    if v is None:
+        raise ValueError("amount_ton is required")
+    if isinstance(v, bool):
         raise ValueError("amount_ton must be a number")
+    if isinstance(v, (int, float)):
+        return float(v)
+    if isinstance(v, str):
+        s = v.strip().replace(",", ".")
+        if not s:
+            raise ValueError("amount_ton is required")
+        try:
+            return float(s)
+        except ValueError:
+            raise ValueError("amount_ton must be a number")
+    raise ValueError("amount_ton must be a number")
+
+
+class CreateTonPaymentRequest(BaseModel):
+    amount_ton: Annotated[float, PlainValidator(_parse_amount_ton)]
 
 
 class TonPaymentResponse(BaseModel):
