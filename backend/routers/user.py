@@ -278,6 +278,18 @@ async def activate_charts_endpoint(
             raise HTTPException(status_code=401, detail="Invalid initData")
 
         tg_id = user_data["tg_id"]
+        # Ensure user exists (e.g. if they opened activate before GET /me)
+        await user_service.get_or_create_user(
+            session=session,
+            tg_id=tg_id,
+            username=user_data.get("username"),
+            first_name=user_data.get("first_name"),
+            last_name=user_data.get("last_name"),
+            language_code=user_data.get("language_code"),
+            is_premium=user_data.get("is_premium"),
+            photo_url=user_data.get("photo_url"),
+            init_data=x_init_data,
+        )
         result = await activate_charts(session, tg_id, request.amount)
 
         if not result["success"]:

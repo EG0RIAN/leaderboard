@@ -1403,8 +1403,8 @@ async function activateCharts() {
             if (Array.isArray(msg) && msg[0] && msg[0].msg) msg = msg[0].msg;
             else if (typeof msg !== 'string') msg = t('activationError');
             if (msg === 'Insufficient balance') msg = t('insufficientBalance');
-            if (msg === 'Amount must be positive' || msg === 'amount must be a number') msg = t('enterAmount');
-            if (msg === 'User not found') msg = t('activationError');
+            if (msg === 'Amount must be positive' || (typeof msg === 'string' && msg.toLowerCase().includes('amount'))) msg = t('enterAmount');
+            if (msg === 'User not found' || msg === 'Invalid initData') msg = t('activationError');
             throw new Error(msg);
         }
 
