@@ -20,6 +20,7 @@ const translations = {
         taskClaim: "Получить награду",
         taskDone: "Выполнено",
         tasksEmpty: "Нет доступных заданий",
+        tasksLoadError: "Задания временно недоступны",
         taskClaimSuccess: "✅ Получено {amount} чартсов!",
         taskClaimError: "Не удалось получить награду",
         
@@ -193,6 +194,7 @@ const translations = {
         taskClaim: "Claim reward",
         taskDone: "Done",
         tasksEmpty: "No tasks available",
+        tasksLoadError: "Tasks temporarily unavailable",
         taskClaimSuccess: "✅ {amount} charts received!",
         taskClaimError: "Failed to claim reward",
         

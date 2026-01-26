@@ -529,6 +529,7 @@ function switchTab(tabName) {
     if (tabName === 'profile') {
         loadProfile();
     } else if (tabName === 'tasks') {
+        updateTranslations();
         loadTasks();
     } else {
         loadLeaderboard(tabName);
@@ -598,9 +599,15 @@ async function loadTasks() {
         const response = await fetch(`${API_BASE_URL}/tasks`, {
             headers: { 'X-Init-Data': initData }
         });
-        if (!response.ok) throw new Error('Failed to load tasks');
+        if (!response.ok) {
+            if (response.status === 404) {
+                listEl.innerHTML = `<div class="tasks-empty">${t('tasksEmpty')}</div>`;
+                return;
+            }
+            throw new Error('Failed to load tasks');
+        }
         const tasks = await response.json();
-        if (tasks.length === 0) {
+        if (!Array.isArray(tasks) || tasks.length === 0) {
             listEl.innerHTML = `<div class="tasks-empty">${t('tasksEmpty')}</div>`;
             return;
         }
@@ -657,7 +664,7 @@ async function loadTasks() {
         });
     } catch (err) {
         console.error('Load tasks error:', err);
-        listEl.innerHTML = `<div class="loading">${t('errorLoading')}</div>`;
+        listEl.innerHTML = `<div class="tasks-empty">${t('tasksLoadError')}</div>`;
     }
 }
 
