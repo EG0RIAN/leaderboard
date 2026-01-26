@@ -21,7 +21,7 @@ const translations = {
         taskDone: "Выполнено",
         tasksEmpty: "Нет доступных заданий",
         tasksLoadError: "Задания временно недоступны",
-        taskClaimSuccess: "✅ Получено {amount} чартсов!",
+        taskClaimSuccess: "Получено {amount} чартсов!",
         taskClaimError: "Не удалось получить награду",
         
         // Leaderboards
@@ -91,23 +91,23 @@ const translations = {
         max: "MAX",
         activateHint: "Чартсы будут добавлены в текущий недельный лидерборд",
         activate: "Активировать",
-        chartsActivated: "✅ Активировано {amount} чартсов!",
-        activationError: "❌ Ошибка активации",
-        insufficientBalance: "❌ Недостаточно чартсов на балансе",
+        chartsActivated: "Активировано {amount} чартсов!",
+        activationError: "Ошибка активации",
+        insufficientBalance: "Недостаточно чартсов на балансе",
         
         // Errors
         initError: "Ошибка инициализации",
         paymentError: "Ошибка создания платежа",
         userDataError: "Данные пользователя не найдены. Подождите загрузки...",
-        linkCopied: "✅ Ссылка скопирована в буфер обмена!\n\nПоделитесь ею с друзьями через любой мессенджер.",
+        linkCopied: "Ссылка скопирована в буфер обмена!\n\nПоделитесь ею с друзьями через любой мессенджер.",
         shareLink: "Реферальная ссылка:\n\n{link}\n\nСкопируйте и поделитесь с друзьями.",
         
         // Payment
         paymentCreated: "Создан платеж на {amount} Stars",
-        paymentSuccess: "✅ Платеж успешно обработан!",
-        paymentFailed: "❌ Платеж не прошел. Попробуйте еще раз.",
-        paymentErrorMsg: "❌ Ошибка создания платежа: {error}\n\nПопробуйте позже.",
-        cryptoProviderError: "❌ Криптоплатежи временно недоступны.\n\nИспользуйте Telegram Stars для оплаты.",
+        paymentSuccess: "Платеж успешно обработан!",
+        paymentFailed: "Платеж не прошел. Попробуйте еще раз.",
+        paymentErrorMsg: "Ошибка создания платежа: {error}\n\nПопробуйте позже.",
+        cryptoProviderError: "Криптоплатежи временно недоступны.\n\nИспользуйте Telegram Stars для оплаты.",
         
         // TON Payment
         tonAmount: "Сумма в TON:",
@@ -121,8 +121,8 @@ const translations = {
         paymentExpired: "Время платежа истекло",
         expiresIn: "Истекает через {time}",
         minTonAmount: "Минимальная сумма: 0.1 TON",
-        addressCopied: "✅ Адрес и комментарий скопированы!",
-        tonPaymentSuccess: "✅ Получено {charts} чартсов!",
+        addressCopied: "Адрес и комментарий скопированы!",
+        tonPaymentSuccess: "Получено {charts} чартсов!",
         
         // Share
         shareText: "🎮 Присоединяйся к лидерборду донатов!\n\n{link}",
@@ -146,9 +146,9 @@ const translations = {
         languageRu: "Русский",
         languageEn: "English",
         profileInfo: "Заголовок виден в топе, описание и ссылка — при нажатии!",
-        profileSaved: "✅ Профиль сохранен!",
-        profileError: "❌ Ошибка сохранения. Попробуйте позже.",
-        invalidLink: "❌ Введите корректную ссылку (начинается с http:// или https://)",
+        profileSaved: "Профиль сохранен!",
+        profileError: "Ошибка сохранения. Попробуйте позже.",
+        invalidLink: "Введите корректную ссылку (начинается с http:// или https://)",
         
         // Edit Display Name
         editDisplayName: "Изменить имя",
@@ -198,7 +198,7 @@ const translations = {
         taskDone: "Done",
         tasksEmpty: "No tasks available",
         tasksLoadError: "Tasks temporarily unavailable",
-        taskClaimSuccess: "✅ {amount} charts received!",
+        taskClaimSuccess: "{amount} charts received!",
         taskClaimError: "Failed to claim reward",
         
         // Leaderboards
@@ -267,23 +267,23 @@ const translations = {
         max: "MAX",
         activateHint: "Charts will be added to current weekly leaderboard",
         activate: "Activate",
-        chartsActivated: "✅ Activated {amount} charts!",
-        activationError: "❌ Activation error",
-        insufficientBalance: "❌ Insufficient balance",
+        chartsActivated: "Activated {amount} charts!",
+        activationError: "Activation error",
+        insufficientBalance: "Insufficient balance",
         
         // Errors
         initError: "Initialization error",
         paymentError: "Payment creation error",
         userDataError: "User data not found. Please wait for loading...",
-        linkCopied: "✅ Link copied to clipboard!\n\nShare it with your friends via any messenger.",
+        linkCopied: "Link copied to clipboard!\n\nShare it with your friends via any messenger.",
         shareLink: "Referral link:\n\n{link}\n\nCopy and share with friends.",
         
         // Payment
         paymentCreated: "Payment created for {amount} Stars",
-        paymentSuccess: "✅ Payment processed successfully!",
-        paymentFailed: "❌ Payment failed. Please try again.",
-        paymentErrorMsg: "❌ Payment creation error: {error}\n\nPlease try later.",
-        cryptoProviderError: "❌ Cryptocurrency payments are temporarily unavailable.\n\nPlease use Telegram Stars for payment.",
+        paymentSuccess: "Payment processed successfully!",
+        paymentFailed: "Payment failed. Please try again.",
+        paymentErrorMsg: "Payment creation error: {error}\n\nPlease try later.",
+        cryptoProviderError: "Cryptocurrency payments are temporarily unavailable.\n\nPlease use Telegram Stars for payment.",
         
         // TON Payment
         tonAmount: "Amount in TON:",
@@ -297,8 +297,8 @@ const translations = {
         paymentExpired: "Payment expired",
         expiresIn: "Expires in {time}",
         minTonAmount: "Minimum amount: 0.1 TON",
-        addressCopied: "✅ Address and comment copied!",
-        tonPaymentSuccess: "✅ Received {charts} charts!",
+        addressCopied: "Address and comment copied!",
+        tonPaymentSuccess: "Received {charts} charts!",
         
         // Share
         shareText: "🎮 Join the donation leaderboard!\n\n{link}",
@@ -322,9 +322,9 @@ const translations = {
         languageRu: "Russian",
         languageEn: "English",
         profileInfo: "Title shows in leaderboard, description and link — on click!",
-        profileSaved: "✅ Profile saved!",
-        profileError: "❌ Error saving. Please try later.",
-        invalidLink: "❌ Enter a valid link (starts with http:// or https://)",
+        profileSaved: "Profile saved!",
+        profileError: "Error saving. Please try later.",
+        invalidLink: "Enter a valid link (starts with http:// or https://)",
         
         // Edit Display Name
         editDisplayName: "Change Name",
