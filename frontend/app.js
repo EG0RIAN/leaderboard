@@ -1363,15 +1363,22 @@ function hideActivateModal() {
 
 async function activateCharts() {
     const input = document.getElementById('activate-amount');
-    const amount = parseFloat(input.value);
+    const raw = String(input.value || '').trim().replace(',', '.');
+    const amount = parseFloat(raw, 10);
     
-    if (!amount || amount <= 0) {
+    if (!Number.isFinite(amount) || amount <= 0) {
+        showSnackbar(t('enterAmount'), 'error');
+        return;
+    }
+    
+    const amountNum = Math.floor(amount);
+    if (amountNum <= 0) {
         showSnackbar(t('enterAmount'), 'error');
         return;
     }
     
     const balance = userData?.balance_charts || 0;
-    if (amount > balance) {
+    if (amountNum > balance) {
         showSnackbar(t('insufficientBalance'), 'error');
         return;
     }
@@ -1383,19 +1390,22 @@ async function activateCharts() {
                 'Content-Type': 'application/json',
                 'X-Init-Data': initData
             },
-            body: JSON.stringify({ amount: amount })
+            body: JSON.stringify({ amount: amountNum })
         });
         
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Activation failed');
+            const data = await response.json().catch(() => ({}));
+            let msg = data.detail;
+            if (Array.isArray(msg) && msg[0] && msg[0].msg) msg = msg[0].msg;
+            else if (typeof msg !== 'string') msg = 'Activation failed';
+            throw new Error(msg);
         }
         
         const result = await response.json();
         
         // Update local userData
         userData.balance_charts = result.new_balance;
-        userData.tons_all_time = (userData.tons_all_time || 0) + amount;
+        userData.tons_all_time = (userData.tons_all_time || 0) + amountNum;
         
         // Update UI - Profile section
         const profileBalanceEl = document.getElementById('profile-balance');
@@ -1419,7 +1429,7 @@ async function activateCharts() {
         hideActivateModal();
         haptic.notification('success');
         celebrateConfetti(); // 🎉 Confetti!
-        showSnackbar(t('chartsActivated', { amount: amount }), 'success');
+        showSnackbar(t('chartsActivated', { amount: amountNum }), 'success');
         
         // Reload leaderboard and collected bar if on leaderboard tab
         if (currentTab !== 'profile') {

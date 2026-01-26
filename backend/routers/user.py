@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, field_validator
+from typing import Optional, Union
 from backend.database import get_db
 from backend.models import User
 from backend.services import user_service, leaderboard_service
@@ -208,6 +208,21 @@ async def update_custom_text(
 
 class ActivateChartsRequest(BaseModel):
     amount: float  # Amount of charts to activate
+
+    @field_validator("amount", mode="before")
+    @classmethod
+    def normalize_amount(cls, v: Union[int, float, str]) -> float:
+        if isinstance(v, (int, float)):
+            return float(v)
+        if isinstance(v, str):
+            s = v.strip().replace(",", ".")
+            if not s:
+                raise ValueError("amount is required")
+            try:
+                return float(s)
+            except ValueError:
+                raise ValueError("amount must be a number")
+        raise ValueError("amount must be a number")
 
 
 class SaveWalletRequest(BaseModel):
