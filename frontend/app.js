@@ -1039,7 +1039,8 @@ function updateTopupWalletStatus() {
 
 // Process TON payment from top-up modal
 async function processTopupTonPayment() {
-    const amount = parseFloat(document.getElementById('topup-amount').value) || 0;
+    const raw = String(document.getElementById('topup-amount').value || '').trim().replace(',', '.');
+    const amount = parseFloat(raw) || 0;
     
     if (amount < 0.1) {
         showSnackbar(t('minTonAmount'), 'warning');
@@ -1612,7 +1613,8 @@ function updateTonPreview() {
 // Create TON payment
 async function createTonPayment() {
     const tonInput = document.getElementById('ton-amount');
-    const tonAmount = parseFloat(tonInput.value) || 0;
+    const rawTon = String(tonInput.value || '').trim().replace(',', '.');
+    const tonAmount = parseFloat(rawTon) || 0;
     
     if (tonAmount < 0.1) {
         showSnackbar(t('minTonAmount'), 'warning');

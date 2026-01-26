@@ -1,8 +1,8 @@
 """TON Payment endpoints"""
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, Union
 from fastapi import APIRouter, Depends, HTTPException, Header
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.database import get_db
@@ -21,6 +21,21 @@ router = APIRouter(prefix="/ton", tags=["ton"])
 
 class CreateTonPaymentRequest(BaseModel):
     amount_ton: float  # Amount in TON
+
+    @field_validator("amount_ton", mode="before")
+    @classmethod
+    def normalize_amount_ton(cls, v: Union[int, float, str]) -> float:
+        if isinstance(v, (int, float)):
+            return float(v)
+        if isinstance(v, str):
+            s = v.strip().replace(",", ".")
+            if not s:
+                raise ValueError("amount_ton is required")
+            try:
+                return float(s)
+            except ValueError:
+                raise ValueError("amount_ton must be a number")
+        raise ValueError("amount_ton must be a number")
 
 
 class TonPaymentResponse(BaseModel):
