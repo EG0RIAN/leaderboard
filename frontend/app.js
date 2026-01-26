@@ -1637,8 +1637,12 @@ async function createTonPayment() {
         });
         
         if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.detail || 'Failed to create payment');
+            const errData = await response.json().catch(() => ({}));
+            let msg = errData.detail;
+            if (Array.isArray(msg) && msg[0] && msg[0].msg) msg = msg[0].msg;
+            else if (typeof msg !== 'string') msg = errData.error || t('paymentError') || 'Failed to create payment';
+            if (typeof msg === 'string' && msg.includes('did not match the expected pattern')) msg = t('enterAmount');
+            throw new Error(msg);
         }
         
         const payment = await response.json();
@@ -1848,11 +1852,12 @@ async function createInvoice() {
         }
         
         if (!response.ok) {
-            const errorMsg = data.detail || data.error || data.message || `HTTP ${response.status}: ${response.statusText}`;
+            let errorMsg = data.detail || data.error || data.message || `HTTP ${response.status}: ${response.statusText}`;
+            if (Array.isArray(errorMsg) && errorMsg[0] && errorMsg[0].msg) errorMsg = errorMsg[0].msg;
+            else if (typeof errorMsg !== 'string') errorMsg = String(errorMsg);
             console.error('Invoice creation failed:', errorMsg, data);
             
-            // Check if it's a crypto payment provider error
-            haptic.notification('error'); // Error vibration
+            haptic.notification('error');
             if (errorMsg.includes('CRYPTO_PROVIDER_TOKEN') || errorMsg.includes('payment provider')) {
                 showSnackbar(t('cryptoProviderError'), 'error');
             } else {
@@ -1935,15 +1940,22 @@ async function createInvoice() {
             }
             return; // Exit early, modal already hidden
         } else {
-            // Invoice creation failed
+            // Invoice creation failed (200 but no invoice_url)
+            const err = data.error || data.detail || data.message || 'Unknown error';
+            const errStr = Array.isArray(err) && err[0] && err[0].msg ? err[0].msg : (typeof err === 'string' ? err : JSON.stringify(err));
             console.error('No invoice_url in response:', data);
-            showSnackbar(t('paymentError'), 'error');
+            showSnackbar(t('paymentErrorMsg', { error: errStr }), 'error');
         }
         
         hideDonateModal();
     } catch (error) {
         console.error('Create invoice error:', error);
-        showError(t('paymentError'));
+        const msg = (error && error.message) ? error.message : t('paymentError');
+        if (typeof showSnackbar === 'function') {
+            showSnackbar(msg, 'error');
+        } else {
+            showError(msg);
+        }
     }
 }
 
