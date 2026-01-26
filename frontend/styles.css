@@ -129,6 +129,25 @@ body {
     border-bottom: none;
 }
 
+/* Rank separator */
+.rank-separator {
+    margin: 8px 12px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rank-separator-text {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
 .rank {
     width: 40px;
     text-align: center;

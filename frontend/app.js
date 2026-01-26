@@ -589,7 +589,38 @@ function renderLeaderboard(type, items) {
         return;
     }
     
-    listElement.innerHTML = items.map(item => {
+    // Helper function to get rank group info
+    function getRankGroup(rank) {
+        if (rank >= 1 && rank <= 3) return { class: '', color: null, label: null };
+        if (rank >= 4 && rank <= 10) return { class: 'rank-4-10', color: '#8FE3FF', label: '4-10' };
+        if (rank >= 11 && rank <= 25) return { class: 'rank-11-25', color: '#E5F0F5', label: '11-25' };
+        if (rank >= 26 && rank <= 50) return { class: 'rank-26-50', color: '#6A1B9A', label: '26-50' };
+        if (rank >= 51 && rank <= 100) return { class: 'rank-51-100', color: '#1E3A8A', label: '51-100' };
+        if (rank >= 101 && rank <= 250) return { class: 'rank-101-250', color: '#1FAA59', label: '101-250' };
+        if (rank >= 251 && rank <= 500) return { class: 'rank-251-500', color: '#FF8C00', label: '251-500' };
+        if (rank >= 501 && rank <= 1000) return { class: 'rank-501-1000', color: '#FFD700', label: '501-1000' };
+        return { class: '', color: null, label: null };
+    }
+    
+    // Render items with separators
+    let html = '';
+    let prevGroupLabel = null;
+    
+    items.forEach((item, index) => {
+        const rank = item.rank;
+        const currentGroup = getRankGroup(rank);
+        
+        // Add separator if we're entering a new group (and it's not top-3)
+        if (currentGroup.label && prevGroupLabel !== currentGroup.label) {
+            html += `
+                <div class="rank-separator" style="background: linear-gradient(135deg, ${currentGroup.color}22, ${currentGroup.color}44); border-color: ${currentGroup.color};">
+                    <span class="rank-separator-text" style="color: ${currentGroup.color};">${currentGroup.label}</span>
+                </div>
+            `;
+        }
+        
+        prevGroupLabel = currentGroup.label;
+        
         const avatar = item.photo_url 
             ? `<img src="${item.photo_url}" alt="">`
             : `<span>${(item.first_name || item.username || 'U')[0].toUpperCase()}</span>`;
@@ -624,23 +655,14 @@ function renderLeaderboard(type, items) {
         
         // Rank styling classes
         let rankClass = '';
-        const rank = item.rank;
-        console.log('Rendering item with rank:', rank);
         if (rank === 1) rankClass = 'top-1';
         else if (rank === 2) rankClass = 'top-2';
         else if (rank === 3) rankClass = 'top-3';
-        else if (rank >= 4 && rank <= 10) rankClass = 'rank-4-10';
-        else if (rank >= 11 && rank <= 25) rankClass = 'rank-11-25';
-        else if (rank >= 26 && rank <= 50) rankClass = 'rank-26-50';
-        else if (rank >= 51 && rank <= 100) rankClass = 'rank-51-100';
-        else if (rank >= 101 && rank <= 250) rankClass = 'rank-101-250';
-        else if (rank >= 251 && rank <= 500) rankClass = 'rank-251-500';
-        else if (rank >= 501 && rank <= 1000) rankClass = 'rank-501-1000';
-        console.log('Assigned rankClass:', rankClass);
+        else rankClass = currentGroup.class;
         
         const rankDisplay = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : `#${rank}`;
         
-        return `
+        html += `
             <div class="leaderboard-item ${rankClass}" data-tg-id="${item.tg_id}" onclick="openUserProfile(${item.tg_id}, ${item.rank})">
                 <div class="rank">${rankDisplay}</div>
                 <div class="avatar">${avatar}</div>
@@ -651,7 +673,9 @@ function renderLeaderboard(type, items) {
                 <div class="amount">${amountText}</div>
             </div>
         `;
-    }).join('');
+    });
+    
+    listElement.innerHTML = html;
     
     // Show my position if user is in list
     if (userData) {
