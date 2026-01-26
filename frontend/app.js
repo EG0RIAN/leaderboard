@@ -115,6 +115,7 @@ function getApiErrorMessage(errData) {
     if (typeof d === 'object' && d.msg) return d.msg;
     if (errData.error) return typeof errData.error === 'string' ? errData.error : String(errData.error);
     if (errData.message) return typeof errData.message === 'string' ? errData.message : String(errData.message);
+    if (errData.description) return String(errData.description); // Telegram Bot API
     return null;
 }
 
@@ -1070,8 +1071,10 @@ async function processTopupTonPayment() {
         });
         
         if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            let msg = getApiErrorMessage(errData) || t('paymentError') || 'Failed to create payment';
+            const text = await response.text();
+            let errData = {};
+            try { errData = text ? JSON.parse(text) : {}; } catch (_) {}
+            let msg = getApiErrorMessage(errData) || (text && text.length < 200 ? text : `${response.status} ${response.statusText}`) || t('paymentError');
             if (typeof msg === 'string' && msg.includes('did not match the expected pattern')) msg = t('enterAmount');
             throw new Error(msg);
         }
@@ -1646,8 +1649,10 @@ async function createTonPayment() {
         });
         
         if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            let msg = getApiErrorMessage(errData) || t('paymentError') || 'Failed to create payment';
+            const text = await response.text();
+            let errData = {};
+            try { errData = text ? JSON.parse(text) : {}; } catch (_) {}
+            let msg = getApiErrorMessage(errData) || (text && text.length < 200 ? text : `${response.status} ${response.statusText}`) || t('paymentError');
             if (typeof msg === 'string' && msg.includes('did not match the expected pattern')) msg = t('enterAmount');
             throw new Error(msg);
         }
@@ -1848,14 +1853,16 @@ async function createInvoice() {
             })
         });
         
-        let data;
+        const raw = await response.text();
+        let data = {};
         try {
-            data = await response.json();
+            data = raw ? JSON.parse(raw) : {};
         } catch (e) {
-            // If response is not JSON, try to get text
-            const text = await response.text();
-            console.error('Non-JSON response:', text);
-            throw new Error(`Server error: ${response.status} ${response.statusText}`);
+            console.error('Non-JSON response:', raw);
+            const msg = !response.ok ? `${response.status} ${response.statusText}` : (raw.length < 150 ? raw : 'Invalid response');
+            showSnackbar(t('paymentErrorMsg', { error: msg }), 'error');
+            hideDonateModal();
+            return;
         }
         
         if (!response.ok) {
@@ -1949,7 +1956,7 @@ async function createInvoice() {
         hideDonateModal();
     } catch (error) {
         console.error('Create invoice error:', error);
-        const msg = (error && error.message && error.message.trim()) ? error.message : t('paymentError');
+        const msg = (error && error.message && String(error.message).trim()) ? error.message : (t('paymentErrorMsg', { error: 'Network or server error' }) || t('paymentError'));
         if (typeof showSnackbar === 'function') {
             showSnackbar(msg, 'error');
         } else {
