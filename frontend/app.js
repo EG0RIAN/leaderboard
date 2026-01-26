@@ -1116,14 +1116,9 @@ async function processTopupStarsPayment() {
         
         if (data.invoice_url) {
             hideTopupModal();
-            
-            let invoiceSlug = data.invoice_url;
-            if (invoiceSlug.includes('t.me/')) {
-                invoiceSlug = invoiceSlug.split('t.me/')[1].split('?')[0];
-            }
-            
+            const invoiceUrl = data.invoice_url.startsWith('http') ? data.invoice_url : `https://t.me/${data.invoice_url}`;
             if (tg && typeof tg.openInvoice === 'function') {
-                tg.openInvoice(invoiceSlug, (status) => {
+                tg.openInvoice(invoiceUrl, (status) => {
                     if (status === 'paid') {
                         haptic.notification('success');
                         celebrateConfetti();
@@ -1879,28 +1874,12 @@ async function createInvoice() {
         // Open Telegram Stars invoice
         if (data.invoice_url) {
             console.log('Opening invoice URL:', data.invoice_url);
-            
-            // For Telegram Stars, the URL format is: https://t.me/$ABC123
-            // openInvoice() needs the full URL or just the slug with $
-            
-            // Extract invoice slug - keep the $ prefix!
-            let invoiceSlug = data.invoice_url;
-            
-            // Extract just the slug part (with $ for Stars invoices)
-            if (invoiceSlug.includes('t.me/')) {
-                // Get everything after t.me/
-                invoiceSlug = invoiceSlug.split('t.me/')[1].split('?')[0];
-            }
-            
-            console.log('Invoice slug for openInvoice:', invoiceSlug);
-            
-            // Hide modal first
+            // openInvoice() requires the full URL (https://t.me/invoice/...)
+            const invoiceUrl = data.invoice_url.startsWith('http') ? data.invoice_url : `https://t.me/${data.invoice_url}`;
             hideDonateModal();
-            
             if (tg && typeof tg.openInvoice === 'function') {
-                console.log('Calling tg.openInvoice with:', invoiceSlug);
                 try {
-                    tg.openInvoice(invoiceSlug, (status) => {
+                    tg.openInvoice(invoiceUrl, (status) => {
                         console.log('Invoice payment status:', status);
                         if (status === 'paid') {
                             haptic.notification('success'); // Success vibration
