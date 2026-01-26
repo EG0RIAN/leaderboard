@@ -1239,7 +1239,12 @@ function openUserProfile(tgId, rank) {
             takePlaceBtn.onclick = () => {
                 haptic.impact('light');
                 hideUserProfileModal();
-                showTopupModal(targetCharts);
+                const balance = userData?.balance_charts || 0;
+                if (balance >= targetCharts) {
+                    showActivateModal(targetCharts);
+                } else {
+                    showTopupModal(targetCharts);
+                }
             };
         } else {
             takePlaceBtn.style.display = 'none';
@@ -1367,8 +1372,8 @@ async function saveDisplayName() {
     }
 }
 
-// Activate Charts Modal
-function showActivateModal() {
+// Activate Charts Modal (optional: suggestedAmount = pre-fill amount, e.g. for "take their place")
+function showActivateModal(suggestedAmount) {
     const modal = document.getElementById('activate-modal');
     const backdrop = document.getElementById('activate-backdrop');
     const input = document.getElementById('activate-amount');
@@ -1376,8 +1381,13 @@ function showActivateModal() {
     
     const balance = userData?.balance_charts || 0;
     availableEl.textContent = balance;
-    input.value = '';
-    input.max = Math.floor(balance);
+    const maxVal = Math.floor(balance);
+    input.max = maxVal;
+    if (typeof suggestedAmount === 'number' && suggestedAmount > 0 && suggestedAmount <= maxVal) {
+        input.value = suggestedAmount;
+    } else {
+        input.value = '';
+    }
     
     modal.classList.add('active');
     backdrop.classList.add('active');
