@@ -31,6 +31,23 @@ const haptic = {
     }
 };
 
+// Snackbar (replaces tg.showAlert for in-app toasts)
+let snackbarTimeout = null;
+function showSnackbar(message, type = 'default') {
+    const el = document.getElementById('snackbar');
+    if (!el) return;
+    if (snackbarTimeout) clearTimeout(snackbarTimeout);
+    el.textContent = typeof message === 'string' ? message : (message && message.message) || String(message);
+    el.className = 'snackbar show';
+    if (type === 'success') el.classList.add('snackbar-success');
+    else if (type === 'error') el.classList.add('snackbar-error');
+    else if (type === 'warning') el.classList.add('snackbar-warning');
+    snackbarTimeout = setTimeout(() => {
+        el.classList.remove('show', 'snackbar-success', 'snackbar-error', 'snackbar-warning');
+        snackbarTimeout = null;
+    }, 4000);
+}
+
 // Confetti celebration effect
 function celebrateConfetti() {
     if (typeof confetti !== 'function') {
@@ -689,17 +706,17 @@ async function claimTaskReward(taskId) {
             let msg = data.detail;
             if (Array.isArray(msg) && msg[0] && msg[0].msg) msg = msg[0].msg;
             else if (typeof msg !== 'string') msg = data.error || t('taskClaimError');
-            tg.showAlert(msg);
+            showSnackbar(msg, 'error');
             return;
         }
         if (userData) userData.balance_charts = data.new_balance;
         updateBalanceBar();
         haptic.notification('success');
-        tg.showAlert(t('taskClaimSuccess', { amount: data.charts_added }));
+        showSnackbar(t('taskClaimSuccess', { amount: data.charts_added }), 'success');
         loadTasks();
     } catch (err) {
         console.error('Claim task error:', err);
-        tg.showAlert(t('taskClaimError'));
+        showSnackbar(t('taskClaimError'), 'error');
     }
 }
 
@@ -996,7 +1013,7 @@ async function processTopupTonPayment() {
     const amount = parseFloat(document.getElementById('topup-amount').value) || 0;
     
     if (amount < 0.1) {
-        tg.showAlert(t('minTonAmount'));
+        showSnackbar(t('minTonAmount'), 'warning');
         return;
     }
     
@@ -1027,7 +1044,7 @@ async function processTopupTonPayment() {
             );
             
             haptic.notification('success');
-            tg.showAlert(t('paymentCreated', { amount: amount }));
+            showSnackbar(t('paymentCreated', { amount: amount }), 'success');
             
             // Start checking status
             startTonPaymentCheck(payment.payment_comment);
@@ -1035,7 +1052,7 @@ async function processTopupTonPayment() {
     } catch (error) {
         console.error('TON payment error:', error);
         haptic.notification('error');
-        tg.showAlert(error.message);
+        showSnackbar(error.message, 'error');
     }
 }
 
@@ -1044,7 +1061,7 @@ async function processTopupStarsPayment() {
     const amount = parseInt(document.getElementById('topup-amount').value) || 0;
     
     if (amount < 1) {
-        tg.showAlert('Минимум 1 Star');
+        showSnackbar('Минимум 1 Star', 'warning');
         return;
     }
     
@@ -1081,7 +1098,7 @@ async function processTopupStarsPayment() {
                     if (status === 'paid') {
                         haptic.notification('success');
                         celebrateConfetti();
-                        tg.showAlert(t('paymentSuccess'));
+                        showSnackbar(t('paymentSuccess'), 'success');
                         setTimeout(() => {
                             loadLeaderboard(currentTab);
                             init();
@@ -1093,7 +1110,7 @@ async function processTopupStarsPayment() {
     } catch (error) {
         console.error('Stars payment error:', error);
         haptic.notification('error');
-        tg.showAlert(error.message);
+        showSnackbar(error.message, 'error');
     }
 }
 
@@ -1310,12 +1327,12 @@ async function saveDisplayName() {
         
         hideEditNameModal();
         haptic.notification('success');
-        tg.showAlert(t('profileSaved'));
+        showSnackbar(t('profileSaved'), 'success');
         
     } catch (error) {
         console.error('Error saving display name:', error);
         haptic.notification('error');
-        tg.showAlert(t('profileError'));
+        showSnackbar(t('profileError'), 'error');
     }
 }
 
@@ -1349,13 +1366,13 @@ async function activateCharts() {
     const amount = parseFloat(input.value);
     
     if (!amount || amount <= 0) {
-        tg.showAlert(t('enterAmount'));
+        showSnackbar(t('enterAmount'), 'error');
         return;
     }
     
     const balance = userData?.balance_charts || 0;
     if (amount > balance) {
-        tg.showAlert(t('insufficientBalance'));
+        showSnackbar(t('insufficientBalance'), 'error');
         return;
     }
     
@@ -1402,7 +1419,7 @@ async function activateCharts() {
         hideActivateModal();
         haptic.notification('success');
         celebrateConfetti(); // 🎉 Confetti!
-        tg.showAlert(t('chartsActivated', { amount: amount }));
+        showSnackbar(t('chartsActivated', { amount: amount }), 'success');
         
         // Reload leaderboard and collected bar if on leaderboard tab
         if (currentTab !== 'profile') {
@@ -1413,7 +1430,7 @@ async function activateCharts() {
     } catch (error) {
         console.error('Error activating charts:', error);
         haptic.notification('error');
-        tg.showAlert(error.message || t('activationError'));
+        showSnackbar(error.message || t('activationError'), 'error');
     }
 }
 
@@ -1527,7 +1544,7 @@ async function createTonPayment() {
     const tonAmount = parseFloat(tonInput.value) || 0;
     
     if (tonAmount < 0.1) {
-        tg.showAlert(t('minTonAmount'));
+        showSnackbar(t('minTonAmount'), 'warning');
         return;
     }
     
@@ -1558,7 +1575,7 @@ async function createTonPayment() {
     } catch (error) {
         console.error('Error creating TON payment:', error);
         haptic.notification('error');
-        tg.showAlert(error.message);
+        showSnackbar(error.message, 'error');
     }
 }
 
@@ -1647,7 +1664,7 @@ function startTonPaymentCheck(comment) {
                     statusEl.innerHTML = `<span class="status-icon">✅</span><span class="status-text">${t('paymentReceived')}</span>`;
                 }
                 
-                tg.showAlert(t('tonPaymentSuccess', { charts: payment.charts_amount }));
+                showSnackbar(t('tonPaymentSuccess', { charts: payment.charts_amount }), 'success');
                 
                 // Reload data
                 setTimeout(() => {
@@ -1678,7 +1695,7 @@ function copyTonAddress() {
     
     navigator.clipboard.writeText(text).then(() => {
         haptic.notification('success');
-        tg.showAlert(t('addressCopied'));
+        showSnackbar(t('addressCopied'), 'success');
     }).catch(err => {
         console.error('Copy error:', err);
     });
@@ -1759,9 +1776,9 @@ async function createInvoice() {
             // Check if it's a crypto payment provider error
             haptic.notification('error'); // Error vibration
             if (errorMsg.includes('CRYPTO_PROVIDER_TOKEN') || errorMsg.includes('payment provider')) {
-                tg.showAlert(t('cryptoProviderError'));
+                showSnackbar(t('cryptoProviderError'), 'error');
             } else {
-                tg.showAlert(t('paymentErrorMsg', { error: errorMsg }));
+                showSnackbar(t('paymentErrorMsg', { error: errorMsg }), 'error');
             }
             hideDonateModal();
             return;
@@ -1775,9 +1792,9 @@ async function createInvoice() {
             // Check if it's a crypto payment provider error
             haptic.notification('error'); // Error vibration
             if (errorMsg.includes('CRYPTO_PROVIDER_TOKEN') || errorMsg.includes('payment provider')) {
-                tg.showAlert(t('cryptoProviderError'));
+                showSnackbar(t('cryptoProviderError'), 'error');
             } else {
-                tg.showAlert(t('paymentErrorMsg', { error: errorMsg }));
+                showSnackbar(t('paymentErrorMsg', { error: errorMsg }), 'error');
             }
             hideDonateModal();
             return;
@@ -1812,7 +1829,7 @@ async function createInvoice() {
                         if (status === 'paid') {
                             haptic.notification('success'); // Success vibration
                             celebrateConfetti(); // 🎉 Confetti!
-                            tg.showAlert(t('paymentSuccess'));
+                            showSnackbar(t('paymentSuccess'), 'success');
                             // Reload leaderboard to show updated stats
                             setTimeout(() => {
                                 loadLeaderboard(currentTab);
@@ -1821,7 +1838,7 @@ async function createInvoice() {
                             }, 1000);
                         } else if (status === 'failed') {
                             haptic.notification('error'); // Error vibration
-                            tg.showAlert(t('paymentFailed'));
+                            showSnackbar(t('paymentFailed'), 'error');
                         } else if (status === 'cancelled') {
                             haptic.impact('light'); // Light vibration on cancel
                             console.log('Payment cancelled by user');
@@ -1858,7 +1875,7 @@ async function createInvoice() {
         } else {
             // Invoice creation failed
             console.error('No invoice_url in response:', data);
-            tg.showAlert(t('paymentError'));
+            showSnackbar(t('paymentError'), 'error');
         }
         
         hideDonateModal();
@@ -1928,27 +1945,27 @@ function shareReferralLink() {
             console.log('Using clipboard');
             navigator.clipboard.writeText(shareText).then(() => {
                 haptic.notification('success'); // Success vibration
-                tg.showAlert(t('linkCopied'));
+                showSnackbar(t('linkCopied'), 'success');
             }).catch((err) => {
                 console.error('Clipboard error:', err);
                 haptic.notification('warning'); // Warning vibration
-                tg.showAlert(t('shareLink', { link: telegramLink }));
+                showSnackbar(t('shareLink', { link: telegramLink }));
             });
             return;
         }
         
         // Method 6: Just show the link
         console.log('Showing alert with link');
-        tg.showAlert(t('shareLink', { link: telegramLink }));
+        showSnackbar(t('shareLink', { link: telegramLink }));
     } catch (error) {
         console.error('Error sharing referral link:', error);
-        tg.showAlert(t('shareLink', { link: telegramLink }));
+        showSnackbar(t('shareLink', { link: telegramLink }));
     }
 }
 
-// Show error
+// Show error (uses snackbar)
 function showError(message) {
-    tg.showAlert(message);
+    showSnackbar(message, 'error');
 }
 
 // Format number with thousands separator
@@ -2120,7 +2137,7 @@ async function saveProfile() {
     // Validate link
     if (customLink && !customLink.startsWith('http://') && !customLink.startsWith('https://')) {
         haptic.notification('error');
-        tg.showAlert(t('invalidLink'));
+        showSnackbar(t('invalidLink'), 'error');
         return;
     }
     
@@ -2153,14 +2170,14 @@ async function saveProfile() {
         }
         
         haptic.notification('success'); // Success vibration
-        tg.showAlert(t('profileSaved'));
+        showSnackbar(t('profileSaved'), 'success');
         
         // Reload current leaderboard to show updated data
         loadLeaderboard(currentTab);
     } catch (error) {
         console.error('Error saving profile:', error);
         haptic.notification('error'); // Error vibration
-        tg.showAlert(t('profileError'));
+        showSnackbar(t('profileError'), 'error');
     }
 }
 

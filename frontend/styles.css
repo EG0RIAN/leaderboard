@@ -2827,3 +2827,43 @@ body {
 .profile-lang-btn:active {
     opacity: 0.9;
 }
+
+/* ==================== SNACKBAR ==================== */
+.snackbar {
+    position: fixed;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    bottom: calc(env(safe-area-inset-bottom, 0) + 80px);
+    max-width: calc(100vw - 32px);
+    min-width: 200px;
+    padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.4;
+    text-align: center;
+    color: #fff;
+    background: var(--tg-theme-text-color, #000);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    z-index: 10000;
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s;
+}
+
+.snackbar.show {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    visibility: visible;
+}
+
+.snackbar.snackbar-success {
+    background: #34c759;
+}
+
+.snackbar.snackbar-error {
+    background: #ff3b30;
+}
+
+.snackbar.snackbar-warning {
+    background: #ff9500;
+}
