@@ -172,7 +172,7 @@ const translations = {
         
         // Collected funds bar
         collectedFunds: "Собранные средства",
-        collectedHint: "15% от всех депозитов"
+        collectedHint: "Фонд подарков"
     },
     en: {
         // Tabs / Nav
@@ -345,7 +345,7 @@ const translations = {
         
         // Collected funds bar
         collectedFunds: "Collected funds",
-        collectedHint: "15% of all deposits"
+        collectedHint: "Gift fund"
     }
 };
 
