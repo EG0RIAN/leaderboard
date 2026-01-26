@@ -2164,16 +2164,21 @@ body {
     stroke: currentColor;
 }
 
-/* Charts/Diamond icon */
+/* Charts/Diamond icon — цвет подстраивается под тему (видно и в светлой, и в тёмной) */
 .charts-icon {
     display: inline-block;
     width: 1em;
     height: 1em;
     vertical-align: -0.125em;
-    background-image: url('charts-icon.svg');
-    background-size: contain;
-    background-repeat: no-repeat;
-    background-position: center;
+    background-color: var(--tg-theme-text-color, #000000);
+    -webkit-mask-image: url('charts-icon.svg');
+    mask-image: url('charts-icon.svg');
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
 }
 
 .charts-icon-sm {
