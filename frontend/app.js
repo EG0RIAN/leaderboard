@@ -107,6 +107,17 @@ let userData = null;
 let presetAmounts = {};
 let currentLanguage = 'ru'; // Will be set from user data
 
+function getApiErrorMessage(errData) {
+    if (!errData || typeof errData !== 'object') return null;
+    let d = errData.detail;
+    if (typeof d === 'string') return d;
+    if (Array.isArray(d) && d[0] && d[0].msg) return d[0].msg;
+    if (typeof d === 'object' && d.msg) return d.msg;
+    if (errData.error) return typeof errData.error === 'string' ? errData.error : String(errData.error);
+    if (errData.message) return typeof errData.message === 'string' ? errData.message : String(errData.message);
+    return null;
+}
+
 // Initialize app
 async function init() {
     try {
@@ -1060,9 +1071,7 @@ async function processTopupTonPayment() {
         
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
-            let msg = errData.detail;
-            if (Array.isArray(msg) && msg[0] && msg[0].msg) msg = msg[0].msg;
-            else if (typeof msg !== 'string') msg = t('paymentError') || 'Failed to create payment';
+            let msg = getApiErrorMessage(errData) || t('paymentError') || 'Failed to create payment';
             if (typeof msg === 'string' && msg.includes('did not match the expected pattern')) msg = t('enterAmount');
             throw new Error(msg);
         }
@@ -1638,9 +1647,7 @@ async function createTonPayment() {
         
         if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
-            let msg = errData.detail;
-            if (Array.isArray(msg) && msg[0] && msg[0].msg) msg = msg[0].msg;
-            else if (typeof msg !== 'string') msg = errData.error || t('paymentError') || 'Failed to create payment';
+            let msg = getApiErrorMessage(errData) || t('paymentError') || 'Failed to create payment';
             if (typeof msg === 'string' && msg.includes('did not match the expected pattern')) msg = t('enterAmount');
             throw new Error(msg);
         }
@@ -1852,13 +1859,10 @@ async function createInvoice() {
         }
         
         if (!response.ok) {
-            let errorMsg = data.detail || data.error || data.message || `HTTP ${response.status}: ${response.statusText}`;
-            if (Array.isArray(errorMsg) && errorMsg[0] && errorMsg[0].msg) errorMsg = errorMsg[0].msg;
-            else if (typeof errorMsg !== 'string') errorMsg = String(errorMsg);
+            const errorMsg = getApiErrorMessage(data) || `HTTP ${response.status}: ${response.statusText}`;
             console.error('Invoice creation failed:', errorMsg, data);
-            
             haptic.notification('error');
-            if (errorMsg.includes('CRYPTO_PROVIDER_TOKEN') || errorMsg.includes('payment provider')) {
+            if (typeof errorMsg === 'string' && (errorMsg.includes('CRYPTO_PROVIDER_TOKEN') || errorMsg.includes('payment provider'))) {
                 showSnackbar(t('cryptoProviderError'), 'error');
             } else {
                 showSnackbar(t('paymentErrorMsg', { error: errorMsg }), 'error');
@@ -1867,14 +1871,11 @@ async function createInvoice() {
             return;
         }
         
-        // Check for errors in response
         if (data.error || !data.invoice_url) {
-            const errorMsg = data.error || data.detail || data.message || 'Unknown error';
+            const errorMsg = getApiErrorMessage(data) || 'Unknown error';
             console.error('Invoice creation error in response:', errorMsg, data);
-            
-            // Check if it's a crypto payment provider error
-            haptic.notification('error'); // Error vibration
-            if (errorMsg.includes('CRYPTO_PROVIDER_TOKEN') || errorMsg.includes('payment provider')) {
+            haptic.notification('error');
+            if (typeof errorMsg === 'string' && (errorMsg.includes('CRYPTO_PROVIDER_TOKEN') || errorMsg.includes('payment provider'))) {
                 showSnackbar(t('cryptoProviderError'), 'error');
             } else {
                 showSnackbar(t('paymentErrorMsg', { error: errorMsg }), 'error');
@@ -1940,9 +1941,7 @@ async function createInvoice() {
             }
             return; // Exit early, modal already hidden
         } else {
-            // Invoice creation failed (200 but no invoice_url)
-            const err = data.error || data.detail || data.message || 'Unknown error';
-            const errStr = Array.isArray(err) && err[0] && err[0].msg ? err[0].msg : (typeof err === 'string' ? err : JSON.stringify(err));
+            const errStr = getApiErrorMessage(data) || 'Unknown error';
             console.error('No invoice_url in response:', data);
             showSnackbar(t('paymentErrorMsg', { error: errStr }), 'error');
         }
@@ -1950,7 +1949,7 @@ async function createInvoice() {
         hideDonateModal();
     } catch (error) {
         console.error('Create invoice error:', error);
-        const msg = (error && error.message) ? error.message : t('paymentError');
+        const msg = (error && error.message && error.message.trim()) ? error.message : t('paymentError');
         if (typeof showSnackbar === 'function') {
             showSnackbar(msg, 'error');
         } else {
