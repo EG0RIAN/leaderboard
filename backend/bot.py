@@ -6,6 +6,9 @@ from aiogram.types import (
     InlineQuery,
     InlineQueryResultArticle,
     InputTextMessageContent,
+    InlineKeyboardMarkup,
+    InlineKeyboardButton,
+    WebAppInfo,
 )
 from aiogram.filters import Command
 from backend.config import settings
@@ -74,9 +77,19 @@ async def start_command_handler(message: Message):
             welcome_text += "• Смотреть лидерборды по донатам\n"
             welcome_text += "• Пополнять свой баланс\n"
             welcome_text += "• Приглашать друзей и получать бонусы\n\n"
-            welcome_text += f"🎮 Открой Mini App через кнопку меню, чтобы начать!"
+            welcome_text += "🎮 Нажми кнопку ниже, чтобы открыть лидерборд!"
             
-            await message.answer(welcome_text)
+            keyboard = InlineKeyboardMarkup(
+                inline_keyboard=[
+                    [
+                        InlineKeyboardButton(
+                            text="📊 Открыть лидерборд",
+                            web_app=WebAppInfo(url=settings.mini_app_url),
+                        )
+                    ]
+                ]
+            )
+            await message.answer(welcome_text, reply_markup=keyboard)
             
             logger.info(f"User {user.id} {'registered' if is_new else 'updated'} via /start")
             
