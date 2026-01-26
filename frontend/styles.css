@@ -2782,3 +2782,48 @@ body {
 .btn-disconnect:active {
     opacity: 0.8;
 }
+
+/* ==================== PROFILE LANGUAGE ==================== */
+.profile-language-section {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 0;
+    margin-bottom: 8px;
+}
+
+.profile-language-label {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tg-theme-text-color, #000000);
+}
+
+.profile-language-switch {
+    display: flex;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--tg-theme-button-color, #3390ec);
+    background: var(--tg-theme-secondary-bg-color, #f0f0f0);
+}
+
+.profile-lang-btn {
+    padding: 10px 20px;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: var(--tg-theme-hint-color, #666);
+    transition: background 0.2s, color 0.2s;
+}
+
+.profile-lang-btn.active {
+    background: var(--tg-theme-button-color, #3390ec);
+    color: var(--tg-theme-button-text-color, #ffffff);
+}
+
+.profile-lang-btn:active {
+    opacity: 0.9;
+}

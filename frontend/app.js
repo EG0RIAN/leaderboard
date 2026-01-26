@@ -111,12 +111,8 @@ async function init() {
             settings.telegram_bot_username = userData.bot_username;
         }
         
-        // Set language based on user's language_code
-        if (userData.language_code) {
-            currentLanguage = userData.language_code.startsWith('ru') ? 'ru' : 'en';
-        } else {
-            currentLanguage = getLanguage();
-        }
+        // Language: stored choice > user locale (ru → ru, else → en)
+        currentLanguage = getLanguage();
         setLanguage();
         updateTranslations();
         
@@ -169,6 +165,20 @@ function setupEventListeners() {
         });
     });
     
+    // Language switcher (profile)
+    document.querySelectorAll('.profile-lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const lang = btn.getAttribute('data-lang');
+            if (lang !== 'ru' && lang !== 'en') return;
+            haptic.selection();
+            try { localStorage.setItem('app_lang', lang); } catch (e) {}
+            currentLanguage = lang;
+            setLanguage();
+            updateTranslations();
+            document.querySelectorAll('.profile-lang-btn').forEach(b => b.classList.toggle('active', b.getAttribute('data-lang') === lang));
+        });
+    });
+
     // Rise in rating button - opens activate or top-up modal
     document.getElementById('donate-btn').addEventListener('click', () => {
         haptic.impact('medium');
@@ -1972,8 +1982,17 @@ function linkify(text) {
     });
 }
 
+// Update language selector active state (profile)
+function updateLanguageSelectorState() {
+    const lang = getLanguage();
+    document.querySelectorAll('.profile-lang-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+}
+
 // Load profile data
 async function loadProfile() {
+    updateLanguageSelectorState();
     // Fetch fresh user data from backend
     try {
         const response = await fetch(`${API_BASE_URL}/user/me`, {

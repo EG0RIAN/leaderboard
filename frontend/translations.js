@@ -142,6 +142,9 @@ const translations = {
         customLinkLabel: "Ссылка:",
         customLinkPlaceholder: "https://...",
         saveProfile: "Сохранить",
+        languageLabel: "Язык",
+        languageRu: "Русский",
+        languageEn: "English",
         profileInfo: "Заголовок виден в топе, описание и ссылка — при нажатии!",
         profileSaved: "✅ Профиль сохранен!",
         profileError: "❌ Ошибка сохранения. Попробуйте позже.",
@@ -315,6 +318,9 @@ const translations = {
         customLinkLabel: "Link:",
         customLinkPlaceholder: "https://...",
         saveProfile: "Save",
+        languageLabel: "Language",
+        languageRu: "Russian",
+        languageEn: "English",
         profileInfo: "Title shows in leaderboard, description and link — on click!",
         profileSaved: "✅ Profile saved!",
         profileError: "❌ Error saving. Please try later.",
@@ -349,19 +355,17 @@ const translations = {
     }
 };
 
-// Get current language
+// Get current language (stored choice > Telegram locale > browser)
 function getLanguage() {
-    // Try to get from Telegram Web App
+    try {
+        const stored = localStorage.getItem('app_lang');
+        if (stored === 'ru' || stored === 'en') return stored;
+    } catch (e) {}
+    // Telegram locale: Russian -> ru, otherwise -> en
     if (window.Telegram && window.Telegram.WebApp) {
-        const tg = window.Telegram.WebApp;
-        const lang = tg.initDataUnsafe?.user?.language_code;
-        if (lang) {
-            // If language is Russian, return 'ru', otherwise 'en'
-            return lang.startsWith('ru') ? 'ru' : 'en';
-        }
+        const lang = window.Telegram.WebApp.initDataUnsafe?.user?.language_code;
+        if (lang) return lang.startsWith('ru') ? 'ru' : 'en';
     }
-    
-    // Fallback: check browser language
     const browserLang = navigator.language || navigator.userLanguage;
     return browserLang.startsWith('ru') ? 'ru' : 'en';
 }
