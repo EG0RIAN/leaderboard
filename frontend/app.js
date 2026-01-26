@@ -555,12 +555,26 @@ function switchTab(tabName) {
     // Load content based on tab
     if (tabName === 'profile') {
         loadProfile();
+        updateMyPositionBarFromUserData();
     } else if (tabName === 'tasks') {
         updateTranslations();
         loadTasks();
+        updateMyPositionBarFromUserData();
     } else {
         loadLeaderboard(tabName);
     }
+}
+
+// Update "You're at X place • N charts" bar from userData (for Profile/Tasks tabs — show all-time)
+function updateMyPositionBarFromUserData() {
+    if (!userData) return;
+    const rankEl = document.getElementById('my-rank');
+    const chartsEl = document.getElementById('my-charts');
+    const blockEl = document.getElementById('my-position');
+    if (!rankEl || !chartsEl || !blockEl) return;
+    rankEl.textContent = userData.rank_all_time || '-';
+    chartsEl.textContent = formatNumber(userData.tons_all_time || 0);
+    blockEl.style.display = 'block';
 }
 
 // Load and display collected funds status bar (max 1000 TON = 15% of all deps)
