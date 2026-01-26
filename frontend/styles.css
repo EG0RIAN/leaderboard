@@ -2246,52 +2246,80 @@ body {
 }
 
 /* ==================== TASKS TAB ==================== */
+#tasks.tab-pane {
+    padding: 0 12px 24px;
+}
+
 .tasks-header {
     margin-bottom: 16px;
+    padding-top: 4px;
 }
 
 .tasks-header h2 {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: var(--tg-theme-text-color, #000);
     margin: 0 0 4px 0;
+}
+
+.tasks-header h2 .header-icon-svg {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
 }
 
 .tasks-subtitle {
     font-size: 14px;
     color: var(--tg-theme-hint-color, #666);
     margin: 0;
+    line-height: 1.4;
 }
 
 .tasks-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    width: 100%;
+    max-width: 100%;
 }
 
 .tasks-empty {
     text-align: center;
     color: var(--tg-theme-hint-color, #999);
-    padding: 24px 16px;
+    padding: 32px 16px;
     font-size: 15px;
+    line-height: 1.5;
 }
 
 .task-card {
     background: var(--tg-theme-secondary-bg-color, #f5f5f5);
-    border-radius: 16px;
-    padding: 16px;
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    gap: 12px;
+    border-radius: 14px;
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 44px 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 10px 12px;
+    align-items: start;
     color: var(--tg-theme-text-color, #000);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.task-card:has(.task-card-actions) {
+    grid-template-rows: auto auto;
 }
 
 .task-card-done {
-    opacity: 0.85;
+    opacity: 0.9;
+}
+
+.task-card-done .task-card-done-badge {
+    grid-column: 3;
+    grid-row: 1 / -1;
+    align-self: center;
 }
 
 .task-card-icon {
@@ -2301,32 +2329,43 @@ body {
     flex-shrink: 0;
     background: var(--tg-theme-button-color, #3390ec);
     opacity: 0.9;
+    grid-column: 1;
+    grid-row: 1 / -1;
 }
 
+/* Lucide: megaphone (channel) */
 .task-icon-channel {
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M3 11l18-5v12L3 14v-3z'/%3E%3Cpath d='M11 6l7 2'/%3E%3C/svg%3E") center/22px no-repeat;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M3 11l18-5v12L3 14v-3z'/%3E%3Cpath d='M11 6l7 2'/%3E%3C/svg%3E") center/22px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 11 18-5v12L3 14v-3z'/%3E%3Cpath d='m11 6 7 2'/%3E%3C/svg%3E") center/22px no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 11 18-5v12L3 14v-3z'/%3E%3Cpath d='m11 6 7 2'/%3E%3C/svg%3E") center/22px no-repeat;
     mask-size: 22px;
     -webkit-mask-size: 22px;
 }
 
+/* Lucide: message-circle (chat) */
 .task-icon-chat {
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z'/%3E%3C/svg%3E") center/22px no-repeat;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z'/%3E%3C/svg%3E") center/22px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.9 20A9 9 0 1 0 4 16.1L2 22Z'/%3E%3C/svg%3E") center/22px no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7.9 20A9 9 0 1 0 4 16.1L2 22Z'/%3E%3C/svg%3E") center/22px no-repeat;
     mask-size: 22px;
     -webkit-mask-size: 22px;
 }
 
+/* Lucide: smartphone (app) */
 .task-icon-app {
-    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='5' y='2' width='14' height='20' rx='2' ry='2'/%3E%3Cline x1='12' y1='18' x2='12.01' y2='18'/%3E%3C/svg%3E") center/22px no-repeat;
-    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Crect x='5' y='2' width='14' height='20' rx='2' ry='2'/%3E%3Cline x1='12' y1='18' x2='12.01' y2='18'/%3E%3C/svg%3E") center/22px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='2' width='14' height='20' rx='2' ry='2'/%3E%3Cpath d='M12 18h.01'/%3E%3C/svg%3E") center/22px no-repeat;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='2' width='14' height='20' rx='2' ry='2'/%3E%3Cpath d='M12 18h.01'/%3E%3C/svg%3E") center/22px no-repeat;
     mask-size: 22px;
     -webkit-mask-size: 22px;
 }
 
 .task-card-body {
-    flex: 1;
     min-width: 0;
+    grid-column: 2;
+    grid-row: 1;
+}
+
+.task-card-actions {
+    grid-column: 2;
+    grid-row: 2;
 }
 
 .task-card-type {
@@ -2344,6 +2383,7 @@ body {
     font-weight: 700;
     margin: 0 0 4px 0;
     line-height: 1.3;
+    word-break: break-word;
 }
 
 .task-card-desc {
@@ -2351,6 +2391,7 @@ body {
     color: var(--tg-theme-hint-color, #666);
     margin: 0 0 8px 0;
     line-height: 1.4;
+    word-break: break-word;
 }
 
 .task-card-reward {
@@ -2365,8 +2406,8 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    width: 100%;
-    margin-top: 4px;
+    align-items: center;
+    margin-top: 2px;
 }
 
 .task-btn {
@@ -2402,7 +2443,6 @@ body {
 }
 
 .task-card-done-badge {
-    flex-shrink: 0;
     font-size: 13px;
     font-weight: 600;
     color: var(--tg-theme-hint-color, #6a9b6a);
