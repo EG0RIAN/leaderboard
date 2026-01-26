@@ -47,21 +47,19 @@ class TonConfigResponse(BaseModel):
 @router.get("/config")
 async def get_ton_config():
     """Get TON payment configuration with current rates"""
-    if not settings.ton_wallet_address:
-        raise HTTPException(status_code=503, detail="TON payments not configured")
-    
     # Get current rates
     stars_per_ton = await rate_provider.get_stars_per_ton()
     charts_per_ton = await rate_provider.get_charts_per_ton()
     
-    return TonConfigResponse(
-        wallet_address=settings.ton_wallet_address,
-        charts_per_ton=charts_per_ton,
-        stars_per_chart=rate_provider.stars_per_chart,
-        stars_per_ton=stars_per_ton,
-        min_amount=0.1,  # Minimum 0.1 TON
-        payment_expiry_minutes=settings.ton_payment_expiry_minutes
-    )
+    return {
+        "wallet_address": settings.ton_wallet_address or None,
+        "charts_per_ton": charts_per_ton,
+        "stars_per_chart": rate_provider.stars_per_chart,
+        "stars_per_ton": stars_per_ton,
+        "min_amount": 0.1,
+        "payment_expiry_minutes": settings.ton_payment_expiry_minutes,
+        "enabled": bool(settings.ton_wallet_address)
+    }
 
 
 @router.post("/create-payment")
