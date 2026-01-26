@@ -79,9 +79,20 @@ async def get_week_leaderboard(
     limit: int = 50,
     offset: int = 0
 ) -> List[Dict]:
-    """Get weekly leaderboard for specified week"""
+    """Weekly leaderboard: only current week (week_key), only users who have deposits this week."""
     if week_key is None:
         week_key = get_week_key()
+    
+    # Only users with at least one donation in this week (sum > 0)
+    subq = (
+        select(
+            Donation.tg_id,
+            func.coalesce(func.sum(Donation.tons_amount), 0).label("tons_week")
+        )
+        .where(Donation.week_key == week_key)
+        .group_by(Donation.tg_id)
+        .having(func.coalesce(func.sum(Donation.tons_amount), 0) > 0)
+    ).subquery()
     
     query = (
         select(
@@ -93,12 +104,11 @@ async def get_week_leaderboard(
             User.custom_title,
             User.custom_text,
             User.custom_link,
-            func.coalesce(func.sum(Donation.tons_amount), 0).label("tons_week")
+            subq.c.tons_week
         )
-        .outerjoin(Donation, (User.tg_id == Donation.tg_id) & (Donation.week_key == week_key))
+        .join(subq, User.tg_id == subq.c.tg_id)
         .where(User.is_blocked == False)
-        .group_by(User.tg_id, User.username, User.first_name, User.display_name, User.photo_url, User.custom_title, User.custom_text, User.custom_link)
-        .order_by(desc("tons_week"), User.tg_id)
+        .order_by(desc(subq.c.tons_week), User.tg_id)
         .limit(limit)
         .offset(offset)
     )
@@ -256,11 +266,31 @@ async def get_user_stats(
         users_above = len(rank_result.all())
         rank_all_time = users_above + 1
     
+    # Weekly rank: place among users who have donations this week
+    current_week_key = get_week_key()
+    rank_week = 0
+    if float(week_tons) > 0:
+        week_rank_query = (
+            select(func.count())
+            .select_from(
+                select(Donation.tg_id)
+                .where(Donation.week_key == current_week_key)
+                .group_by(Donation.tg_id)
+                .having(func.coalesce(func.sum(Donation.tons_amount), 0) > week_tons)
+                .subquery()
+            )
+        )
+        week_rank_result = await session.execute(week_rank_query)
+        users_above_week = week_rank_result.scalar() or 0
+        rank_week = users_above_week + 1
+    
     return {
         "tg_id": tg_id,
         "tons_all_time": float(total_tons),
         "tons_week": float(week_tons),
         "rank_all_time": rank_all_time,
+        "rank_week": rank_week,
+        "week_key": current_week_key,
         "referrals_count": referrals_count,
         "referrals_tons_total": float(referrals_tons_total),
         "referral_link": f"{settings.mini_app_url}?startapp=ref_{tg_id}"

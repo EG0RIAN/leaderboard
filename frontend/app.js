@@ -754,11 +754,7 @@ async function loadLeaderboard(type) {
     listElement.innerHTML = `<div class="loading">${t('loading')}</div>`;
     
     try {
-        let url = `${API_BASE_URL}/leaderboard/${type}?limit=10000`;
-        if (type === 'week') {
-            url += '&week_key=';
-        }
-        
+        const url = `${API_BASE_URL}/leaderboard/${type}?limit=10000`;
         const response = await fetch(url, {
             headers: {
                 'X-Init-Data': initData
@@ -898,8 +894,11 @@ function renderLeaderboard(type, items) {
             document.getElementById('my-charts').textContent = formatNumber(chartsForTab);
             document.getElementById('my-position').style.display = 'block';
         } else {
-            // User not in this list, still show rank and charts from userData
-            document.getElementById('my-rank').textContent = (type === 'all-time' && userData.rank_all_time) ? userData.rank_all_time : '-';
+            // User not in this list, show rank from userData for current tab
+            let rank = '-';
+            if (type === 'all-time' && userData.rank_all_time) rank = userData.rank_all_time;
+            else if (type === 'week' && userData.rank_week) rank = userData.rank_week;
+            document.getElementById('my-rank').textContent = rank;
             document.getElementById('my-charts').textContent = formatNumber(chartsForTab);
             document.getElementById('my-position').style.display = 'block';
         }
