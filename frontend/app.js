@@ -1764,6 +1764,12 @@ function showError(message) {
     tg.showAlert(message);
 }
 
+// Format number with thousands separator
+function formatNumber(num) {
+    if (num === null || num === undefined) return '0';
+    return Math.floor(num).toLocaleString('ru-RU');
+}
+
 // Escape HTML to prevent XSS
 function escapeHtml(text) {
     const div = document.createElement('div');
