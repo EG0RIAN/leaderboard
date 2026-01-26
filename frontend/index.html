@@ -95,6 +95,18 @@
     <div id="app">
         <div class="container">
 
+            <!-- Collected funds status bar -->
+            <div class="collected-bar" id="collected-bar">
+                <div class="collected-bar-header">
+                    <span class="collected-bar-label" data-i18n="collectedFunds">Собранные средства</span>
+                    <span class="collected-bar-value"><span id="collected-current">0</span> / 1000 TON</span>
+                </div>
+                <div class="collected-bar-track">
+                    <div class="collected-bar-fill" id="collected-bar-fill"></div>
+                </div>
+                <div class="collected-bar-hint" data-i18n="collectedHint">15% от всех депозитов</div>
+            </div>
+
             <!-- Balance Bar (shown on leaderboard pages) -->
             <div class="balance-bar" id="balance-bar">
                 <div class="balance-bar-left">

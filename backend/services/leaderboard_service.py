@@ -19,6 +19,13 @@ def get_week_key(dt: Optional[datetime] = None) -> str:
     return f"{year}-W{week:02d}"
 
 
+async def get_total_collected(session: AsyncSession) -> float:
+    """Get total collected amount (sum of all donations in charts/tons)"""
+    query = select(func.coalesce(func.sum(Donation.tons_amount), 0)).select_from(Donation)
+    result = await session.execute(query)
+    return float(result.scalar() or 0)
+
+
 async def get_all_time_leaderboard(
     session: AsyncSession,
     limit: int = 50,

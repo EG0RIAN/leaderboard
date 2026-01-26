@@ -26,6 +26,16 @@ async def get_current_user_id(
     return user_data["tg_id"]
 
 
+@router.get("/collected")
+async def get_total_collected(
+    session: AsyncSession = Depends(get_db),
+    _: int = Depends(get_current_user_id)
+):
+    """Get total collected funds (for status bar). Value in same unit as donations (charts)."""
+    total = await leaderboard_service.get_total_collected(session)
+    return {"total_charts": total}
+
+
 @router.get("/all-time")
 async def get_all_time_leaderboard(
     limit: int = settings.leaderboard_limit,

@@ -131,6 +131,7 @@ async function init() {
         setupEventListeners();
         updateBalanceBar();
         loadLeaderboard('all-time');
+        loadCollectedFunds();
     } catch (error) {
         console.error('Init error:', error);
         showError(t('initError'));
@@ -507,17 +508,21 @@ function switchTab(tabName) {
         pane.classList.toggle('active', pane.id === tabName);
     });
     
-    // Show/hide donate button (hide on profile tab)
+    // "Подняться в рейтинге" button shown on all pages
     const donateContainer = document.getElementById('donate-button-container');
     if (donateContainer) {
-        donateContainer.style.display = tabName === 'profile' ? 'none' : 'block';
+        donateContainer.style.display = 'block';
     }
     
-    // Show/hide balance bar (hide on profile tab, show on leaderboard tabs)
+    // Show/hide balance bar and collected bar (hide on profile tab, show on leaderboard tabs)
     const balanceBar = document.getElementById('balance-bar');
     if (balanceBar) {
         balanceBar.classList.toggle('hidden', tabName === 'profile');
         updateBalanceBar();
+    }
+    const collectedBar = document.getElementById('collected-bar');
+    if (collectedBar) {
+        collectedBar.classList.toggle('hidden', tabName === 'profile');
     }
     
     // Load content based on tab
@@ -525,6 +530,30 @@ function switchTab(tabName) {
         loadProfile();
     } else {
         loadLeaderboard(tabName);
+    }
+}
+
+// Load and display collected funds status bar (max 1000 TON = 15% of all deps)
+const COLLECTED_MAX_TON = 1000;
+async function loadCollectedFunds() {
+    const currentEl = document.getElementById('collected-current');
+    const fillEl = document.getElementById('collected-bar-fill');
+    if (!currentEl || !fillEl) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/leaderboard/collected`, {
+            headers: { 'X-Init-Data': initData }
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        const totalCharts = parseFloat(data.total_charts) || 0;
+        const chartsPerTon = tonConfig?.charts_per_ton || 100;
+        const totalTon = totalCharts / chartsPerTon;
+        const displayTon = Math.min(totalTon, COLLECTED_MAX_TON);
+        const percent = Math.min(100, (totalTon / COLLECTED_MAX_TON) * 100);
+        currentEl.textContent = displayTon.toFixed(1);
+        fillEl.style.width = percent.toFixed(1) + '%';
+    } catch (e) {
+        console.log('Collected funds load failed:', e);
     }
 }
 
@@ -549,9 +578,9 @@ async function loadLeaderboard(type) {
     listElement.innerHTML = `<div class="loading">${t('loading')}</div>`;
     
     try {
-        let url = `${API_BASE_URL}/leaderboard/${type}`;
+        let url = `${API_BASE_URL}/leaderboard/${type}?limit=10000`;
         if (type === 'week') {
-            url += '?week_key=';
+            url += '&week_key=';
         }
         
         const response = await fetch(url, {
@@ -1243,9 +1272,10 @@ async function activateCharts() {
         celebrateConfetti(); // 🎉 Confetti!
         tg.showAlert(t('chartsActivated', { amount: amount }));
         
-        // Reload leaderboard if on leaderboard tab
+        // Reload leaderboard and collected bar if on leaderboard tab
         if (currentTab !== 'profile') {
             loadLeaderboard(currentTab);
+            loadCollectedFunds();
         }
         
     } catch (error) {
@@ -1294,6 +1324,7 @@ async function loadTonConfig() {
         if (response.ok) {
             tonConfig = await response.json();
             console.log('TON config loaded:', tonConfig);
+            loadCollectedFunds();
         }
     } catch (error) {
         console.log('TON payments not available:', error);

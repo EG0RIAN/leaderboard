@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     preset_1_stars: int = 100
     preset_2_stars: int = 50
     preset_3_stars: int = 25
-    leaderboard_limit: int = 50
+    leaderboard_limit: int = 10000  # Show all places (no practical limit)
     timezone: str = "Europe/Berlin"
     
     # TON Payments

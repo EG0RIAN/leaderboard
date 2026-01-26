@@ -2175,6 +2175,60 @@ body {
     display: none !important;
 }
 
+/* ==================== COLLECTED FUNDS STATUS BAR ==================== */
+.collected-bar {
+    background: var(--tg-theme-secondary-bg-color, #f5f5f5);
+    border-radius: 14px;
+    padding: 12px 16px;
+    margin: 12px;
+    color: var(--tg-theme-text-color, #000000);
+}
+
+.collected-bar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.collected-bar-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tg-theme-text-color, #000000);
+}
+
+.collected-bar-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--tg-theme-hint-color, #666);
+}
+
+.collected-bar-track {
+    height: 10px;
+    background: var(--tg-theme-hint-color, #e0e0e0);
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.collected-bar-fill {
+    height: 100%;
+    min-width: 0;
+    max-width: 100%;
+    background: var(--tg-theme-button-color, #3390ec);
+    border-radius: 5px;
+    transition: width 0.3s ease;
+}
+
+.collected-bar-hint {
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--tg-theme-hint-color, #999);
+}
+
+.collected-bar.hidden {
+    display: none;
+}
+
 /* ==================== BALANCE BAR (on leaderboard pages) ==================== */
 .balance-bar {
     display: flex;

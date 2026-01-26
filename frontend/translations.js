@@ -155,7 +155,11 @@ const translations = {
         onboardingText5: "Все участники лидерборда автоматически участвуют в еженедельном розыгрыше!",
         onboardingText5b: "Чем выше ваше место, тем круче розыгрыш!",
         onboardingSkip: "Пропустить",
-        onboardingStart: "Начать"
+        onboardingStart: "Начать",
+        
+        // Collected funds bar
+        collectedFunds: "Собранные средства",
+        collectedHint: "15% от всех депозитов"
     },
     en: {
         // Tabs / Nav
@@ -311,7 +315,11 @@ const translations = {
         onboardingText5: "All leaderboard participants automatically enter the weekly giveaway!",
         onboardingText5b: "The higher your place, the better the prizes!",
         onboardingSkip: "Skip",
-        onboardingStart: "Start"
+        onboardingStart: "Start",
+        
+        // Collected funds bar
+        collectedFunds: "Collected funds",
+        collectedHint: "15% of all deposits"
     }
 };
 
