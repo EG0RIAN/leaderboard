@@ -623,9 +623,8 @@ async function loadCollectedFunds() {
         });
         if (!response.ok) return;
         const data = await response.json();
-        const totalCharts = parseFloat(data.total_charts) || 0;
-        const chartsPerTon = tonConfig?.charts_per_ton || 100;
-        const totalTon = totalCharts / chartsPerTon;
+        // API returns total_charts which is actually total TON (sum of Donation.tons_amount)
+        const totalTon = parseFloat(data.total_charts) || 0;
         const displayTon = Math.min(totalTon, COLLECTED_MAX_TON);
         const percent = Math.min(100, (totalTon / COLLECTED_MAX_TON) * 100);
         currentEl.textContent = displayTon.toFixed(1);
