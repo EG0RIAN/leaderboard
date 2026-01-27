@@ -110,7 +110,7 @@ body {
 }
 
 .leaderboard-list {
-    padding: 0 16px;
+    padding: 0;
     width: 100%;
     max-width: 100%;
 }
@@ -118,7 +118,7 @@ body {
 .leaderboard-item {
     display: flex;
     align-items: center;
-    padding: 12px 16px;
+    padding: 12px;
     border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
     width: 100%;
     max-width: 100%;
@@ -132,7 +132,7 @@ body {
 
 /* Rank separator */
 .rank-separator {
-    margin: 4px 0;
+    margin: 4px 12px;
     padding: 2px 8px;
     border-radius: 8px;
     border: 1px solid;
@@ -1785,7 +1785,7 @@ body {
 .leaderboard-item.top-2,
 .leaderboard-item.top-3 {
     margin: 6px 0;
-    padding: 14px 16px;
+    padding: 14px 12px;
     border-radius: 14px;
     border-bottom: none;
 }
