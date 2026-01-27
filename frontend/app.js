@@ -468,6 +468,15 @@ function setupEventListeners() {
         });
     }
     
+    // Top-up button in balance bar (when balance is 0)
+    const balanceBarTopupBtn = document.getElementById('balance-bar-topup');
+    if (balanceBarTopupBtn) {
+        balanceBarTopupBtn.addEventListener('click', () => {
+            haptic.impact('medium');
+            handleRiseInRating();
+        });
+    }
+    
     // Activate charts: MAX button
     const activateMaxBtn = document.getElementById('activate-max');
     if (activateMaxBtn) {
