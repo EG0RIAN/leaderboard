@@ -450,6 +450,15 @@ function setupEventListeners() {
         });
     }
     
+    // Top-up button in profile (when balance is 0)
+    const profileTopupBtn = document.getElementById('profile-topup-btn');
+    if (profileTopupBtn) {
+        profileTopupBtn.addEventListener('click', () => {
+            haptic.impact('medium');
+            handleRiseInRating();
+        });
+    }
+    
     // Activate charts: open modal (balance bar button)
     const balanceBarActivateBtn = document.getElementById('balance-bar-activate');
     if (balanceBarActivateBtn) {
@@ -1579,7 +1588,22 @@ async function activateCharts() {
         // Update UI - Profile section
         const profileBalanceEl = document.getElementById('profile-balance');
         if (profileBalanceEl) {
-            profileBalanceEl.textContent = result.new_balance;
+            const newBalance = result.new_balance || 0;
+            profileBalanceEl.textContent = newBalance;
+            
+            // Update button visibility
+            const activateBtn = document.getElementById('activate-charts-btn');
+            const topupBtn = document.getElementById('profile-topup-btn');
+            if (newBalance <= 0) {
+                if (activateBtn) activateBtn.style.display = 'none';
+                if (topupBtn) topupBtn.style.display = 'block';
+            } else {
+                if (activateBtn) {
+                    activateBtn.style.display = 'block';
+                    activateBtn.disabled = false;
+                }
+                if (topupBtn) topupBtn.style.display = 'none';
+            }
         }
         const profileTonsEl = document.getElementById('profile-tons');
         if (profileTonsEl) {
@@ -2260,10 +2284,21 @@ async function loadProfile() {
             const balance = userData.balance_charts || 0;
             balanceEl.textContent = balance;
             
-            // Disable activate button if no balance
+            // Show/hide buttons based on balance
             const activateBtn = document.getElementById('activate-charts-btn');
-            if (activateBtn) {
-                activateBtn.disabled = balance <= 0;
+            const topupBtn = document.getElementById('profile-topup-btn');
+            
+            if (balance <= 0) {
+                // Show topup button, hide activate button
+                if (activateBtn) activateBtn.style.display = 'none';
+                if (topupBtn) topupBtn.style.display = 'block';
+            } else {
+                // Show activate button, hide topup button
+                if (activateBtn) {
+                    activateBtn.style.display = 'block';
+                    activateBtn.disabled = false;
+                }
+                if (topupBtn) topupBtn.style.display = 'none';
             }
         }
         

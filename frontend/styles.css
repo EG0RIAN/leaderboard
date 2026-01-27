@@ -2642,7 +2642,8 @@ body {
     justify-content: center;
 }
 
-.btn-activate {
+.btn-activate,
+.btn-topup-profile {
     background: var(--tg-theme-button-color, #3390ec);
     color: var(--tg-theme-button-text-color, #ffffff);
     border: none;
