@@ -2487,7 +2487,6 @@ function setupWeekCountdownScroll() {
     weekScrollHandler = function(e) {
         if (currentTab !== 'week') {
             countdownEl.classList.remove('sticky');
-            countdownEl.classList.remove('visible');
             return;
         }
         
@@ -2514,15 +2513,6 @@ function setupWeekCountdownScroll() {
             const weekHeaderHeight = weekHeader ? weekHeader.offsetHeight : 0;
             const myPositionHeight = 50;
             countdownOriginalTop = myPositionHeight + weekHeaderHeight;
-        }
-        
-        // Show countdown only when scrolled down (after header)
-        if (scrollTop > 20) {
-            countdownEl.classList.add('visible');
-        } else {
-            countdownEl.classList.remove('visible');
-            countdownEl.classList.remove('sticky');
-            return;
         }
         
         // Calculate where countdown should be based on scroll
