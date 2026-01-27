@@ -242,6 +242,11 @@ body {
     border-bottom: 1px solid var(--tg-theme-section-separator-color, #e0e0e0);
     text-align: center;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    height: 50px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .my-position-content {
@@ -2103,7 +2108,7 @@ body {
 /* Sticky state - compact version */
 .week-countdown.sticky {
     position: fixed;
-    top: 50px; /* Under my-position bar which is ~50px height */
+    top: 50px; /* Exactly matches .my-position height */
     left: 0;
     right: 0;
     z-index: 50;
@@ -2113,6 +2118,8 @@ body {
     width: 100%;
     padding: 10px 16px;
     transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    border-top: none;
+    box-sizing: border-box;
 }
 
 .week-countdown.sticky .countdown-label {
