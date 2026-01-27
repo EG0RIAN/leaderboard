@@ -627,13 +627,24 @@ async function loadCollectedFunds() {
 function updateBalanceBar() {
     const balanceValue = document.getElementById('balance-bar-value');
     const activateBtn = document.getElementById('balance-bar-activate');
+    const topupBtn = document.getElementById('balance-bar-topup');
     
     if (balanceValue && userData) {
         const balance = userData.balance_charts || 0;
         balanceValue.textContent = balance;
         
-        if (activateBtn) {
-            activateBtn.disabled = balance <= 0;
+        // Show/hide buttons based on balance
+        if (balance <= 0) {
+            // Show topup button, hide activate button
+            if (activateBtn) activateBtn.style.display = 'none';
+            if (topupBtn) topupBtn.style.display = 'block';
+        } else {
+            // Show activate button, hide topup button
+            if (activateBtn) {
+                activateBtn.style.display = 'block';
+                activateBtn.disabled = false;
+            }
+            if (topupBtn) topupBtn.style.display = 'none';
         }
     }
 }
