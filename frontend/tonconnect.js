@@ -98,8 +98,10 @@ async function initTonConnect() {
             onWalletConnected(currentWallet);
         }
         
-        // Setup button handlers
-        setupWalletButtons();
+        // Setup button handlers (after a small delay to ensure DOM is ready)
+        setTimeout(() => {
+            setupWalletButtons();
+        }, 100);
         
         console.log('TON Connect fully initialized!');
     } catch (error) {
@@ -108,16 +110,51 @@ async function initTonConnect() {
     }
 }
 
-// Setup wallet button handlers using event delegation
+// Setup wallet button handlers - both direct and delegation
+let walletButtonsSetup = false;
 function setupWalletButtons() {
-    console.log('Setting up wallet buttons with event delegation');
+    if (walletButtonsSetup) {
+        console.log('Wallet buttons already set up');
+        return;
+    }
+    walletButtonsSetup = true;
     
-    // Use event delegation on document to catch all clicks
+    console.log('Setting up wallet buttons...');
+    
+    // Direct handlers (more reliable)
+    const connectBtn = document.getElementById('ton-connect-btn');
+    const disconnectBtn = document.getElementById('disconnect-wallet');
+    
+    if (connectBtn) {
+        connectBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Connect button clicked (direct handler)!');
+            if (window.haptic) window.haptic.impact('medium');
+            await connectWallet();
+        });
+        console.log('Direct handler added to #ton-connect-btn');
+    } else {
+        console.warn('#ton-connect-btn not found in DOM');
+    }
+    
+    if (disconnectBtn) {
+        disconnectBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Disconnect button clicked (direct handler)!');
+            if (window.haptic) window.haptic.impact('light');
+            await disconnectWallet();
+        });
+        console.log('Direct handler added to #disconnect-wallet');
+    }
+    
+    // Also use event delegation as fallback
     document.addEventListener('click', async (e) => {
-        const connectBtn = e.target.closest('#ton-connect-btn');
-        const disconnectBtn = e.target.closest('#disconnect-wallet');
+        const connectBtnDel = e.target.closest('#ton-connect-btn');
+        const disconnectBtnDel = e.target.closest('#disconnect-wallet');
         
-        if (connectBtn) {
+        if (connectBtnDel && connectBtnDel !== connectBtn) {
             e.preventDefault();
             e.stopPropagation();
             console.log('Connect button clicked via delegation!');
@@ -125,7 +162,7 @@ function setupWalletButtons() {
             await connectWallet();
         }
         
-        if (disconnectBtn) {
+        if (disconnectBtnDel && disconnectBtnDel !== disconnectBtn) {
             e.preventDefault();
             e.stopPropagation();
             console.log('Disconnect button clicked via delegation!');
@@ -134,41 +171,66 @@ function setupWalletButtons() {
         }
     });
     
-    console.log('Wallet button event delegation set up');
+    console.log('Wallet button handlers set up (direct + delegation)');
 }
 
 // Connect wallet
 async function connectWallet() {
-    console.log('connectWallet called, tonConnectUI:', tonConnectUI);
+    console.log('=== connectWallet called ===');
+    console.log('tonConnectUI:', tonConnectUI);
+    console.log('connectedWallet:', connectedWallet);
+    console.log('window.tonConnect:', window.tonConnect);
     
     if (!tonConnectUI) {
-        console.error('TON Connect not initialized');
+        console.error('TON Connect not initialized, attempting to reinitialize...');
         // Try to reinitialize
-        console.log('Attempting to reinitialize TON Connect...');
         initAttempts = 0;
-        await initTonConnect();
+        await startTonConnectInit();
+        
+        // Wait a bit for initialization
+        await new Promise(resolve => setTimeout(resolve, 500));
         
         if (!tonConnectUI) {
+            console.error('TON Connect still not initialized after retry');
+            const errorMsg = 'TON Connect не загружен. Обновите страницу.';
             if (window.showSnackbar) {
-                window.showSnackbar('TON Connect не загружен. Обновите страницу.', 'error');
+                window.showSnackbar(errorMsg, 'error');
             } else {
-                alert('TON Connect не инициализирован. Попробуйте перезагрузить страницу.');
+                alert(errorMsg);
             }
             return;
         }
+        console.log('TON Connect reinitialized successfully');
     }
     
     try {
-        console.log('Opening modal...');
-        // Check if openModal method exists
-        if (typeof tonConnectUI.openModal !== 'function') {
-            console.error('openModal method not found on tonConnectUI:', Object.keys(tonConnectUI));
-            throw new Error('Метод подключения недоступен');
+        console.log('Checking tonConnectUI methods...');
+        console.log('tonConnectUI keys:', Object.keys(tonConnectUI));
+        console.log('openModal type:', typeof tonConnectUI.openModal);
+        console.log('connectWallet type:', typeof tonConnectUI.connectWallet);
+        console.log('open method type:', typeof tonConnectUI.open);
+        
+        // Try different methods to open connection modal
+        if (typeof tonConnectUI.openModal === 'function') {
+            console.log('Using openModal() method...');
+            await tonConnectUI.openModal();
+            console.log('Modal opened successfully via openModal()');
+        } else if (typeof tonConnectUI.connectWallet === 'function') {
+            console.log('Using connectWallet() method...');
+            await tonConnectUI.connectWallet();
+            console.log('Wallet connection initiated via connectWallet()');
+        } else if (typeof tonConnectUI.open === 'function') {
+            console.log('Using open() method...');
+            await tonConnectUI.open();
+            console.log('Connection opened via open()');
+        } else {
+            console.error('No connection method found on tonConnectUI');
+            console.error('Available methods:', Object.keys(tonConnectUI).filter(k => typeof tonConnectUI[k] === 'function'));
+            throw new Error('Метод подключения недоступен. Проверьте консоль.');
         }
-        await tonConnectUI.openModal();
-        console.log('Modal opened successfully');
     } catch (error) {
         console.error('Error connecting wallet:', error);
+        console.error('Error stack:', error.stack);
         const errorMsg = error?.message || String(error);
         if (window.showSnackbar) {
             window.showSnackbar('Ошибка подключения: ' + errorMsg, 'error');
@@ -394,6 +456,9 @@ async function ensureTonConnectSDK() {
 // Initialize on load
 async function startTonConnectInit() {
     console.log('Starting TON Connect initialization...');
+    
+    // Setup buttons early (even if SDK not loaded yet)
+    setupWalletButtons();
     
     // Ensure SDK is loaded
     const sdkLoaded = await ensureTonConnectSDK();
