@@ -344,9 +344,72 @@ async function sendTransaction(toAddress, amount, comment = '') {
     }
 }
 
+// Load TON Connect SDK dynamically if not loaded
+async function ensureTonConnectSDK() {
+    // Check if already loaded
+    if (window.TON_CONNECT_UI || window.TonConnectUI || window.TonConnect) {
+        console.log('TON Connect SDK already loaded');
+        return true;
+    }
+    
+    // Check if script tag exists
+    const existingScript = document.querySelector('script[src*="tonconnect"]');
+    if (existingScript) {
+        console.log('TON Connect script tag exists, waiting for load...');
+        // Wait for script to load
+        return new Promise((resolve) => {
+            let attempts = 0;
+            const checkInterval = setInterval(() => {
+                attempts++;
+                if (window.TON_CONNECT_UI || window.TonConnectUI || window.TonConnect) {
+                    clearInterval(checkInterval);
+                    resolve(true);
+                } else if (attempts > 20) { // 10 seconds max
+                    clearInterval(checkInterval);
+                    console.error('TON Connect SDK failed to load from script tag');
+                    resolve(false);
+                }
+            }, 500);
+        });
+    }
+    
+    // Try to load SDK dynamically
+    console.log('Attempting to load TON Connect SDK dynamically...');
+    return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js';
+        script.async = true;
+        script.onload = () => {
+            console.log('TON Connect SDK loaded dynamically');
+            setTimeout(() => resolve(true), 100);
+        };
+        script.onerror = () => {
+            console.error('Failed to load TON Connect SDK from unpkg');
+            resolve(false);
+        };
+        document.head.appendChild(script);
+    });
+}
+
 // Initialize on load
-function startTonConnectInit() {
+async function startTonConnectInit() {
     console.log('Starting TON Connect initialization...');
+    
+    // Ensure SDK is loaded
+    const sdkLoaded = await ensureTonConnectSDK();
+    if (!sdkLoaded) {
+        console.error('TON Connect SDK not available');
+        const container = document.getElementById('ton-connect-container');
+        if (container) {
+            const btn = container.querySelector('#ton-connect-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '<span class="wallet-btn-text">TON Connect недоступен</span>';
+            }
+        }
+        return;
+    }
+    
     console.log('window.TON_CONNECT_UI:', window.TON_CONNECT_UI);
     console.log('window.TonConnectUI:', window.TonConnectUI);
     console.log('window.TonConnect:', window.TonConnect);
