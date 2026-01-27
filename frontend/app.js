@@ -566,6 +566,9 @@ function switchTab(tabName) {
         pane.classList.toggle('active', pane.id === tabName);
     });
     
+    // Setup scroll handler for week tab countdown
+    setupWeekCountdownScroll();
+    
     // "Подняться в рейтинге" button shown on all pages
     const donateContainer = document.getElementById('donate-button-container');
     if (donateContainer) {
@@ -2459,8 +2462,38 @@ function updateCountdown() {
     if (secondsEl) secondsEl.textContent = seconds.toString().padStart(2, '0');
 }
 
+// Setup scroll handler for week countdown timer
+function setupWeekCountdownScroll() {
+    const weekPane = document.getElementById('week');
+    const countdownEl = document.querySelector('.week-countdown');
+    
+    if (!weekPane || !countdownEl) return;
+    
+    // Remove previous handler if exists
+    weekPane.removeEventListener('scroll', handleWeekScroll);
+    
+    // Add scroll handler
+    function handleWeekScroll() {
+        if (weekPane.scrollTop > 50) {
+            // Show countdown when scrolled down
+            countdownEl.classList.add('visible');
+        } else {
+            // Hide countdown when at top
+            countdownEl.classList.remove('visible');
+        }
+    }
+    
+    weekPane.addEventListener('scroll', handleWeekScroll);
+    
+    // Also check on tab switch
+    if (currentTab === 'week') {
+        handleWeekScroll();
+    }
+}
+
 // Initialize on load
 document.addEventListener('DOMContentLoaded', () => {
     init();
     startWeekCountdown();
+    setupWeekCountdownScroll();
 });

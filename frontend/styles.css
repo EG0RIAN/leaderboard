@@ -71,6 +71,11 @@ body {
     display: block;
 }
 
+#week.tab-pane {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
 /* Leaderboard */
 .leaderboard-header {
     padding: 12px;
@@ -2040,6 +2045,15 @@ body {
     color: #ffffff;
     margin: 0 0 8px 0;
     border-radius: 0 0 16px 16px;
+    display: none; /* Hidden by default */
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.week-countdown.visible {
+    display: block;
 }
 
 .countdown-label {
