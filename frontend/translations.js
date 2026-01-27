@@ -79,7 +79,6 @@ const translations = {
         // Referrals
         referralsCount: "реф.",
         referralsLabel: "рефералов",
-        yourPosition: "место в топе",
         diamonds: "чартсов",
         charts: "чартсов",
         inLeaderboard: "в топе",
