@@ -182,7 +182,7 @@ const translations = {
         
         // Collected funds bar
         collectedFunds: "Собранные средства",
-        collectedHint: "Фонд подарков"
+        collectedHint: "Призовой фонд"
     },
     en: {
         // Tabs / Nav
@@ -365,7 +365,7 @@ const translations = {
         
         // Collected funds bar
         collectedFunds: "Collected funds",
-        collectedHint: "Gift fund"
+        collectedHint: "Prize fund"
     }
 };
 
