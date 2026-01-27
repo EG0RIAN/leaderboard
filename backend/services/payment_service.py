@@ -59,15 +59,27 @@ async def process_payment_success(
         query = select(Payment).where(Payment.invoice_id == invoice_id)
         existing = (await session.execute(query)).scalar_one_or_none()
     
+    # If still not found, try to find by payment.id (from invoice_payload)
+    if not existing and invoice_id:
+        try:
+            import uuid
+            payment_uuid = uuid.UUID(invoice_id)
+            query = select(Payment).where(Payment.id == payment_uuid)
+            existing = (await session.execute(query)).scalar_one_or_none()
+        except (ValueError, TypeError):
+            pass
+    
     # If still not found, try to find by status=created and approximate matching
     # This handles cases where charge_id format differs
     if not existing:
-        # Try to find any created payment without charge_id
+        # Try to find any created payment without charge_id (fallback - less reliable)
         query = select(Payment).where(
             (Payment.status == "created") & 
             (Payment.telegram_payment_charge_id.is_(None))
         ).order_by(Payment.created_at.desc()).limit(1)
         existing = (await session.execute(query)).scalar_one_or_none()
+        if existing:
+            logger.warning(f"Found payment by fallback method (status=created, no charge_id). Payment ID: {existing.id}")
     
     if not existing:
         logger.warning(f"Payment not found for charge_id={telegram_payment_charge_id}, invoice_id={invoice_id}")
@@ -90,8 +102,12 @@ async def process_payment_success(
     user_query = select(User).where(User.tg_id == existing.tg_id)
     user = (await session.execute(user_query)).scalar_one_or_none()
     if user:
-        user.balance_charts = float(user.balance_charts or 0) + float(tons_amount)
-        logger.info(f"Added {tons_amount} charts to user {existing.tg_id} balance. New balance: {user.balance_charts}")
+        old_balance = float(user.balance_charts or 0)
+        user.balance_charts = old_balance + float(tons_amount)
+        new_balance = float(user.balance_charts)
+        logger.info(f"Added {tons_amount} charts to user {existing.tg_id} balance. Balance: {old_balance} -> {new_balance}")
+    else:
+        logger.error(f"User {existing.tg_id} not found for payment {existing.id}")
     
     await session.commit()
     await session.refresh(existing)

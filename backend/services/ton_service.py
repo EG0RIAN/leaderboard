@@ -139,11 +139,15 @@ async def check_ton_transactions(session: AsyncSession) -> int:
                     user = user_result.scalar_one_or_none()
                     
                     if user:
-                        user.balance_charts += payment.charts_amount
-                        logger.info(f"Credited {payment.charts_amount} charts to user {user.tg_id}")
+                        old_balance = float(user.balance_charts or 0)
+                        user.balance_charts = old_balance + float(payment.charts_amount)
+                        new_balance = float(user.balance_charts)
+                        logger.info(f"Credited {payment.charts_amount} charts to user {user.tg_id}. Balance: {old_balance} -> {new_balance}")
+                    else:
+                        logger.error(f"User {payment.tg_id} not found for TON payment {payment.id}")
                     
                     matched += 1
-                    logger.info(f"Matched TON payment {payment.id}: {tx_amount} TON -> {payment.charts_amount} charts")
+                    logger.info(f"Matched TON payment {payment.id}: {tx_amount} TON -> {payment.charts_amount} charts (balance credited)")
         
         if matched > 0:
             await session.commit()

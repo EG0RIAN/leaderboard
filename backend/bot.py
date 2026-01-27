@@ -114,28 +114,49 @@ async def successful_payment_handler(message: Message):
         try:
             # For Telegram Stars, use provider_payment_charge_id as unique identifier
             charge_id = getattr(payment, 'telegram_payment_charge_id', None) or getattr(payment, 'provider_payment_charge_id', None)
-            invoice_id = getattr(payment, 'invoice_payload', None)
+            invoice_payload = getattr(payment, 'invoice_payload', None)
             
-            await payment_service.process_payment_success(
+            # Try to parse payment_id from payload (we set it as str(payment.id) in create_invoice)
+            payment_id_from_payload = None
+            if invoice_payload:
+                try:
+                    import uuid
+                    payment_id_from_payload = str(uuid.UUID(invoice_payload))
+                except:
+                    payment_id_from_payload = invoice_payload
+            
+            result = await payment_service.process_payment_success(
                 session=session,
                 telegram_payment_charge_id=charge_id or f"stars_{payment.total_amount}_{message.message_id}",
-                invoice_id=invoice_id,
+                invoice_id=payment_id_from_payload,
                 raw_payload={
                     "provider_payment_charge_id": getattr(payment, 'provider_payment_charge_id', None),
+                    "telegram_payment_charge_id": getattr(payment, 'telegram_payment_charge_id', None),
                     "currency": getattr(payment, 'currency', 'XTR'),
                     "total_amount": payment.total_amount,
+                    "invoice_payload": invoice_payload,
                     "message_id": message.message_id,
                 }
             )
             
-            # Send confirmation message
-            await message.answer(
-                f"✅ Платеж успешно обработан!\n"
-                f"💰 Начислено тонов: {payment.total_amount}\n\n"
-                f"📊 Проверь свой рейтинг в Mini App!"
-            )
-            
-            logger.info(f"Payment processed: {charge_id}")
+            if result:
+                # Get charts amount from payment
+                charts_amount = float(result.tons_amount or 0)
+                stars_amount = result.stars_amount
+                
+                # Send confirmation message
+                await message.answer(
+                    f"✅ Платеж успешно обработан!\n"
+                    f"⭐ Оплачено: {stars_amount} Stars\n"
+                    f"💰 Начислено чартсов: {charts_amount:.2f}\n\n"
+                    f"📊 Активируй чартсы в Mini App, чтобы попасть в лидерборд!"
+                )
+                
+                logger.info(f"Payment processed: charge_id={charge_id}, payment_id={result.id}, charts={charts_amount}")
+            else:
+                logger.warning(f"Payment processing returned None: charge_id={charge_id}, payload={invoice_payload}")
+                await message.answer("⚠️ Платеж получен, но обработка не завершена. Обратитесь в поддержку.")
+                
         except Exception as e:
             logger.error(f"Error processing payment: {e}", exc_info=True)
             await message.answer("❌ Ошибка обработки платежа. Обратитесь в поддержку.")
