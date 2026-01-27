@@ -2487,8 +2487,11 @@ function setupWeekCountdownScroll() {
             return;
         }
         
-        // Get countdown element position relative to viewport
+        // Get countdown element position relative to viewport (when not sticky)
+        // If element is sticky, getBoundingClientRect will show it at top: 50px
+        // So we need to check the original position
         const countdownRect = countdownEl.getBoundingClientRect();
+        const isCurrentlySticky = countdownEl.classList.contains('sticky');
         
         // Check scroll position from multiple sources
         let scrollTop = 0;
@@ -2507,19 +2510,26 @@ function setupWeekCountdownScroll() {
             scrollTop = weekPane.scrollTop || 0;
         }
         
-        // If scrolled back to top (scrollTop <= 50), always remove sticky
-        if (scrollTop <= 50) {
+        // Get the original position of countdown (before it became sticky)
+        // We need to find where countdown would be in normal flow
+        const weekHeader = weekPane?.querySelector('.leaderboard-header');
+        const weekHeaderHeight = weekHeader ? weekHeader.offsetHeight : 0;
+        const myPositionHeight = 50; // Height of my-position bar
+        const countdownOriginalTop = myPositionHeight + weekHeaderHeight;
+        
+        // Calculate where countdown should be based on scroll
+        const countdownShouldBeAt = countdownOriginalTop - scrollTop;
+        
+        // If scrolled back to top (countdown is back in its original position), remove sticky
+        if (scrollTop <= countdownOriginalTop - 50 || countdownShouldBeAt > 50) {
             countdownEl.classList.remove('sticky');
             return;
         }
         
-        // Check if countdown has scrolled past the top (reached my-position bar area)
-        // my-position bar is at top: 0, so when countdown top reaches ~50px (height of my-position), stick it
-        if (countdownRect.top <= 50 && countdownRect.bottom > 50) {
-            // Countdown reached my-position bar, make it sticky
+        // If countdown has scrolled past my-position bar area, make it sticky
+        if (countdownShouldBeAt <= 50 && scrollTop > 50) {
             countdownEl.classList.add('sticky');
-        } else if (countdownRect.top > 50) {
-            // Countdown is still below, remove sticky
+        } else {
             countdownEl.classList.remove('sticky');
         }
     };
