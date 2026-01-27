@@ -693,7 +693,7 @@ async function loadTasks() {
                         <div class="task-card-reward-badge">
                             <span class="reward-label">${t('taskReward') || 'Награда'}</span>
                             <span class="reward-amount">${task.charts_reward}</span>
-                            <span class="reward-icon">🌸</span>
+                            <span class="reward-icon charts-icon charts-icon-sm"></span>
                         </div>
                         <div class="task-card-body">
                             <h3 class="task-card-title">${escapeHtml(task.title)}</h3>

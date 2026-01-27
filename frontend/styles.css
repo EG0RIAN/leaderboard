@@ -2421,8 +2421,18 @@ body {
 }
 
 .task-card-reward-badge .reward-icon {
-    font-size: 14px;
-    line-height: 1;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    background-color: #ffffff;
+    -webkit-mask-image: url('charts-icon.svg');
+    mask-image: url('charts-icon.svg');
+    mask-size: contain;
+    -webkit-mask-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    mask-position: center;
+    -webkit-mask-position: center;
 }
 
 .task-card-body {
