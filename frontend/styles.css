@@ -1784,8 +1784,8 @@ body {
 .leaderboard-item.top-1,
 .leaderboard-item.top-2,
 .leaderboard-item.top-3 {
-    margin: 6px 12px;
-    padding: 14px 12px;
+    margin: 6px 0;
+    padding: 14px 16px;
     border-radius: 14px;
     border-bottom: none;
 }
