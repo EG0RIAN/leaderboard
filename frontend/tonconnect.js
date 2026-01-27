@@ -113,12 +113,6 @@ async function initTonConnect() {
 // Setup wallet button handlers - both direct and delegation
 let walletButtonsSetup = false;
 function setupWalletButtons() {
-    if (walletButtonsSetup) {
-        console.log('Wallet buttons already set up');
-        return;
-    }
-    walletButtonsSetup = true;
-    
     console.log('Setting up wallet buttons...');
     
     // Direct handlers (more reliable)
@@ -126,16 +120,42 @@ function setupWalletButtons() {
     const disconnectBtn = document.getElementById('disconnect-wallet');
     
     if (connectBtn) {
-        connectBtn.addEventListener('click', async (e) => {
+        // Remove any existing handlers first
+        const newBtn = connectBtn.cloneNode(true);
+        connectBtn.parentNode.replaceChild(newBtn, connectBtn);
+        
+        newBtn.addEventListener('click', async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            console.log('Connect button clicked (direct handler)!');
+            e.stopImmediatePropagation();
+            console.log('=== Connect button clicked (direct handler) ===');
+            console.log('Button element:', newBtn);
+            console.log('Button disabled:', newBtn.disabled);
             if (window.haptic) window.haptic.impact('medium');
             await connectWallet();
         });
+        
+        // Also add onclick as fallback
+        newBtn.onclick = async function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('=== Connect button clicked (onclick handler) ===');
+            await connectWallet();
+        };
+        
         console.log('Direct handler added to #ton-connect-btn');
+        console.log('Button is visible:', newBtn.offsetParent !== null);
+        console.log('Button style:', window.getComputedStyle(newBtn).display);
     } else {
         console.warn('#ton-connect-btn not found in DOM');
+        // Try to find it later
+        setTimeout(() => {
+            const btn = document.getElementById('ton-connect-btn');
+            if (btn) {
+                console.log('Found #ton-connect-btn on retry, setting up handler...');
+                setupWalletButtons();
+            }
+        }, 1000);
     }
     
     if (disconnectBtn) {
