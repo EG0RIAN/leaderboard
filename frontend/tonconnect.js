@@ -14,10 +14,12 @@ async function initTonConnect() {
         console.log('Init attempt', initAttempts);
         console.log('window.TON_CONNECT_UI:', typeof window.TON_CONNECT_UI, window.TON_CONNECT_UI);
         console.log('window.TonConnectUI:', typeof window.TonConnectUI, window.TonConnectUI);
+        console.log('window.TonConnect:', typeof window.TonConnect, window.TonConnect);
         
         // Try different ways the SDK might be exposed
         let TonConnectUIClass = null;
         
+        // Check all possible locations
         if (window.TON_CONNECT_UI && window.TON_CONNECT_UI.TonConnectUI) {
             TonConnectUIClass = window.TON_CONNECT_UI.TonConnectUI;
             console.log('Found via window.TON_CONNECT_UI.TonConnectUI');
@@ -27,6 +29,12 @@ async function initTonConnect() {
         } else if (window.TonConnectUI && window.TonConnectUI.TonConnectUI) {
             TonConnectUIClass = window.TonConnectUI.TonConnectUI;
             console.log('Found via window.TonConnectUI.TonConnectUI');
+        } else if (window.TonConnect && window.TonConnect.TonConnectUI) {
+            TonConnectUIClass = window.TonConnect.TonConnectUI;
+            console.log('Found via window.TonConnect.TonConnectUI');
+        } else if (window.TonConnect && typeof window.TonConnect === 'function') {
+            TonConnectUIClass = window.TonConnect;
+            console.log('Found via window.TonConnect (function)');
         }
         
         if (!TonConnectUIClass) {
@@ -36,15 +44,36 @@ async function initTonConnect() {
                 return;
             } else {
                 console.error('TON Connect UI failed to load after', MAX_INIT_ATTEMPTS, 'attempts');
+                console.error('Available window properties:', Object.keys(window).filter(k => k.toLowerCase().includes('ton')));
+                // Show user-friendly error
+                const container = document.getElementById('ton-connect-container');
+                if (container) {
+                    const btn = container.querySelector('#ton-connect-btn');
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<span class="wallet-btn-text">TON Connect недоступен</span>';
+                    }
+                }
                 return;
             }
         }
         
         console.log('TON Connect UI class found, creating instance...');
         
+        // Verify manifest is accessible
+        const manifestUrl = 'https://v3022889.hosted-by-vdsina.ru/tonconnect-manifest.json';
+        try {
+            const manifestCheck = await fetch(manifestUrl, { method: 'HEAD' });
+            if (!manifestCheck.ok) {
+                console.warn('Manifest check failed:', manifestCheck.status);
+            }
+        } catch (e) {
+            console.warn('Manifest check error:', e);
+        }
+        
         // Initialize TON Connect UI
         tonConnectUI = new TonConnectUIClass({
-            manifestUrl: 'https://v3022889.hosted-by-vdsina.ru/tonconnect-manifest.json'
+            manifestUrl: manifestUrl
         });
         
         console.log('TON Connect UI instance created:', tonConnectUI);
@@ -114,17 +143,38 @@ async function connectWallet() {
     
     if (!tonConnectUI) {
         console.error('TON Connect not initialized');
-        alert('TON Connect не инициализирован. Попробуйте перезагрузить страницу.');
-        return;
+        // Try to reinitialize
+        console.log('Attempting to reinitialize TON Connect...');
+        initAttempts = 0;
+        await initTonConnect();
+        
+        if (!tonConnectUI) {
+            if (window.showSnackbar) {
+                window.showSnackbar('TON Connect не загружен. Обновите страницу.', 'error');
+            } else {
+                alert('TON Connect не инициализирован. Попробуйте перезагрузить страницу.');
+            }
+            return;
+        }
     }
     
     try {
         console.log('Opening modal...');
+        // Check if openModal method exists
+        if (typeof tonConnectUI.openModal !== 'function') {
+            console.error('openModal method not found on tonConnectUI:', Object.keys(tonConnectUI));
+            throw new Error('Метод подключения недоступен');
+        }
         await tonConnectUI.openModal();
-        console.log('Modal opened');
+        console.log('Modal opened successfully');
     } catch (error) {
         console.error('Error connecting wallet:', error);
-        alert('Ошибка подключения: ' + error.message);
+        const errorMsg = error?.message || String(error);
+        if (window.showSnackbar) {
+            window.showSnackbar('Ошибка подключения: ' + errorMsg, 'error');
+        } else {
+            alert('Ошибка подключения: ' + errorMsg);
+        }
     }
 }
 
@@ -295,13 +345,35 @@ async function sendTransaction(toAddress, amount, comment = '') {
 }
 
 // Initialize on load
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded, checking TON Connect availability...');
+function startTonConnectInit() {
+    console.log('Starting TON Connect initialization...');
     console.log('window.TON_CONNECT_UI:', window.TON_CONNECT_UI);
     console.log('window.TonConnectUI:', window.TonConnectUI);
+    console.log('window.TonConnect:', window.TonConnect);
     
-    // Wait a bit for other scripts to load
-    setTimeout(initTonConnect, 300);
+    // Check if SDK script is loaded
+    const scripts = Array.from(document.querySelectorAll('script[src*="tonconnect"]'));
+    console.log('TON Connect scripts found:', scripts.length, scripts.map(s => s.src));
+    
+    // Start initialization
+    initTonConnect();
+}
+
+// Try multiple initialization strategies
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', startTonConnectInit);
+} else {
+    // DOM already loaded
+    setTimeout(startTonConnectInit, 100);
+}
+
+// Also try after window load (in case SDK loads late)
+window.addEventListener('load', () => {
+    if (!tonConnectUI && initAttempts < 3) {
+        console.log('Window loaded, retrying TON Connect init...');
+        initAttempts = 0;
+        setTimeout(initTonConnect, 500);
+    }
 });
 
 // Export for use in other scripts
