@@ -2054,8 +2054,53 @@ body {
 .countdown-label {
     font-size: 13px;
     font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    margin-bottom: 8px;
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
+.countdown-timer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.countdown-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 44px;
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.countdown-value {
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.countdown-unit {
+    font-size: 11px;
+    text-transform: uppercase;
+    opacity: 0.8;
+    margin-top: 2px;
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.countdown-separator {
+    font-size: 24px;
+    font-weight: 300;
+    opacity: 0.6;
+    transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Sticky state - compact version */
 .week-countdown.sticky {
     position: fixed;
     top: 50px; /* Under my-position bar which is ~50px height */
@@ -2066,51 +2111,35 @@ body {
     margin: 0;
     border-radius: 0;
     width: 100%;
+    padding: 10px 16px;
     transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    padding-top: 0;
-    padding-bottom: 0;
 }
 
-.countdown-label {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    opacity: 0.9;
-    margin-bottom: 8px;
+.week-countdown.sticky .countdown-label {
+    font-size: 10px;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
 }
 
-.countdown-timer {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
+.week-countdown.sticky .countdown-timer {
+    gap: 2px;
 }
 
-.countdown-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-width: 44px;
+.week-countdown.sticky .countdown-block {
+    min-width: 32px;
 }
 
-.countdown-value {
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
+.week-countdown.sticky .countdown-value {
+    font-size: 20px;
 }
 
-.countdown-unit {
-    font-size: 11px;
-    text-transform: uppercase;
-    opacity: 0.8;
-    margin-top: 2px;
+.week-countdown.sticky .countdown-unit {
+    font-size: 9px;
+    margin-top: 1px;
 }
 
-.countdown-separator {
-    font-size: 24px;
-    font-weight: 300;
-    opacity: 0.6;
+.week-countdown.sticky .countdown-separator {
+    font-size: 18px;
     margin-top: -8px;
 }
 
