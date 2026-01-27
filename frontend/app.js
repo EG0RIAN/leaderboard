@@ -2480,23 +2480,16 @@ function setupWeekCountdownScroll() {
         }
     }
     
+    // Store original position offset for countdown
+    let countdownOriginalTop = null;
+    
     // Add scroll handler - check when countdown reaches my-position bar
     weekScrollHandler = function(e) {
         if (currentTab !== 'week') {
             countdownEl.classList.remove('sticky');
+            countdownEl.classList.remove('visible');
             return;
         }
-        
-        // Temporarily remove sticky to get real position
-        const wasSticky = countdownEl.classList.contains('sticky');
-        if (wasSticky) {
-            countdownEl.classList.remove('sticky');
-            // Force reflow to get accurate position
-            void countdownEl.offsetHeight;
-        }
-        
-        // Get countdown element position relative to viewport
-        const countdownRect = countdownEl.getBoundingClientRect();
         
         // Check scroll position from multiple sources
         let scrollTop = 0;
@@ -2515,15 +2508,37 @@ function setupWeekCountdownScroll() {
             scrollTop = weekPane.scrollTop || 0;
         }
         
-        // If scrolled back to top (countdown is above my-position bar), remove sticky
-        if (countdownRect.top > 50 || scrollTop <= 50) {
+        // Calculate original position if not set
+        if (countdownOriginalTop === null) {
+            const weekHeader = weekPane?.querySelector('.leaderboard-header');
+            const weekHeaderHeight = weekHeader ? weekHeader.offsetHeight : 0;
+            const myPositionHeight = 50;
+            countdownOriginalTop = myPositionHeight + weekHeaderHeight;
+        }
+        
+        // Show countdown only when scrolled down (after header)
+        if (scrollTop > 20) {
+            countdownEl.classList.add('visible');
+        } else {
+            countdownEl.classList.remove('visible');
+            countdownEl.classList.remove('sticky');
+            return;
+        }
+        
+        // Calculate where countdown should be based on scroll
+        const countdownShouldBeAt = countdownOriginalTop - scrollTop;
+        
+        // If scrolled back to top (countdown is back in its original position), remove sticky
+        if (countdownShouldBeAt > 50 || scrollTop <= countdownOriginalTop - 50) {
             countdownEl.classList.remove('sticky');
             return;
         }
         
         // If countdown has scrolled past my-position bar area, make it sticky
-        if (countdownRect.top <= 50 && countdownRect.bottom > 50) {
+        if (countdownShouldBeAt <= 50) {
             countdownEl.classList.add('sticky');
+        } else {
+            countdownEl.classList.remove('sticky');
         }
     };
     
