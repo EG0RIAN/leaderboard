@@ -2468,28 +2468,47 @@ let weekScrollHandler = null;
 function setupWeekCountdownScroll() {
     const weekPane = document.getElementById('week');
     const countdownEl = document.querySelector('.week-countdown');
-    const container = document.querySelector('.container');
     
     if (!weekPane || !countdownEl) return;
     
     // Remove previous handler if exists
-    if (weekScrollHandler && container) {
-        container.removeEventListener('scroll', weekScrollHandler);
-        window.removeEventListener('scroll', weekScrollHandler);
+    if (weekScrollHandler) {
+        window.removeEventListener('scroll', weekScrollHandler, true);
+        document.removeEventListener('scroll', weekScrollHandler, true);
+        const container = document.querySelector('.container');
+        if (container) {
+            container.removeEventListener('scroll', weekScrollHandler, true);
+        }
     }
     
-    // Add scroll handler
-    weekScrollHandler = function() {
+    // Add scroll handler - check multiple scroll sources
+    weekScrollHandler = function(e) {
         if (currentTab !== 'week') {
             countdownEl.classList.remove('sticky');
             return;
         }
         
-        // Check scroll position - use container or window
-        const scrollTop = container ? container.scrollTop : (window.pageYOffset || document.documentElement.scrollTop);
+        // Check scroll position from multiple sources
+        let scrollTop = 0;
+        
+        // Try window scroll
+        scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        
+        // If window scroll is 0, try container scroll
+        if (scrollTop === 0) {
+            const container = document.querySelector('.container');
+            if (container) {
+                scrollTop = container.scrollTop || 0;
+            }
+        }
+        
+        // If still 0, try week pane scroll
+        if (scrollTop === 0 && weekPane) {
+            scrollTop = weekPane.scrollTop || 0;
+        }
         
         if (scrollTop > 50) {
-            // Make countdown sticky when scrolled down
+            // Make countdown fixed at top when scrolled down
             countdownEl.classList.add('sticky');
         } else {
             // Remove sticky when at top
@@ -2497,11 +2516,17 @@ function setupWeekCountdownScroll() {
         }
     };
     
-    // Listen to scroll on container or window
+    // Listen to scroll on multiple elements
+    window.addEventListener('scroll', weekScrollHandler, true);
+    document.addEventListener('scroll', weekScrollHandler, true);
+    
+    const container = document.querySelector('.container');
     if (container) {
-        container.addEventListener('scroll', weekScrollHandler);
-    } else {
-        window.addEventListener('scroll', weekScrollHandler);
+        container.addEventListener('scroll', weekScrollHandler, true);
+    }
+    
+    if (weekPane) {
+        weekPane.addEventListener('scroll', weekScrollHandler, true);
     }
     
     // Also check on tab switch
