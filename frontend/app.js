@@ -669,11 +669,24 @@ async function loadTasks() {
         tasks.forEach(task => {
             const link = getTaskLink(task);
             const typeLabel = task.type === 'subscribe_channel' ? t('taskTypeSubscribe') : task.type === 'join_chat' ? t('taskTypeJoinChat') : t('taskTypeOpenApp');
-            const typeIcon = task.type === 'subscribe_channel' ? 'task-icon-channel' : task.type === 'join_chat' ? 'task-icon-chat' : 'task-icon-app';
+            
+            // Lucide icons for tasks
+            let iconSvg = '';
+            if (task.type === 'subscribe_channel') {
+                // megaphone icon
+                iconSvg = '<svg class="task-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="m11 6 7 2"/></svg>';
+            } else if (task.type === 'join_chat') {
+                // message-circle icon
+                iconSvg = '<svg class="task-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg>';
+            } else {
+                // smartphone icon
+                iconSvg = '<svg class="task-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><path d="M12 18h.01"/></svg>';
+            }
+            
             if (task.completed) {
                 html += `
                     <div class="task-card task-card-done" data-task-id="${escapeHtml(task.id)}">
-                        <div class="task-card-icon ${typeIcon}"></div>
+                        <div class="task-card-icon">${iconSvg}</div>
                         <div class="task-card-done-badge">${t('taskDone') || 'Выполнено'}</div>
                         <div class="task-card-body">
                             <h3 class="task-card-title">${escapeHtml(task.title)}</h3>
@@ -689,7 +702,7 @@ async function loadTasks() {
                 
                 html += `
                     <div class="task-card" data-task-id="${escapeHtml(task.id)}">
-                        <div class="task-card-icon ${typeIcon}"></div>
+                        <div class="task-card-icon">${iconSvg}</div>
                         <div class="task-card-reward-badge">
                             <span class="reward-label">${t('taskReward') || 'Награда'}</span>
                             <span class="reward-amount">${task.charts_reward}</span>
