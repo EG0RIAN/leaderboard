@@ -75,6 +75,7 @@ const translations = {
         yourPosition: "Место в топе",
         place: "месте",
         position: "Позиция",
+        activated: "активировано",
         
         // Referrals
         referralsCount: "реф.",
@@ -258,6 +259,7 @@ const translations = {
         yourPosition: "Place in top",
         place: "place",
         position: "Position",
+        activated: "activated",
         
         // Referrals
         referralsCount: "ref.",
