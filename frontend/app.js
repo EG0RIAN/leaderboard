@@ -2489,7 +2489,29 @@ function setupWeekCountdownScroll() {
         
         // Get countdown element position relative to viewport
         const countdownRect = countdownEl.getBoundingClientRect();
-        const myPositionBar = document.getElementById('my-position');
+        
+        // Check scroll position from multiple sources
+        let scrollTop = 0;
+        const container = document.querySelector('.container');
+        
+        // Try window scroll
+        scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        
+        // If window scroll is 0, try container scroll
+        if (scrollTop === 0 && container) {
+            scrollTop = container.scrollTop || 0;
+        }
+        
+        // If still 0, try week pane scroll
+        if (scrollTop === 0 && weekPane) {
+            scrollTop = weekPane.scrollTop || 0;
+        }
+        
+        // If scrolled back to top (scrollTop <= 50), always remove sticky
+        if (scrollTop <= 50) {
+            countdownEl.classList.remove('sticky');
+            return;
+        }
         
         // Check if countdown has scrolled past the top (reached my-position bar area)
         // my-position bar is at top: 0, so when countdown top reaches ~50px (height of my-position), stick it
