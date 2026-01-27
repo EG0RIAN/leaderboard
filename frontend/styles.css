@@ -2039,14 +2039,16 @@ body {
 
 /* ==================== WEEK COUNTDOWN TIMER ==================== */
 .week-countdown {
-    background: linear-gradient(135deg, var(--tg-theme-button-color, #3390ec) 0%, #1a73e8 100%);
+    background: var(--tg-theme-button-color, #3390ec);
     padding: 16px;
     text-align: center;
     color: #ffffff;
     margin: 0 0 8px 0;
     border-radius: 0 0 16px 16px;
     position: relative;
-    transition: transform 0.3s ease, opacity 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .week-countdown.sticky {
@@ -2059,6 +2061,7 @@ body {
     margin: 0;
     border-radius: 0;
     width: 100%;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .countdown-label {
