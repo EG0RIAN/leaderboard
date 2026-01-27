@@ -2481,7 +2481,7 @@ function setupWeekCountdownScroll() {
     // Add scroll handler
     weekScrollHandler = function() {
         if (currentTab !== 'week') {
-            countdownEl.classList.remove('visible');
+            countdownEl.classList.remove('sticky');
             return;
         }
         
@@ -2489,11 +2489,11 @@ function setupWeekCountdownScroll() {
         const scrollTop = container ? container.scrollTop : (window.pageYOffset || document.documentElement.scrollTop);
         
         if (scrollTop > 50) {
-            // Show countdown when scrolled down
-            countdownEl.classList.add('visible');
+            // Make countdown sticky when scrolled down
+            countdownEl.classList.add('sticky');
         } else {
-            // Hide countdown when at top
-            countdownEl.classList.remove('visible');
+            // Remove sticky when at top
+            countdownEl.classList.remove('sticky');
         }
     };
     
@@ -2507,6 +2507,9 @@ function setupWeekCountdownScroll() {
     // Also check on tab switch
     if (currentTab === 'week') {
         setTimeout(weekScrollHandler, 100);
+    } else {
+        // Remove sticky when not on week tab
+        countdownEl.classList.remove('sticky');
     }
 }
 
