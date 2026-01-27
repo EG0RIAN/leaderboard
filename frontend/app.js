@@ -2480,51 +2480,54 @@ function setupWeekCountdownScroll() {
         }
     }
     
+    // Store original offsetTop for countdown (calculated once)
+    let countdownOriginalOffsetTop = null;
+    
+    // Calculate original position once
+    function calculateOriginalPosition() {
+        if (countdownOriginalOffsetTop !== null) return;
+        
+        // Remove sticky temporarily to get real offset
+        const wasSticky = countdownEl.classList.contains('sticky');
+        if (wasSticky) {
+            countdownEl.classList.remove('sticky');
+            void countdownEl.offsetHeight; // Force reflow
+        }
+        
+        // Get the offsetTop relative to week pane
+        const weekPaneRect = weekPane.getBoundingClientRect();
+        const countdownRect = countdownEl.getBoundingClientRect();
+        countdownOriginalOffsetTop = countdownRect.top - weekPaneRect.top + (weekPane.scrollTop || 0);
+        
+        // Restore sticky if it was there
+        if (wasSticky) {
+            countdownEl.classList.add('sticky');
+        }
+    }
+    
     // Add scroll handler - check when countdown reaches my-position bar
     weekScrollHandler = function(e) {
         if (currentTab !== 'week') {
             countdownEl.classList.remove('sticky');
+            countdownOriginalOffsetTop = null; // Reset on tab switch
             return;
         }
         
-        // Temporarily remove sticky to get real position
-        const wasSticky = countdownEl.classList.contains('sticky');
-        if (wasSticky) {
-            countdownEl.classList.remove('sticky');
-            // Force reflow to get accurate position
-            void countdownEl.offsetHeight;
-        }
+        // Calculate original position if not set
+        calculateOriginalPosition();
         
-        // Get countdown element position relative to viewport
-        const countdownRect = countdownEl.getBoundingClientRect();
+        // Check scroll position from week pane (main scroll container)
+        const scrollTop = weekPane.scrollTop || 0;
         
-        // Check scroll position from multiple sources
-        let scrollTop = 0;
-        const container = document.querySelector('.container');
+        // Calculate where countdown should be
+        const countdownCurrentTop = countdownOriginalOffsetTop - scrollTop;
         
-        // Try window scroll
-        scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-        
-        // If window scroll is 0, try container scroll
-        if (scrollTop === 0 && container) {
-            scrollTop = container.scrollTop || 0;
-        }
-        
-        // If still 0, try week pane scroll
-        if (scrollTop === 0 && weekPane) {
-            scrollTop = weekPane.scrollTop || 0;
-        }
-        
-        // If scrolled back to top (countdown is above my-position bar), remove sticky
-        // my-position bar is at top: 50px (50px height), so countdown should be sticky when it reaches 50px
-        if (countdownRect.top > 50 || scrollTop <= 10) {
-            countdownEl.classList.remove('sticky');
-            return;
-        }
-        
-        // If countdown has scrolled past my-position bar area (top <= 50px), make it sticky
-        if (countdownRect.top <= 50 && countdownRect.bottom > 50) {
+        // my-position bar is at 50px from top of viewport
+        // When countdown reaches 50px, make it sticky
+        if (countdownCurrentTop <= 50 && scrollTop > 0) {
             countdownEl.classList.add('sticky');
+        } else {
+            countdownEl.classList.remove('sticky');
         }
     };
     
@@ -2543,10 +2546,13 @@ function setupWeekCountdownScroll() {
     
     // Also check on tab switch
     if (currentTab === 'week') {
+        // Reset original position on tab switch
+        countdownOriginalOffsetTop = null;
         setTimeout(weekScrollHandler, 100);
     } else {
         // Remove sticky when not on week tab
         countdownEl.classList.remove('sticky');
+        countdownOriginalOffsetTop = null;
     }
 }
 
