@@ -1146,20 +1146,84 @@ async function processTopupStarsPayment() {
         
         if (data.invoice_url) {
             hideTopupModal();
-            const invoiceUrl = data.invoice_url.startsWith('http') ? data.invoice_url : `https://t.me/${data.invoice_url}`;
+            // Normalize invoice URL - ensure it's a full URL
+            let invoiceUrl = data.invoice_url;
+            if (!invoiceUrl.startsWith('http')) {
+                // If it starts with $, it's a Telegram invoice slug - keep as is for openInvoice
+                if (invoiceUrl.startsWith('$')) {
+                    // openInvoice accepts both formats: full URL or just the slug
+                    // We'll use the full URL format for consistency
+                    invoiceUrl = `https://t.me/invoice/${invoiceUrl.substring(1)}`;
+                } else {
+                    invoiceUrl = `https://t.me/${invoiceUrl}`;
+                }
+            } else if (invoiceUrl.includes('/$')) {
+                // If URL contains /$slug format, ensure it's in the right format
+                // Format: https://t.me/invoice/$slug or https://t.me/$slug
+                // openInvoice should accept both, but let's normalize to /invoice/$slug
+                if (invoiceUrl.includes('/invoice/')) {
+                    // Already in correct format
+                } else if (invoiceUrl.match(/\/\$[^\/]+$/)) {
+                    // Format: https://t.me/$slug -> convert to https://t.me/invoice/$slug
+                    invoiceUrl = invoiceUrl.replace(/\/\$/, '/invoice/$');
+                }
+            }
+            
+            console.log('Opening invoice URL:', invoiceUrl);
+            
             if (tg && typeof tg.openInvoice === 'function') {
-                tg.openInvoice(invoiceUrl, (status) => {
-                    if (status === 'paid') {
-                        haptic.notification('success');
-                        celebrateConfetti();
-                        showSnackbar(t('paymentSuccess'), 'success');
-                        setTimeout(() => {
-                            loadLeaderboard(currentTab);
-                            init();
-                        }, 1000);
+                try {
+                    tg.openInvoice(invoiceUrl, (status) => {
+                        console.log('Invoice payment status:', status);
+                        if (status === 'paid') {
+                            haptic.notification('success');
+                            celebrateConfetti();
+                            showSnackbar(t('paymentSuccess'), 'success');
+                            setTimeout(() => {
+                                loadLeaderboard(currentTab);
+                                init();
+                            }, 1000);
+                        } else if (status === 'failed') {
+                            haptic.notification('error');
+                            showSnackbar(t('paymentFailed') || 'Payment failed', 'error');
+                        } else if (status === 'cancelled') {
+                            haptic.impact('light');
+                            console.log('Payment cancelled by user');
+                        } else {
+                            console.log('Unknown payment status:', status);
+                        }
+                    });
+                } catch (err) {
+                    console.error('openInvoice error:', err);
+                    // Fallback: open URL directly
+                    if (typeof tg.openTelegramLink === 'function') {
+                        tg.openTelegramLink(invoiceUrl);
+                    } else if (typeof tg.openLink === 'function') {
+                        tg.openLink(invoiceUrl);
+                    } else {
+                        showSnackbar(t('paymentErrorMsg', { error: err.message }) || 'Failed to open invoice', 'error');
                     }
+                }
+            } else if (tg && typeof tg.openTelegramLink === 'function') {
+                // Fallback: open invoice URL via Telegram
+                console.log('Using openTelegramLink fallback');
+                tg.openTelegramLink(invoiceUrl);
+            } else if (tg && typeof tg.openLink === 'function') {
+                // Fallback: open invoice URL directly
+                console.log('Using openLink fallback');
+                tg.openLink(invoiceUrl);
+            } else {
+                // Last resort: show popup with link
+                tg.showPopup({
+                    title: currentLanguage === 'ru' ? 'Оплата' : 'Payment',
+                    message: `${currentLanguage === 'ru' ? 'Откройте ссылку для оплаты' : 'Open link to pay'}:\n${invoiceUrl}`,
+                    buttons: [{ type: 'ok' }]
                 });
             }
+        } else {
+            const errStr = getApiErrorMessage(data) || 'Unknown error';
+            console.error('No invoice_url in response:', data);
+            showSnackbar(t('paymentErrorMsg', { error: errStr }) || `Payment error: ${errStr}`, 'error');
         }
     } catch (error) {
         console.error('Stars payment error:', error);
