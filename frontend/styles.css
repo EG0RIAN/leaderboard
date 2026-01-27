@@ -118,11 +118,12 @@ body {
 .leaderboard-item {
     display: flex;
     align-items: center;
-    padding: 12px 0;
+    padding: 12px 16px;
     border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
     width: 100%;
     max-width: 100%;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .leaderboard-item:last-child {
@@ -162,7 +163,7 @@ body {
     height: 40px;
     min-width: 40px;
     border-radius: 50%;
-    margin: 0 12px;
+    margin: 0 12px 0 0;
     background: var(--tg-theme-secondary-bg-color, #f0f0f0);
     display: flex;
     align-items: center;
@@ -199,7 +200,7 @@ body {
     flex-shrink: 1;
     gap: 4px;
     margin-left: auto;
-    padding-left: 12px;
+    padding-left: 0;
     font-weight: 600;
     font-size: 16px;
     color: var(--tg-theme-button-color, #3390ec);
