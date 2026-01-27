@@ -2463,31 +2463,50 @@ function updateCountdown() {
 }
 
 // Setup scroll handler for week countdown timer
+let weekScrollHandler = null;
+
 function setupWeekCountdownScroll() {
     const weekPane = document.getElementById('week');
     const countdownEl = document.querySelector('.week-countdown');
+    const container = document.querySelector('.container');
     
     if (!weekPane || !countdownEl) return;
     
     // Remove previous handler if exists
-    weekPane.removeEventListener('scroll', handleWeekScroll);
+    if (weekScrollHandler && container) {
+        container.removeEventListener('scroll', weekScrollHandler);
+        window.removeEventListener('scroll', weekScrollHandler);
+    }
     
     // Add scroll handler
-    function handleWeekScroll() {
-        if (weekPane.scrollTop > 50) {
+    weekScrollHandler = function() {
+        if (currentTab !== 'week') {
+            countdownEl.classList.remove('visible');
+            return;
+        }
+        
+        // Check scroll position - use container or window
+        const scrollTop = container ? container.scrollTop : (window.pageYOffset || document.documentElement.scrollTop);
+        
+        if (scrollTop > 50) {
             // Show countdown when scrolled down
             countdownEl.classList.add('visible');
         } else {
             // Hide countdown when at top
             countdownEl.classList.remove('visible');
         }
-    }
+    };
     
-    weekPane.addEventListener('scroll', handleWeekScroll);
+    // Listen to scroll on container or window
+    if (container) {
+        container.addEventListener('scroll', weekScrollHandler);
+    } else {
+        window.addEventListener('scroll', weekScrollHandler);
+    }
     
     // Also check on tab switch
     if (currentTab === 'week') {
-        handleWeekScroll();
+        setTimeout(weekScrollHandler, 100);
     }
 }
 
