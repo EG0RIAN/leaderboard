@@ -2481,37 +2481,24 @@ function setupWeekCountdownScroll() {
         }
     }
     
-    // Add scroll handler - check multiple scroll sources
+    // Add scroll handler - check when countdown reaches my-position bar
     weekScrollHandler = function(e) {
         if (currentTab !== 'week') {
             countdownEl.classList.remove('sticky');
             return;
         }
         
-        // Check scroll position from multiple sources
-        let scrollTop = 0;
+        // Get countdown element position relative to viewport
+        const countdownRect = countdownEl.getBoundingClientRect();
+        const myPositionBar = document.getElementById('my-position');
         
-        // Try window scroll
-        scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
-        
-        // If window scroll is 0, try container scroll
-        if (scrollTop === 0) {
-            const container = document.querySelector('.container');
-            if (container) {
-                scrollTop = container.scrollTop || 0;
-            }
-        }
-        
-        // If still 0, try week pane scroll
-        if (scrollTop === 0 && weekPane) {
-            scrollTop = weekPane.scrollTop || 0;
-        }
-        
-        if (scrollTop > 50) {
-            // Make countdown fixed at top when scrolled down
+        // Check if countdown has scrolled past the top (reached my-position bar area)
+        // my-position bar is at top: 0, so when countdown top reaches ~50px (height of my-position), stick it
+        if (countdownRect.top <= 50 && countdownRect.bottom > 50) {
+            // Countdown reached my-position bar, make it sticky
             countdownEl.classList.add('sticky');
-        } else {
-            // Remove sticky when at top
+        } else if (countdownRect.top > 50) {
+            // Countdown is still below, remove sticky
             countdownEl.classList.remove('sticky');
         }
     };
