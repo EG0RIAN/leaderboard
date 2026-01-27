@@ -72,7 +72,7 @@ const translations = {
         noData: "Нет данных",
         errorLoading: "Ошибка загрузки",
         you: "Вы",
-        yourPosition: "Вы на",
+        yourPosition: "Место в топе",
         place: "месте",
         position: "Позиция",
         
@@ -256,7 +256,7 @@ const translations = {
         noData: "No data",
         errorLoading: "Error loading",
         you: "You",
-        yourPosition: "You're at",
+        yourPosition: "Place in top",
         place: "place",
         position: "Position",
         
