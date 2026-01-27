@@ -674,33 +674,40 @@ async function loadTasks() {
                 html += `
                     <div class="task-card task-card-done" data-task-id="${escapeHtml(task.id)}">
                         <div class="task-card-icon ${typeIcon}"></div>
+                        <div class="task-card-done-badge">${t('taskDone') || 'Выполнено'}</div>
                         <div class="task-card-body">
-                            <span class="task-card-type">${escapeHtml(typeLabel)}</span>
                             <h3 class="task-card-title">${escapeHtml(task.title)}</h3>
                             ${task.description ? `<p class="task-card-desc">${escapeHtml(task.description)}</p>` : ''}
-                            <div class="task-card-reward"><span class="charts-icon charts-icon-sm"></span> ${task.charts_reward}</div>
                         </div>
-                        <div class="task-card-done-badge">${t('taskDone')}</div>
                     </div>`;
             } else {
+                // Get button text based on task type
+                let primaryBtnText = t('taskGo');
+                if (task.type === 'subscribe_channel') primaryBtnText = t('taskSubscribe') || 'Подписаться';
+                else if (task.type === 'join_chat') primaryBtnText = t('taskJoin') || 'Войти';
+                else if (task.type === 'open_app') primaryBtnText = t('taskStart') || 'Начать';
+                
                 html += `
                     <div class="task-card" data-task-id="${escapeHtml(task.id)}">
                         <div class="task-card-icon ${typeIcon}"></div>
+                        <div class="task-card-reward-badge">
+                            <span class="reward-label">${t('taskReward') || 'Награда'}</span>
+                            <span class="reward-amount">${task.charts_reward}</span>
+                            <span class="reward-icon">🌸</span>
+                        </div>
                         <div class="task-card-body">
-                            <span class="task-card-type">${escapeHtml(typeLabel)}</span>
                             <h3 class="task-card-title">${escapeHtml(task.title)}</h3>
                             ${task.description ? `<p class="task-card-desc">${escapeHtml(task.description)}</p>` : ''}
-                            <div class="task-card-reward"><span class="charts-icon charts-icon-sm"></span> ${task.charts_reward}</div>
                         </div>
                         <div class="task-card-actions">
-                            <a href="${escapeHtml(link)}" class="task-btn task-btn-go" data-task-link="${escapeHtml(link)}" data-task-id="${escapeHtml(task.id)}">${t('taskGo')}</a>
-                            <button type="button" class="task-btn task-btn-claim" data-task-id="${escapeHtml(task.id)}">${t('taskClaim')}</button>
+                            <a href="${escapeHtml(link)}" class="task-btn task-btn-primary" data-task-link="${escapeHtml(link)}" data-task-id="${escapeHtml(task.id)}">${primaryBtnText}</a>
+                            <button type="button" class="task-btn task-btn-check" data-task-id="${escapeHtml(task.id)}">${t('taskCheck') || 'Проверить'}</button>
                         </div>
                     </div>`;
             }
         });
         listEl.innerHTML = html;
-        listEl.querySelectorAll('.task-btn-go').forEach(btn => {
+        listEl.querySelectorAll('.task-btn-primary').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const url = btn.getAttribute('data-task-link') || btn.href;
@@ -713,7 +720,7 @@ async function loadTasks() {
                 }
             });
         });
-        listEl.querySelectorAll('.task-btn-claim').forEach(btn => {
+        listEl.querySelectorAll('.task-btn-check').forEach(btn => {
             btn.addEventListener('click', () => claimTaskReward(btn.getAttribute('data-task-id')));
         });
     } catch (err) {
