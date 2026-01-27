@@ -1880,15 +1880,16 @@ body {
     font-weight: 600;
 }
 
-/* 11-25 place - Very Light Blue/Gray */
+/* 11-25 place - Indigo */
 .leaderboard-item.rank-11-25 {
-    background: rgba(229, 240, 245, 0.6);
+    background: rgba(92, 107, 192, 0.15);
     border-radius: 10px;
     margin: 2px 8px;
+    border: 1px solid rgba(92, 107, 192, 0.3);
 }
 
 .leaderboard-item.rank-11-25 .rank {
-    color: #64748B;
+    color: #5C6BC0;
     font-weight: 600;
 }
 

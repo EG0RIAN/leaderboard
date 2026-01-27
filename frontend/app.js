@@ -814,7 +814,7 @@ function renderLeaderboard(type, items) {
     function getRankGroup(rank) {
         if (rank >= 1 && rank <= 3) return { class: '', color: null, label: null };
         if (rank >= 4 && rank <= 10) return { class: 'rank-4-10', color: '#8FE3FF', label: '4-10' };
-        if (rank >= 11 && rank <= 25) return { class: 'rank-11-25', color: '#E5F0F5', label: '11-25' };
+        if (rank >= 11 && rank <= 25) return { class: 'rank-11-25', color: '#5C6BC0', label: '11-25' };
         if (rank >= 26 && rank <= 50) return { class: 'rank-26-50', color: '#6A1B9A', label: '26-50' };
         if (rank >= 51 && rank <= 100) return { class: 'rank-51-100', color: '#1E3A8A', label: '51-100' };
         if (rank >= 101 && rank <= 250) return { class: 'rank-101-250', color: '#1FAA59', label: '101-250' };
