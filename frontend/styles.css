@@ -118,10 +118,11 @@ body {
 .leaderboard-item {
     display: flex;
     align-items: center;
-    padding: 12px;
+    padding: 12px 16px;
+    margin: 0 12px;
     border-bottom: 1px solid var(--tg-theme-hint-color, #e0e0e0);
-    width: 100%;
-    max-width: 100%;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -1784,10 +1785,12 @@ body {
 .leaderboard-item.top-1,
 .leaderboard-item.top-2,
 .leaderboard-item.top-3 {
-    margin: 6px 0;
-    padding: 14px 12px;
+    margin: 6px 12px;
+    padding: 14px 16px;
     border-radius: 14px;
     border-bottom: none;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
 }
 
 /* Gold - 1st place */
@@ -1873,7 +1876,9 @@ body {
 .leaderboard-item.rank-4-10 {
     background: rgba(143, 227, 255, 0.25);
     border-radius: 10px;
-    margin: 2px 0;
+    margin: 2px 12px;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
 }
 
 .leaderboard-item.rank-4-10 .rank {
@@ -1885,8 +1890,10 @@ body {
 .leaderboard-item.rank-11-25 {
     background: rgba(92, 107, 192, 0.15);
     border-radius: 10px;
-    margin: 2px 0;
+    margin: 2px 12px;
     border: 1px solid rgba(92, 107, 192, 0.3);
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
 }
 
 .leaderboard-item.rank-11-25 .rank {
@@ -1898,7 +1905,9 @@ body {
 .leaderboard-item.rank-26-50 {
     background: rgba(106, 27, 154, 0.15);
     border-radius: 10px;
-    margin: 2px 0;
+    margin: 2px 12px;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
 }
 
 .leaderboard-item.rank-26-50 .rank {
@@ -1914,7 +1923,9 @@ body {
 .leaderboard-item.rank-51-100 {
     background: rgba(30, 58, 138, 0.15);
     border-radius: 10px;
-    margin: 2px 0;
+    margin: 2px 12px;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
 }
 
 .leaderboard-item.rank-51-100 .rank {
@@ -1926,7 +1937,9 @@ body {
 .leaderboard-item.rank-101-250 {
     background: rgba(31, 170, 89, 0.15);
     border-radius: 10px;
-    margin: 2px 0;
+    margin: 2px 12px;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
 }
 
 .leaderboard-item.rank-101-250 .rank {
@@ -1938,7 +1951,9 @@ body {
 .leaderboard-item.rank-251-500 {
     background: rgba(255, 140, 0, 0.15);
     border-radius: 10px;
-    margin: 2px 0;
+    margin: 2px 12px;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
 }
 
 .leaderboard-item.rank-251-500 .rank {
@@ -1950,7 +1965,9 @@ body {
 .leaderboard-item.rank-501-1000 {
     background: rgba(255, 215, 0, 0.2);
     border-radius: 10px;
-    margin: 2px 0;
+    margin: 2px 12px;
+    width: calc(100% - 24px);
+    max-width: calc(100% - 24px);
 }
 
 .leaderboard-item.rank-501-1000 .rank {
