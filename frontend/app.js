@@ -2485,6 +2485,27 @@ function setupWeekCountdownScroll() {
     
     let rafId = null;
     let lastStickyState = false;
+    let countdownOffsetTop = null;
+    
+    // Get original offsetTop once
+    function initOffsetTop() {
+        if (countdownOffsetTop !== null) return;
+        
+        // Remove sticky temporarily to get real offsetTop
+        const wasSticky = countdownEl.classList.contains('sticky');
+        if (wasSticky) {
+            countdownEl.classList.remove('sticky');
+            void countdownEl.offsetHeight; // Force reflow
+        }
+        
+        // Get offsetTop relative to week pane
+        countdownOffsetTop = countdownEl.offsetTop;
+        
+        // Restore sticky if it was there
+        if (wasSticky) {
+            countdownEl.classList.add('sticky');
+        }
+    }
     
     // Optimized scroll handler with requestAnimationFrame
     function checkStickyState() {
@@ -2493,37 +2514,30 @@ function setupWeekCountdownScroll() {
                 countdownEl.classList.remove('sticky');
                 lastStickyState = false;
             }
+            countdownOffsetTop = null;
             return;
+        }
+        
+        // Initialize offsetTop if needed
+        if (countdownOffsetTop === null) {
+            initOffsetTop();
+            if (countdownOffsetTop === null) {
+                rafId = null;
+                return;
+            }
         }
         
         // Get scroll position from week pane (main scroll container)
         const scrollTop = weekPane.scrollTop || 0;
         
-        // If already sticky, only check if we need to unstick
-        if (lastStickyState) {
-            if (scrollTop <= 10) {
-                countdownEl.classList.remove('sticky');
-                lastStickyState = false;
-            }
-            rafId = null;
-            return;
-        }
-        
-        // If not sticky, check real position by temporarily removing sticky class
-        // But first check if it's even sticky
-        const isCurrentlySticky = countdownEl.classList.contains('sticky');
-        if (isCurrentlySticky) {
-            lastStickyState = true;
-            rafId = null;
-            return;
-        }
-        
-        // Get real position of countdown element
-        const countdownRect = countdownEl.getBoundingClientRect();
+        // Calculate current position: offsetTop - scrollTop gives position relative to scroll container top
+        // Then add the scroll container's position relative to viewport
+        const weekPaneRect = weekPane.getBoundingClientRect();
+        const countdownCurrentTop = weekPaneRect.top + countdownOffsetTop - scrollTop;
         
         // my-position bar is at 50px from top of viewport
-        // When countdown's top reaches 50px or goes above it, make it sticky
-        const shouldBeSticky = countdownRect.top <= 50 && scrollTop > 10;
+        // When countdown reaches 50px or goes above, make it sticky
+        const shouldBeSticky = countdownCurrentTop <= 50 && scrollTop > 10;
         
         // Only update if state changed
         if (shouldBeSticky !== lastStickyState) {
@@ -2561,11 +2575,13 @@ function setupWeekCountdownScroll() {
     // Initialize and check state
     if (currentTab === 'week') {
         setTimeout(() => {
+            initOffsetTop();
             checkStickyState();
         }, 200);
     } else {
         countdownEl.classList.remove('sticky');
         lastStickyState = false;
+        countdownOffsetTop = null;
     }
 }
 
