@@ -2482,10 +2482,19 @@ function setupWeekCountdownScroll() {
     
     // Store original offsetTop for countdown (calculated once)
     let countdownOriginalOffsetTop = null;
+    let isInitialized = false;
     
     // Calculate original position once
     function calculateOriginalPosition() {
         if (countdownOriginalOffsetTop !== null) return;
+        
+        // Wait for layout to be ready
+        if (!isInitialized) {
+            setTimeout(() => {
+                calculateOriginalPosition();
+            }, 50);
+            return;
+        }
         
         // Remove sticky temporarily to get real offset
         const wasSticky = countdownEl.classList.contains('sticky');
@@ -2497,7 +2506,8 @@ function setupWeekCountdownScroll() {
         // Get the offsetTop relative to week pane
         const weekPaneRect = weekPane.getBoundingClientRect();
         const countdownRect = countdownEl.getBoundingClientRect();
-        countdownOriginalOffsetTop = countdownRect.top - weekPaneRect.top + (weekPane.scrollTop || 0);
+        const relativeTop = countdownRect.top - weekPaneRect.top;
+        countdownOriginalOffsetTop = relativeTop + (weekPane.scrollTop || 0);
         
         // Restore sticky if it was there
         if (wasSticky) {
@@ -2510,23 +2520,44 @@ function setupWeekCountdownScroll() {
         if (currentTab !== 'week') {
             countdownEl.classList.remove('sticky');
             countdownOriginalOffsetTop = null; // Reset on tab switch
+            isInitialized = false;
             return;
+        }
+        
+        // Mark as initialized after first scroll
+        if (!isInitialized) {
+            isInitialized = true;
         }
         
         // Calculate original position if not set
         calculateOriginalPosition();
         
+        // If position not calculated yet, don't do anything
+        if (countdownOriginalOffsetTop === null) {
+            return;
+        }
+        
         // Check scroll position from week pane (main scroll container)
         const scrollTop = weekPane.scrollTop || 0;
         
-        // Calculate where countdown should be
+        // Calculate where countdown should be relative to viewport
+        // countdownOriginalOffsetTop is relative to weekPane top + scrollTop
+        // So current position = countdownOriginalOffsetTop - scrollTop
         const countdownCurrentTop = countdownOriginalOffsetTop - scrollTop;
         
         // my-position bar is at 50px from top of viewport
-        // When countdown reaches 50px, make it sticky
+        // When countdown reaches 50px or below, make it sticky
+        // Always keep it visible - if it would go above viewport, make it sticky
         if (countdownCurrentTop <= 50 && scrollTop > 0) {
-            countdownEl.classList.add('sticky');
-        } else {
+            // Make sticky when scrolled past the my-position bar
+            if (!countdownEl.classList.contains('sticky')) {
+                countdownEl.classList.add('sticky');
+            }
+        } else if (scrollTop <= 0) {
+            // At top, remove sticky
+            countdownEl.classList.remove('sticky');
+        } else if (countdownCurrentTop > 50) {
+            // Still in normal flow, remove sticky
             countdownEl.classList.remove('sticky');
         }
     };
@@ -2548,11 +2579,17 @@ function setupWeekCountdownScroll() {
     if (currentTab === 'week') {
         // Reset original position on tab switch
         countdownOriginalOffsetTop = null;
-        setTimeout(weekScrollHandler, 100);
+        isInitialized = false;
+        // Wait a bit for layout to settle
+        setTimeout(() => {
+            isInitialized = true;
+            weekScrollHandler();
+        }, 150);
     } else {
         // Remove sticky when not on week tab
         countdownEl.classList.remove('sticky');
         countdownOriginalOffsetTop = null;
+        isInitialized = false;
     }
 }
 
