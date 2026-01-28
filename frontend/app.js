@@ -2483,29 +2483,8 @@ function setupWeekCountdownScroll() {
         }
     }
     
-    // Store original position once
-    let countdownOriginalTop = null;
     let rafId = null;
     let lastStickyState = false;
-    
-    // Calculate original position (only once)
-    function initOriginalPosition() {
-        if (countdownOriginalTop !== null) return;
-        
-        const wasSticky = countdownEl.classList.contains('sticky');
-        if (wasSticky) {
-            countdownEl.classList.remove('sticky');
-            void countdownEl.offsetHeight; // Force reflow
-        }
-        
-        const weekPaneRect = weekPane.getBoundingClientRect();
-        const countdownRect = countdownEl.getBoundingClientRect();
-        countdownOriginalTop = countdownRect.top - weekPaneRect.top + (weekPane.scrollTop || 0);
-        
-        if (wasSticky) {
-            countdownEl.classList.add('sticky');
-        }
-    }
     
     // Optimized scroll handler with requestAnimationFrame
     function checkStickyState() {
@@ -2514,33 +2493,39 @@ function setupWeekCountdownScroll() {
                 countdownEl.classList.remove('sticky');
                 lastStickyState = false;
             }
-            countdownOriginalTop = null; // Reset on tab switch
             return;
-        }
-        
-        // Initialize original position if needed
-        if (countdownOriginalTop === null) {
-            initOriginalPosition();
-            if (countdownOriginalTop === null) return; // Still not ready
         }
         
         // Get scroll position from week pane (main scroll container)
         const scrollTop = weekPane.scrollTop || 0;
         
-        // Calculate current position
-        const countdownCurrentTop = countdownOriginalTop - scrollTop;
+        // If already sticky, check if we should unstick
+        if (lastStickyState) {
+            // If scrolled back to top, unstick
+            if (scrollTop <= 10) {
+                countdownEl.classList.remove('sticky');
+                lastStickyState = false;
+            }
+            rafId = null;
+            return;
+        }
         
-        // Determine if should be sticky
-        const shouldBeSticky = countdownCurrentTop <= 50 && scrollTop > 10;
+        // If not sticky, check real position
+        const countdownRect = countdownEl.getBoundingClientRect();
+        
+        // my-position bar is at 50px from top of viewport
+        // When countdown's top reaches 50px or goes above it, make it sticky
+        const shouldBeSticky = countdownRect.top <= 50 && scrollTop > 10;
         
         // Only update if state changed
         if (shouldBeSticky !== lastStickyState) {
             if (shouldBeSticky) {
                 countdownEl.classList.add('sticky');
+                lastStickyState = true;
             } else {
                 countdownEl.classList.remove('sticky');
+                lastStickyState = false;
             }
-            lastStickyState = shouldBeSticky;
         }
         
         rafId = null;
@@ -2565,10 +2550,9 @@ function setupWeekCountdownScroll() {
     // Also listen to window scroll as fallback
     window.addEventListener('scroll', weekScrollHandler, { passive: true });
     
-    // Initialize position and check state
+    // Initialize and check state
     if (currentTab === 'week') {
         setTimeout(() => {
-            initOriginalPosition();
             checkStickyState();
         }, 150);
     } else {
